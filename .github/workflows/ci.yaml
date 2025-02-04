@@ -21,7 +21,6 @@ jobs:
       with:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
         working-directory: frontend
-        vercel-args: '--prod  --yes'
 
 #  backend: 
 #    runs-on: ubuntu-latest
