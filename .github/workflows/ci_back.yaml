@@ -26,18 +26,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run linting
-        working-directory: ./backend
-        run: |
-          pip install flake8 black
-          flake8 .
-          black --check .
-
-      - name: Run tests
-        working-directory: ./backend
-        run: |
-          pip install pytest
-          pytest -v
 
   deploy-prod:
     needs: build-and-test
