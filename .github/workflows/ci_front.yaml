@@ -1,4 +1,4 @@
-name: Fullstack CI/CD
+name: Front CI/CD
 
 on:
   push:
@@ -33,23 +33,3 @@ jobs:
       - name: Build Next.js App
         working-directory: ./frontend
         run: npm run build
-
-  deploy-backend:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
-    - name: Install dependencies
-      working-directory: ./backend
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Deploy to Vercel
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        working-directory: backend
-        vercel-args: '--prod'
