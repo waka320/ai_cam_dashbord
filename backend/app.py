@@ -1,21 +1,34 @@
-from flask import Flask
-from dotenv import load_dotenv
-from flask_cors import CORS
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import os
 
-load_dotenv()
+app = FastAPI()
 
-app = Flask(__name__)
-app.config.from_object('instance.config')
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+origins = [
+    "http://localhost:3000",  
+    "http://localhost",
+    "http://localhost:8080",
+]
 
-@app.route('/')
-def home():
-    return 'Flask Backend Ready!'
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+@app.get("/")
+async def root():
+    return {"message": "Hello World from FastAPI"}
 
-
-@app.route('/api/data')
-def get_data():
-    return {'data': [1, 2, 3]}
+@app.get("/api/data")
+async def get_data():
+    data = [1, 2, 3]
+    
+    secret_key = os.getenv("SECRET_KEY")
+    if secret_key:
+        print(f"SECRET_KEY is: {secret_key}")
+    else:
+        print("SECRET_KEY is not set.")
+    return {"data": data}
