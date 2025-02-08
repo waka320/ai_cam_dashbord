@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -26,9 +26,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-
   deploy-prod:
-    needs: build-and-test
+    needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
@@ -50,5 +49,7 @@ jobs:
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: backend
           vercel-args: '--prod'
