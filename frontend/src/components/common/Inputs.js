@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Box, Typography, Select, MenuItem, FormControl } from '@mui/material';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import theme from '../../theme/theme';
