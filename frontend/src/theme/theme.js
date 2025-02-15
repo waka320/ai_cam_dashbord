@@ -25,120 +25,73 @@ const theme = createTheme({
         fontFamily: 'Noto Sans JP, sans-serif',
 
         // Body styles
-        bodyLL: {
-            fontSize: '20px',
-            fontWeight: 400,
-        },
-        bodyXL: {
-            fontSize: '16px',
-            fontWeight: 400,
-        },
-        bodyM: {
-            fontSize: '14px',
-            fontWeight: 400,
-        },
+        bodyLL: { fontSize: '20px', fontWeight: 400 },
+        bodyXL: { fontSize: '16px', fontWeight: 400 },
+        bodyM: { fontSize: '14px', fontWeight: 400 },
 
         // Label styles
-        labelL: {
-            fontSize: '14px',
-            fontWeight: 500,
-        },
-        labelM: {
-            fontSize: '12px',
-            fontWeight: 500,
-        },
+        labelL: { fontSize: '14px', fontWeight: 500 },
+        labelM: { fontSize: '12px', fontWeight: 500 },
 
         // Supplementary styles
-        supplementaryL: {
-            fontSize: '12px',
-            fontWeight: 400,
-        },
-        supplementaryM: {
-            fontSize: '10px',
-            fontWeight: 400,
-        },
+        supplementaryL: { fontSize: '12px', fontWeight: 400 },
+        supplementaryM: { fontSize: '10px', fontWeight: 400 },
 
         // Button styles
-        button: {
-            fontSize: '16px',
-            fontWeight: 700,
-        },
+        button: { fontSize: '16px', fontWeight: 700 },
 
         // Heading styles
-        headingXXL: {
-            fontSize: '57px',
-            fontWeight: 400,
-            marginTop: '64px',
-            marginBottom: '24px',
-        },
-        headingXL: {
-            fontSize: '45px',
-            fontWeight: 400,
-            marginTop: '64px',
-            marginBottom: '24px',
-        },
-        headingL: {
+        h1: {
             fontSize: '36px',
             fontWeight: 400,
             marginTop: '64px',
             marginBottom: '24px',
+            '@media (max-width:600px)': {
+                fontSize: '32px',
+                fontWeight: 500,
+            },
         },
-        headingLMobile: {
-            fontSize: '32px',
-            fontWeight: 500,
-            marginTop: '64px',
-            marginBottom: '24px',
-        },
-        headingM: {
+        h2: {
             fontSize: '32px',
             fontWeight: 400,
             marginTop: '64px',
             marginBottom: '24px',
+            '@media (max-width:600px)': {
+                fontSize: '28px',
+                fontWeight: 500,
+            },
         },
-        headingMMobile: {
-            fontSize: '28px',
-            fontWeight: 500,
-            marginTop: '64px',
-            marginBottom: '24px'
-        },
-        headingS: {
+        h3: {
             fontSize: '28px',
             fontWeight: 400,
             marginTop: '40px',
             marginBottom: '24px',
+            '@media (max-width:600px)': {
+                fontSize: '24px',
+                fontWeight: 500,
+            },
         },
-        headingSMobile: {
-            fontSize: '24px',
-            fontWeight: 500,
-            marginTop: '40px',
-            marginBottom: '24px',
-        },
-        headingXS: {
+        h4: {
             fontSize: '24px',
             fontWeight: 400,
             marginTop: '40px',
             marginBottom: '10px',
+            '@media (max-width:600px)': {
+                fontSize: '20px',
+                fontWeight: 500,
+            },
         },
-        headingXSMobile: {
-            fontSize: '20px',
-            fontWeight: 500,
-            marginTop: '40px',
-            marginBottom: '10px',
-        },
-        headingXXS: {
+        h5: {
             fontSize: '20px',
             fontWeight: 400,
             marginTop: '40px',
             marginBottom: '10px',
-        },
-        headingXXSMobile: {
-            fontSize: '16px',
-            fontWeight: 500,
-            marginTop: '40px',
-            marginBottom: '10px',
-
-        },
-    },
+            '@media (max-width:600px)': {
+                fontSize: '16px',
+                fontWeight: 500,
+            },
+        }
+    }
 });
 
 export default theme;

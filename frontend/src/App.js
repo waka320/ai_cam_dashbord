@@ -2,6 +2,7 @@ import './styles/App.css';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
 import theme from './theme/theme';
+import ThemeTest from './components/layout/ThemeTest';
 
 
 function App() {
@@ -9,11 +10,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <div className="">
         <CssBaseline />
-        <header className="">
-          あああ
-
-
-        </header>
+        <ThemeTest />
       </div>
     </ThemeProvider>
   );
