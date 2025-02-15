@@ -26,7 +26,7 @@ const theme = createTheme({
 
         // Body styles
         bodyLL: { fontSize: '20px', fontWeight: 400 },
-        bodyXL: { fontSize: '16px', fontWeight: 400 },
+        bodyL: { fontSize: '16px', fontWeight: 400 },
         bodyM: { fontSize: '14px', fontWeight: 400 },
 
         // Label styles

@@ -1,11 +1,9 @@
-import React from 'react';
-import { ThemeProvider } from '@mui/material/styles';
 import { Box, Typography, Button } from '@mui/material';
-import theme from '../../theme/theme'; // あなたのテーマファイルへのパス
+import theme from '../../theme/theme';
 
 function ThemeTest() {
     return (
-        <ThemeProvider theme={theme}>
+        
             <Box sx={{ backgroundColor: theme.palette.background.default, padding: '20px' }}>
                 {/* カラーパレットの確認 */}
                 <Typography variant="h4" sx={{ marginBottom: '16px', color: theme.palette.text.primary }}>
@@ -46,7 +44,7 @@ function ThemeTest() {
                     <Typography variant="bodyLL" sx={{ color: theme.palette.text.primary }}>
                         本文 LLサイズ - テキスト例
                     </Typography>
-                    <Typography variant="bodyXL" sx={{ color: theme.palette.text.secondary }}>
+                    <Typography variant="bodyL" sx={{ color: theme.palette.text.secondary }}>
                         本文 XLサイズ - テキスト例
                     </Typography>
 
@@ -85,7 +83,7 @@ function ThemeTest() {
                     セカンダリボタン
                 </Button>
             </Box>
-        </ThemeProvider>
+
     );
 }
 
