@@ -65,10 +65,10 @@ function Inputs() {
 
 
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4, alignItems: 'center', padding: '8px 6px' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <VideoCameraFrontIcon />
-                <Typography variant="bodyL" >
+                <VideoCameraFrontIcon sx={{ color: theme.palette.text.primary }} />
+                <Typography variant="labelL" sx={{ color: theme.palette.text.primary, fontWeight: 'bold' }}>
                     計測場所
                 </Typography>
                 <FormControl variant="outlined" sx={{ minWidth: 150 }}>
@@ -85,11 +85,15 @@ function Inputs() {
                             backgroundColor: 'white',
                             borderRadius: '4px',
                             '.MuiSelect-icon': { color: theme.palette.text.secondary },
-
+                            ...theme.typography.bodyM,
+                            padding: '4px 8px',
+                            '& .MuiOutlinedInput-input': {
+                                padding: '4px 8px',
+                            },
                         }}
                     >
                         {locationItems.map((item) => (
-                            <MenuItem key={item.value} value={item.value}>
+                            <MenuItem key={item.value} value={item.value} sx={theme.typography.bodyM}>
                                 {item.label}
                             </MenuItem>
                         ))}
@@ -98,54 +102,68 @@ function Inputs() {
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CalendarMonthIcon />
-                <Typography variant="bodyL" >
+                <CalendarMonthIcon sx={{ color: theme.palette.text.primary }} />
+                <Typography variant="labelL" sx={{ color: theme.palette.text.primary, fontWeight: 'bold' }}>
                     データの期間
                 </Typography>
-                <FormControl variant="outlined" sx={{ display: 'flex', gap: 1, flexDirection: 'row' }}>
-                    <Select
-                        value={selectedYear}
-                        onChange={handleYearChange}
-                        displayEmpty
-                        renderValue={(value) => {
-                            if (value === "") return "----年";
-                            const selectedYear = yearItems.find((item) => item.value === value);
-                            return selectedYear ? selectedYear.label + "年" : "";
-                        }}
-                        sx={{
-                            backgroundColor: 'white',
-                            borderRadius: '4px',
-                            '.MuiSelect-icon': { color: theme.palette.text.secondary },
-                        }}
-                    >
-                        {yearItems.map((item) => (
-                            <MenuItem key={item.value} value={item.value}>
-                                {item.label}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                    <Select
-                        value={selectedMonth}
-                        onChange={handleMonthChange}
-                        displayEmpty
-                        renderValue={(value) => {
-                            if (value === "") return "--月";
-                            const selectedMonth = monthItems.find((item) => item.value === value);
-                            return selectedMonth ? selectedMonth.label + "月" : "";
-                        }}
-                        sx={{
-                            backgroundColor: 'white',
-                            borderRadius: '4px',
-                            '.MuiSelect-icon': { color: theme.palette.text.secondary },
-                        }}
-                    >
-                        {monthItems.map((item) => (
-                            <MenuItem key={item.value} value={item.value}>
-                                {item.label}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    <FormControl variant="outlined" sx={{ minWidth: 100 }}>
+                        <Select
+                            value={selectedYear}
+                            onChange={handleYearChange}
+                            displayEmpty
+                            renderValue={(value) => {
+                                if (value === "") return "----年";
+                                const selectedYear = yearItems.find((item) => item.value === value);
+                                return selectedYear ? selectedYear.label + "年" : "";
+                            }}
+                            sx={{
+                                backgroundColor: 'white',
+                                borderRadius: '4px',
+                                '.MuiSelect-icon': { color: theme.palette.text.secondary },
+                                ...theme.typography.bodyM,
+                                padding: '4px 8px',
+                                '& .MuiOutlinedInput-input': {
+                                    padding: '4px 8px',
+                                },
+                            }}
+                        >
+                            {yearItems.map((item) => (
+                                <MenuItem key={item.value} value={item.value} sx={theme.typography.bodyM}>
+                                    {item.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <FormControl variant="outlined" sx={{ minWidth: 80 }}>
+                        <Select
+                            value={selectedMonth}
+                            onChange={handleMonthChange}
+                            displayEmpty
+                            renderValue={(value) => {
+                                if (value === "") return "--月";
+                                const selectedMonth = monthItems.find((item) => item.value === value);
+                                return selectedMonth ? selectedMonth.label + "月" : "";
+                            }}
+                            sx={{
+                                backgroundColor: 'white',
+                                borderRadius: '4px',
+                                '.MuiSelect-icon': { color: theme.palette.text.secondary },
+                                ...theme.typography.bodyM,
+                                padding: '4px 8px',
+                                '& .MuiOutlinedInput-input': {
+                                    padding: '4px 8px',
+                                },
+                            }}
+                        >
+                            {monthItems.map((item) => (
+                                <MenuItem key={item.value} value={item.value} sx={theme.typography.bodyM}>
+                                    {item.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Box>
             </Box>
         </Box>
     );
