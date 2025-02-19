@@ -1,9 +1,7 @@
-import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from core.config import settings
-from api.endpoints import root
-
+from app.core.config import settings
+from app.api.endpoints import root, csv_analysis
 
 app = FastAPI()
 
@@ -16,6 +14,4 @@ app.add_middleware(
 )
 
 app.include_router(root.router)
-
-if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+app.include_router(csv_analysis.router)

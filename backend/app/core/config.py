@@ -8,6 +8,7 @@ class Settings(BaseSettings):
         "http://localhost",
         "http://localhost:8080",
     ]
+    AI_API_URL: str = "https://your-ai-api-endpoint.com/analyze"
 
     class Config:
         env_file = ".env"
