@@ -2,7 +2,6 @@ import { Box, Typography, Button } from '@mui/material';
 import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
 import TextField from '@mui/material/TextField';
 import SendIcon from '@mui/icons-material/Send';
-import theme from '../../theme/theme';
 
 function AISection() {
     return (
