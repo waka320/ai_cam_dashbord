@@ -13,9 +13,6 @@ colorama==0.4.6
 curio==1.6
 Cython==3.0.8
 docrepr==0.2.0
-email_validator==2.2.0
-eval_type_backport==0.2.2
-exceptiongroup==1.2.2
 fastapi_cli==0.0.7
 fqdn==1.5.1
 gevent==24.11.1
