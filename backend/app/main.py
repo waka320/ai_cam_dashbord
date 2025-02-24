@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.endpoints import root, csv_analysis
+from app.api.endpoints import root, csv_analysis, fetch_csv
 
 app = FastAPI()
 
@@ -15,3 +15,4 @@ app.add_middleware(
 
 app.include_router(root.router)
 app.include_router(csv_analysis.router)
+app.include_router(fetch_csv.router)
