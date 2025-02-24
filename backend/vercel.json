@@ -11,5 +11,11 @@
             "src": "/(.*)",
             "dest": "app/main.py"
         }
+    ],
+    "crons": [
+        {
+            "path": "/api/fetch-csv",
+            "schedule": "0 0 * * *"
+        }
     ]
 }
