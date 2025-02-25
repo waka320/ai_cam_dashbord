@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     ]
     AI_API_URL: str = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
     GEMINI_API_KEY: str
+    CRON_SECRET: str
 
     class Config:
         env_file = ".env"
