@@ -8,3 +8,5 @@ aiohttp==3.9.3
 google-generativeai==0.3.2
 pydantic-settings==2.2.1  # 追加
 pydantic==2.7.1  # 明示的に指定
+boto3==1.34.97
+tqdm==4.66.1

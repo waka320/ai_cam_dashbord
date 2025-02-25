@@ -8,7 +8,7 @@ import logging
 router = APIRouter()
 security = HTTPBearer()
 
-data_dir = os.path.join("app", "data")
+data_dir = os.path.join("app", "data", "meidai")
 os.makedirs(data_dir, exist_ok=True)
 
 logging.basicConfig(level=logging.DEBUG)
