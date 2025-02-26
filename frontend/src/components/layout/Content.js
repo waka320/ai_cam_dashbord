@@ -1,5 +1,6 @@
 import React from 'react';
 import Inputs from '../common/Inputs';
+import Calendar from '../common/Calendar';
 import AddIcon from '@mui/icons-material/Add';
 import { Box, Typography, Button, Link } from '@mui/material';
 import AISection from './AISection';
@@ -12,7 +13,7 @@ function Content() {
             <Inputs />
             <Box sx={{ display: 'flex' }}>
                 <Box sx={{ flex: 2 }}>
-                    aaa
+                    <Calendar />
                 </Box>
                 <Box
                     sx={{
