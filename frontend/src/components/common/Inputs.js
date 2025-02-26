@@ -24,10 +24,6 @@ function Inputs() {
 
 
 
-
-
-
-
     const handleLocationChange = (event) => {
         setSelectedLocation(event.target.value);
     };

@@ -1,3 +1,4 @@
+import React from 'react';
 import Inputs from '../common/Inputs';
 import AddIcon from '@mui/icons-material/Add';
 import { Box, Typography, Button, Link } from '@mui/material';
