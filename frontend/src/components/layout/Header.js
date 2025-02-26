@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, Button, Select, MenuItem, Box, FormControl } from '@mui/material';
+// import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import theme from '../../theme/theme';
 import logo from '../../assets/dashbord_logo.png';
 
 function Header() {
     const [selectedValue, setSelectedValue] = useState("");
+    const [selectedYear, setSelectedYear] = useState("");
+    const [selectedMonth, setSelectedMonth] = useState("");
 
 
     const menuItems = [
@@ -22,6 +25,39 @@ function Header() {
         { value: "dti_cog", label: "日時形式の混雑度が見たい" },
         { value: "dwe_cog", label: "曜日と時間帯ごとの混雑度が見たい" },
     ];
+
+    let yearItems = [
+        { value: "2021", label: "2021" },
+        { value: "2022", label: "2022" },
+        { value: "2023", label: "2023" },
+        { value: "2024", label: "2024" },
+        { value: "2025", label: "2025" },
+    ];
+
+    let monthItems = [
+        { value: "1", label: "1" },
+        { value: "2", label: "2" },
+        { value: "3", label: "3" },
+        { value: "4", label: "4" },
+        { value: "5", label: "5" },
+        { value: "6", label: "6" },
+        { value: "7", label: "7" },
+        { value: "8", label: "8" },
+        { value: "9", label: "9" },
+        { value: "10", label: "10" },
+        { value: "11", label: "11" },
+        { value: "12", label: "12" },
+
+    ];
+
+    const handleYearChange = (event) => {
+        setSelectedYear(event.target.value);
+    };
+
+    const handleMonthChange = (event) => {
+        setSelectedMonth(event.target.value);
+    };
+
 
 
     const handleChange = (event) => {
@@ -48,9 +84,9 @@ function Header() {
                             onChange={handleChange}
                             displayEmpty
                             renderValue={(value) => {
-                                if (value === "") return "未入力"; 
+                                if (value === "") return "未入力";
                                 const selectedItem = menuItems.find((item) => item.value === value);
-                                return selectedItem ? selectedItem.label : ""; 
+                                return selectedItem ? selectedItem.label : "";
                             }}
                             sx={{
                                 backgroundColor: 'white',
@@ -69,6 +105,77 @@ function Header() {
                             ))}
                         </Select>
                     </FormControl>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, marginLeft: '16px' }}>
+                        <Typography variant="labelL" sx={{ color: theme.palette.text.white, fontWeight: 'bold' }}>
+                            データの期間
+                        </Typography>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                            <FormControl variant="outlined" sx={{ minWidth: 100 }}>
+                                <Select
+                                    value={selectedYear}
+                                    onChange={handleYearChange}
+                                    displayEmpty
+                                    renderValue={(value) => {
+                                        if (value === "") return "----年";
+                                        const selectedYear = yearItems.find((item) => item.value === value);
+                                        return selectedYear ? selectedYear.label + "年" : "";
+                                    }}
+                                    sx={{
+                                        backgroundColor: 'white',
+                                        borderRadius: '4px',
+                                        '.MuiSelect-icon': { color: theme.palette.text.secondary },
+                                        ...theme.typography.bodyM,
+                                        padding: '4px 8px',
+                                        '& .MuiOutlinedInput-input': {
+                                            padding: '4px 8px',
+                                        },
+                                        color:
+                                            selectedYear === ""
+                                                ? theme.palette.text.secondary
+                                                : theme.palette.text.primary,
+                                    }}
+                                >
+                                    {yearItems.map((item) => (
+                                        <MenuItem key={item.value} value={item.value} sx={theme.typography.bodyM}>
+                                            {item.label}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl variant="outlined" sx={{ minWidth: 80 }}>
+                                <Select
+                                    value={selectedMonth}
+                                    onChange={handleMonthChange}
+                                    displayEmpty
+                                    renderValue={(value) => {
+                                        if (value === "") return "--月";
+                                        const selectedMonth = monthItems.find((item) => item.value === value);
+                                        return selectedMonth ? selectedMonth.label + "月" : "";
+                                    }}
+                                    sx={{
+                                        backgroundColor: 'white',
+                                        borderRadius: '4px',
+                                        '.MuiSelect-icon': { color: theme.palette.text.secondary },
+                                        ...theme.typography.bodyM,
+                                        padding: '4px 8px',
+                                        '& .MuiOutlinedInput-input': {
+                                            padding: '4px 8px',
+                                        },
+                                        color:
+                                            selectedMonth === ""
+                                                ? theme.palette.text.secondary
+                                                : theme.palette.text.primary,
+                                    }}
+                                >
+                                    {monthItems.map((item) => (
+                                        <MenuItem key={item.value} value={item.value} sx={theme.typography.bodyM}>
+                                            {item.label}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Box>
+                    </Box>
 
                 </Box>
 

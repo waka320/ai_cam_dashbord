@@ -1,6 +1,7 @@
+import React from 'react';
 import Inputs from '../common/Inputs';
-import AddIcon from '@mui/icons-material/Add';
-import { Box, Typography, Button, Link } from '@mui/material';
+import Calendar from '../common/Calendar';
+import { Box, Typography, Link } from '@mui/material';
 import AISection from './AISection';
 import theme from '../../theme/theme';
 
@@ -11,7 +12,7 @@ function Content() {
             <Inputs />
             <Box sx={{ display: 'flex' }}>
                 <Box sx={{ flex: 2 }}>
-                    aaa
+                    <Calendar />
                 </Box>
                 <Box
                     sx={{
@@ -20,9 +21,9 @@ function Content() {
                         flexDirection: 'column'
                     }}
                 >
-                    <Button variant="outlined" sx={{ width: '200px', color: 'black', borderColor: 'black' }} startIcon={<AddIcon />}>
+                    {/* <Button variant="outlined" sx={{ width: '200px', color: 'black', borderColor: 'black' }} startIcon={<AddIcon />}>
                         他のグラフを追加
-                    </Button>
+                    </Button> */}
                     <AISection />
                     <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
                         <Typography variant='supplementaryM' sx={{ color: theme.palette.text.secondary, }}>
@@ -30,7 +31,7 @@ function Content() {
                             <Link
                                 href="https://mdg.si.i.nagoya-u.ac.jp/"
                                 color="inherit"
-                                sx={{ "&:hover": { color: theme.palette.text.link} }}
+                                sx={{ "&:hover": { color: theme.palette.text.link } }}
                                 underline="hover"
                             >
                                 名古屋大学 安田・遠藤・浦田研究室
@@ -38,7 +39,7 @@ function Content() {
                             <Link
                                 href="https://www.city.takayama.lg.jp/shisei/1005252/1021045.html"
                                 color="inherit"
-                                sx={{ "&:hover": { color: theme.palette.text.link} }}
+                                sx={{ "&:hover": { color: theme.palette.text.link } }}
                                 underline="hover"
                             >
                                 飛騨高山DX推進官民連携プラットフォーム
