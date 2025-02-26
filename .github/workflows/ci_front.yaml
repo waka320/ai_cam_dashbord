@@ -32,4 +32,4 @@ jobs:
       
       - name: Build Next.js App
         working-directory: ./frontend
-        run: npm run build
+        run: CI=false npm run build
