@@ -1,8 +1,7 @@
 import React from 'react';
 import Inputs from '../common/Inputs';
 import Calendar from '../common/Calendar';
-import AddIcon from '@mui/icons-material/Add';
-import { Box, Typography, Button, Link } from '@mui/material';
+import { Box, Typography, Link } from '@mui/material';
 import AISection from './AISection';
 import theme from '../../theme/theme';
 
