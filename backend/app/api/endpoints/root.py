@@ -12,8 +12,4 @@ async def root():
 @router.get("/api/data")
 async def get_data():
     data = [1, 2, 3]
-    if settings.SECRET_KEY:
-        print(f"SECRET_KEY is: {settings.SECRET_KEY}")
-    else:
-        print("SECRET_KEY is not set.")
     return {"data": data}
