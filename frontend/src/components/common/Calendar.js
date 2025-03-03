@@ -2,56 +2,57 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import Grid2 from '@mui/material/Grid';
 import theme from '../../theme/theme';
+import { useCalendar } from '../../contexts/CalendarContext';
 
 // カレンダーのデータ
-const calendarData = [
-    [null, null, null, null, null, { date: 1, congestion: 3 }, { date: 2, congestion: 3 }],
-    [
-        { date: 3, congestion: 5 },
-        { date: 4, congestion: 2 },
-        { date: 5, congestion: 1 },
-        { date: 6, congestion: 3 },
-        { date: 7, congestion: 2 },
-        { date: 8, congestion: 2 },
-        { date: 9, congestion: 6 },
-    ],
-    [
-        { date: 10, congestion: 5 },
-        { date: 11, congestion: 3 },
-        { date: 12, congestion: 1 },
-        { date: 13, congestion: 2 },
-        { date: 14, congestion: 4 },
-        { date: 15, congestion: 6 },
-        { date: 16, congestion: 9 },
-    ],
-    [
-        { date: 17, congestion: 8 },
-        { date: 18, congestion: 5 },
-        { date: 19, congestion: 6 },
-        { date: 20, congestion: 3 },
-        { date: 21, congestion: 4 },
-        { date: 22, congestion: 5 },
-        { date: 23, congestion: 7 },
-    ],
-    [
-        { date: 24, congestion: 8 },
-        { date: 25, congestion: 6 },
-        { date: 26, congestion: 4 },
-        { date: 27, congestion: 6 },
-        { date: 28, congestion: 7 },
-        { date: 29, congestion: 8 },
-        { date: 30, congestion: 10 },
-    ],
-    [
-        { date: 31, congestion: 9 },
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-    ],
-];
+// const calendarData = [
+//     [null, null, null, null, null, { date: 1, congestion: 3 }, { date: 2, congestion: 3 }],
+//     [
+//         { date: 3, congestion: 5 },
+//         { date: 4, congestion: 2 },
+//         { date: 5, congestion: 1 },
+//         { date: 6, congestion: 3 },
+//         { date: 7, congestion: 2 },
+//         { date: 8, congestion: 2 },
+//         { date: 9, congestion: 6 },
+//     ],
+//     [
+//         { date: 10, congestion: 5 },
+//         { date: 11, congestion: 3 },
+//         { date: 12, congestion: 1 },
+//         { date: 13, congestion: 2 },
+//         { date: 14, congestion: 4 },
+//         { date: 15, congestion: 6 },
+//         { date: 16, congestion: 9 },
+//     ],
+//     [
+//         { date: 17, congestion: 8 },
+//         { date: 18, congestion: 5 },
+//         { date: 19, congestion: 6 },
+//         { date: 20, congestion: 3 },
+//         { date: 21, congestion: 4 },
+//         { date: 22, congestion: 5 },
+//         { date: 23, congestion: 7 },
+//     ],
+//     [
+//         { date: 24, congestion: 8 },
+//         { date: 25, congestion: 6 },
+//         { date: 26, congestion: 4 },
+//         { date: 27, congestion: 6 },
+//         { date: 28, congestion: 7 },
+//         { date: 29, congestion: 8 },
+//         { date: 30, congestion: 10 },
+//     ],
+//     [
+//         { date: 31, congestion: 9 },
+//         null,
+//         null,
+//         null,
+//         null,
+//         null,
+//         null,
+//     ],
+// ];
 
 
 // 混雑度に応じた背景色を取得する関数
@@ -70,7 +71,13 @@ const getCellColor = (congestion) => {
 
 // カレンダーコンポーネント
 const CalendarHeatmap = () => {
+    const { calendarData } = useCalendar();
     const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
+
+    // calendarDataが空の場合は何も表示しない
+    if (!calendarData || calendarData.length === 0) {
+        return null;
+    }
 
     return (
         <Box sx={{ maxWidth: '800px', margin: '0 auto', border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
@@ -94,7 +101,7 @@ const CalendarHeatmap = () => {
                             xs={1.71}
                             key={colIndex}
                             sx={{
-                                
+
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
