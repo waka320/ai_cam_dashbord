@@ -1,11 +1,13 @@
+from typing import List
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    ALLOWED_ORIGINS: list[str] = [
-        "http://localhost:3000",
-        "http://localhost",
-        "http://localhost:8080",
+    ALLOWED_ORIGINS: List[str] = [
+        'http://localhost:3000', 
+        'http://127.0.0.1:3000',
+        'http://localhost:8000',
+        'http://127.0.0.1:8000'
     ]
     AI_API_URL: str = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
     GEMINI_API_KEY: str

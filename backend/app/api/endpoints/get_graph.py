@@ -37,6 +37,7 @@ async def get_graph(request: GraphRequest):
     year = request.year
     month = request.month
     action = request.action
+    print(place, year, month, action)
 
     if action == "dummy":
         # ダミーデータの生成
@@ -47,7 +48,6 @@ async def get_graph(request: GraphRequest):
         )
         return response
 
-    # "place" に対応するCSVファイルのパスを指定
     csv_file_path = f"app/data/meidai/{place}.csv"
     if not os.path.exists(csv_file_path):
         raise HTTPException(
@@ -59,7 +59,7 @@ async def get_graph(request: GraphRequest):
         raise HTTPException(
             status_code=404, detail="CSV file not found for the given place")
 
-    # 3. データのフィルタリング
+    # データのフィルタリング
     df['datetime_jst'] = pd.to_datetime(df['datetime_jst'])
     df_filtered = df[
         (df['datetime_jst'].dt.year == year) &
@@ -67,11 +67,10 @@ async def get_graph(request: GraphRequest):
         (df['name'] == 'person')
     ]
 
-    # 4. データをカレンダー形式に整形
+    # カレンダーデータの作成
     calendar_data = calendar_service.get_data_for_calendar(
         df_filtered, year, month)
 
-    # 5. レスポンスの作成
     response = GraphResponse(
         graph=f"Graph for {place} in {year}/{month}",
         data=calendar_data

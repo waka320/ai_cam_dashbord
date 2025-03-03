@@ -57,15 +57,16 @@ import { useCalendar } from '../../contexts/CalendarContext';
 
 // 混雑度に応じた背景色を取得する関数
 const getCellColor = (congestion) => {
-    if (congestion == 2) return '#B3E5FC';
-    if (congestion == 3) return '#64B5F6';
-    if (congestion == 4) return '#B0E67E';
-    if (congestion == 5) return '#FFEB3B';
-    if (congestion == 6) return '#FFC107';
-    if (congestion == 7) return '#FF9800';
-    if (congestion == 8) return '#FF5722';
-    if (congestion == 9) return '#F13900';
-    if (congestion == 10) return '#CA3000';
+    if (congestion === 1) return '#E3F2FD';
+    if (congestion === 2) return '#B3E5FC';
+    if (congestion === 3) return '#64B5F6';
+    if (congestion === 4) return '#B0E67E';
+    if (congestion === 5) return '#FFEB3B';
+    if (congestion === 6) return '#FFC107';
+    if (congestion === 7) return '#FF9800';
+    if (congestion === 8) return '#FF5722';
+    if (congestion === 9) return '#F13900';
+    if (congestion === 10) return '#CA3000';
     return '#FFF';
 };
 
@@ -78,6 +79,7 @@ const CalendarHeatmap = () => {
     if (!calendarData || calendarData.length === 0) {
         return null;
     }
+    console.log(calendarData)
 
     return (
         <Box sx={{ maxWidth: '800px', margin: '0 auto', border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
