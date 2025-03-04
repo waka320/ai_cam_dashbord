@@ -5,7 +5,7 @@ starlette
 pycryptodome
 pandas
 aiohttp
-google-generativeai
+#google-generativeai
 pydantic-settings  # 追加
 pydantic # 明示的に指定
 boto3
