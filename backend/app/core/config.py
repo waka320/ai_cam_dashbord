@@ -2,10 +2,14 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    ALLOWED_ORIGINS: list[str] = [
-        "http://localhost:3000",
-        "http://localhost",
-        "http://localhost:8080",
+    ALLOWED_ORIGINS: List[str] = [
+        'http://localhost:3000', 
+        'http://127.0.0.1:3000',
+        'http://localhost:8000',
+        'http://127.0.0.1:8000',
+        "https://ai-cam-dashbord.vercel.app/",
+        "http://54.146.178.210:8000",
+        "http://54.146.178.210",
     ]
     AI_API_URL: str = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
     GEMINI_API_KEY: str
