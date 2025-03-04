@@ -1,5 +1,5 @@
 fastapi
-uvicorn==0.30.6
+uvicorn==0.22.0
 python-dotenv==1.0.1
 starlette==0.38.5
 pycryptodome==3.9.8
