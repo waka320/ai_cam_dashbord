@@ -1,0 +1,38 @@
+{
+    "terminal.integrated.cwd": "${workspaceFolder}",
+    "python.envFile": "${workspaceFolder}/backend/.env",
+    "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/backend"
+    ],
+    "editor.formatOnSave": true,
+    "files.associations": {
+        "*.js": "javascriptreact"
+    },
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.python",
+        "editor.formatOnSaveMode": "file"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.defaultProfile.windows": "Command Prompt",
+    "terminal.integrated.profiles.osx": {
+        "zsh": {
+            "path": "/bin/zsh",
+            "args": [
+                "-l"
+            ],
+            "source": "source ${workspaceFolder}/backend/.venv/bin/activate"
+        }
+    },
+    "terminal.external.osxExec": "iTerm.app"
+}

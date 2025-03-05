@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, Typography, Select, MenuItem, FormControl } from '@mui/material';
 import VideoCameraFrontIcon from '@mui/icons-material/VideoCameraFront';
+import { useCalendar } from '../../contexts/CalendarContext';
 
 import theme from '../../theme/theme';
 
 function Inputs() {
-
-    const [selectedLocation, setSelectedLocation] = useState("");
-
-
+    const { selectedLocation, setSelectedLocation, fetchCalendarData } = useCalendar();
 
     const locationItems = [
         { value: "omotesando", label: "表参道" },
@@ -22,13 +20,12 @@ function Inputs() {
         { value: "nakabashi", label: "中橋" },
     ];
 
-
-
     const handleLocationChange = (event) => {
         setSelectedLocation(event.target.value);
+        if (event.target.value) {
+            fetchCalendarData();
+        }
     };
-
-
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4, alignItems: 'center', padding: '8px 6px' }}>
@@ -66,8 +63,6 @@ function Inputs() {
                     </Select>
                 </FormControl>
             </Box>
-
-
         </Box>
     );
 }

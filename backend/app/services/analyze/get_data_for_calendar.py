@@ -21,8 +21,15 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int) -> List[List[
         daily_counts['count_1_hour'], 10, duplicates='drop', labels=False, retbins=True)
     daily_counts['level'] += 1  # レベルを1から始める
 
+    # 該当する月のデータをフィルタリング
+    daily_counts['datetime_jst'] = pd.to_datetime(daily_counts['datetime_jst'])
+    monthly_counts = daily_counts[
+        (daily_counts['datetime_jst'].dt.year == year) &
+        (daily_counts['datetime_jst'].dt.month == month)
+    ]
+
     # 日付をインデックスに設定
-    daily_counts.set_index('datetime_jst', inplace=True)
+    monthly_counts.set_index('datetime_jst', inplace=True)
 
     first_day_weekday = calendar.weekday(year, month, 1)
     first_day_weekday = (first_day_weekday + 1) % 7
@@ -37,8 +44,8 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int) -> List[List[
 
     for day in range(1, days_in_month + 1):
         date = pd.Timestamp(year=year, month=month, day=day)
-        if date in daily_counts.index:
-            level = daily_counts.loc[date, 'level']
+        if date in monthly_counts.index:
+            level = monthly_counts.loc[date, 'level']
         else:
             level = 1  # データがない場合は最低レベル
 

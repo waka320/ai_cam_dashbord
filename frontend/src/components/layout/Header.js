@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Select, MenuItem, Box, FormControl } from '@mui/material';
 // import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import theme from '../../theme/theme';
 import logo from '../../assets/dashbord_logo.png';
+import { useCalendar } from '../../contexts/CalendarContext';
 
 function Header() {
-    const [selectedValue, setSelectedValue] = useState("");
-    const [selectedYear, setSelectedYear] = useState("");
-    const [selectedMonth, setSelectedMonth] = useState("");
-
+    const {
+        selectedAction,
+        setSelectedAction,
+        selectedYear,
+        setSelectedYear,
+        selectedMonth,
+        setSelectedMonth,
+        fetchCalendarData
+    } = useCalendar();
 
     const menuItems = [
         { value: "cal_holiday", label: "店舗の定休日を検討したい" },
@@ -52,16 +58,23 @@ function Header() {
 
     const handleYearChange = (event) => {
         setSelectedYear(event.target.value);
+        if (event.target.value && selectedYear && selectedAction) {
+            fetchCalendarData();
+        }
     };
 
     const handleMonthChange = (event) => {
         setSelectedMonth(event.target.value);
+        if (event.target.value && selectedYear && selectedAction) {
+            fetchCalendarData();
+        }
     };
 
-
-
     const handleChange = (event) => {
-        setSelectedValue(event.target.value);
+        setSelectedAction(event.target.value);
+        if (event.target.value && selectedYear && selectedAction) {
+            fetchCalendarData();
+        }
     };
     return (
         <AppBar position="static" color="primary" sx={{ padding: '8px 8px' }}>
@@ -80,7 +93,7 @@ function Header() {
 
                     <FormControl variant="outlined" sx={{ minWidth: '200px' }}>
                         <Select
-                            value={selectedValue}
+                            value={selectedAction}
                             onChange={handleChange}
                             displayEmpty
                             renderValue={(value) => {
@@ -92,7 +105,7 @@ function Header() {
                                 backgroundColor: 'white',
                                 borderRadius: '4px',
                                 color:
-                                    selectedValue === ""
+                                    selectedAction === ""
                                         ? theme.palette.text.secondary
                                         : theme.palette.text.primary,
                                 padding: '4px 8px',
