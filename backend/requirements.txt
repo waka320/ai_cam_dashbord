@@ -9,4 +9,5 @@ aiohttp
 pydantic-settings  # 追加
 pydantic # 明示的に指定
 boto3
+requests
 
