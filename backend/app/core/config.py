@@ -9,9 +9,9 @@ class Settings(BaseSettings):
         'http://localhost:8000',
         'http://127.0.0.1:8000',
         "https://ai-cam-dashbord.vercel.app/",
-        "http://54.146.178.210:8000",
-        "http://54.146.178.210",
-        "https://test.ryo-univ.com",
+        "https://54.146.178.210:8000",
+        "https://54.146.178.210",
+        "https://test.ryo-univ.com/",
     ]
     AI_API_URL: str = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
     GEMINI_API_KEY: str
