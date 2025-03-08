@@ -14,6 +14,7 @@ class Settings(BaseSettings):
         "https://54.146.178.210",
         "https://test.ryo-univ.com/",
     ]
+    CORS_ORIGINS: List[str] = ALLOWED_ORIGINS
     AI_API_URL: str = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
     GEMINI_API_KEY: str
     CRON_SECRET: str
@@ -25,11 +26,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
-CORS_ORIGINS = [
-    "https://test.ryo-univ.com",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:8000",
-    "http://127.0.0.1:8000"
-]
