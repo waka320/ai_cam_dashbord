@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 
 const CalendarContext = createContext();
 
-const API_BASE_URL = "https://test.ryo-univ.com";
-
 export function CalendarProvider({ children }) {
     const [calendarData, setCalendarData] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState("");
@@ -19,7 +17,9 @@ export function CalendarProvider({ children }) {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/graph`, {
+            // 環境変数からAPIのベースURLを取得、なければデフォルト値を使用
+            const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000';
+            const response = await fetch(`${baseUrl}/api/graph`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
