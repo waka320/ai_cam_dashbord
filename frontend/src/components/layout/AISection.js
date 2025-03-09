@@ -8,24 +8,6 @@ import { useCalendar } from '../../contexts/CalendarContext';
 function AISection() {
   const { aiAdvice, loading, selectedAction } = useCalendar();
 
-  // アドバイスがない場合の表示
-  if (!aiAdvice && !loading) {
-    return (
-      <Box variant="outlined" sx={{ marginTop: '8px', border: '1px solid black', padding: '16px' }}>
-        <Typography
-          variant="h4"
-          sx={{ fontWeight: 'bold', marginTop: '0px', display: 'flex', alignItems: 'center', marginBottom: '16px' }}
-        >
-          <PsychologyAltIcon sx={{ fontSize: 'inherit', marginRight: '8px' }} />
-          AIからのアドバイス
-        </Typography>
-        <Typography variant="body1" color="textSecondary" align="center">
-          場所、目的、年月を選択すると、AIからのアドバイスが表示されます。
-        </Typography>
-      </Box>
-    );
-  }
-
   // ローディング中の表示
   if (loading) {
     return (
@@ -37,8 +19,26 @@ function AISection() {
           <PsychologyAltIcon sx={{ fontSize: 'inherit', marginRight: '8px' }} />
           AIからのアドバイス
         </Typography>
-        <Typography variant="body1" color="textSecondary">
+        <Typography variant="body1" color="textSecondary" align="center">
           AIがデータを分析中です...
+        </Typography>
+      </Box>
+    );
+  }
+
+  // アドバイスがない場合の表示
+  if (!aiAdvice) {
+    return (
+      <Box variant="outlined" sx={{ marginTop: '8px', border: '1px solid black', padding: '16px' }}>
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: 'bold', marginTop: '0px', display: 'flex', alignItems: 'center', marginBottom: '16px' }}
+        >
+          <PsychologyAltIcon sx={{ fontSize: 'inherit', marginRight: '8px' }} />
+          AIからのアドバイス
+        </Typography>
+        <Typography variant="body1" color="textSecondary" align="center">
+          場所、目的、年月を選択すると、AIからのアドバイスが表示されます。
         </Typography>
       </Box>
     );

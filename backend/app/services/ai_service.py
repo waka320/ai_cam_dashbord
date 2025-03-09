@@ -3,7 +3,45 @@ import pandas as pd
 from app.core.config import settings
 import os
 
+# 目的のマッピング辞書を追加
+PURPOSE_MAPPING = {
+    "cal_holiday": "店舗の定休日を検討したい",
+    "cal_shoping_holiday": "商店街の定休日を検討したい",
+    "cal_long_holiday": "長期休暇のタイミングを検討したい",
+    "cal_event": "イベントの開催日程を検討したい",
+    "cal_training": "研修のタイミングを検討したい",
+    "dti_event_effect": "イベントの効果を確認したい",
+    "dti_event_time": "イベントの開催時間を検討したい",
+    "dti_shift": "アルバイトのシフトを検討したい",
+    "dwe_open_hour": "お店の営業時間を検討したい",
+    "dwe_shoping_open_hour": "商店街の営業時間を検討したい",
+    "cal_cog": "カレンダー形式の混雑度が見たい",
+    "dti_cog": "日時形式の混雑度が見たい",
+    "dwe_cog": "曜日と時間帯ごとの混雑度が見たい",
+}
+
+# 場所のマッピング辞書を追加
+LOCATION_MAPPING = {
+    "omotesando": "表参道",
+    "yottekan": "よって館しもちょう",
+    "honmachi4": "本町4丁目商店街",
+    "honmachi3": "本町3丁目商店街",
+    "honmachi2": "本町2丁目商店街",
+    "kokubunjidori": "国分寺通り 第二商店街",
+    "yasukawadori": "やすかわ通り商店街",
+    "jinnya": "高山陣屋前交差点",
+    "nakabashi": "中橋",
+}
+
 async def analyze_csv_data(csv_path: str, year: int, month: int, purpose: str):
+    # purpose値をラベルに変換
+    purpose_label = PURPOSE_MAPPING.get(purpose, purpose)
+    
+    # CSVファイル名から場所のコードを抽出
+    location_code = os.path.basename(csv_path).replace('.csv', '')
+    # 場所コードを日本語名に変換
+    location_name = LOCATION_MAPPING.get(location_code, location_code)
+    
     df = pd.read_csv(csv_path)
 
     # datetime_jst列を日時型に変換
@@ -33,7 +71,7 @@ async def analyze_csv_data(csv_path: str, year: int, month: int, purpose: str):
         'count_1_hour'].sum().reset_index()
 
     # より構造化されたプロンプト
-    prompt = f"""岐阜県高山市{os.path.basename(csv_path).replace('.csv', '')}の{year}年{month}月のデータ分析を行い、「{purpose}」という目的に対するアドバイスを提供してください。
+    prompt = f"""岐阜県高山市{location_name}の{year}年{month}月のデータ分析を行い、「{purpose_label}」という目的に対するアドバイスを提供してください。
 
     **全体データの概要:**
     - データ収集期間: {date_range}
@@ -48,7 +86,7 @@ async def analyze_csv_data(csv_path: str, year: int, month: int, purpose: str):
     {hourly_counts.head(10).to_string(index=False)}
 
     **分析要件:**
-    1. {purpose}という目的に適したアドバイスを提供する
+    1. {purpose_label}という目的に適したアドバイスを提供する
     2. 具体的な日付や時間帯を提案する
     3. データに基づいた根拠を示す
     4. 高山市の地域特性（観光地、商店街）を考慮する
