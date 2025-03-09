@@ -4,56 +4,67 @@ from app.core.config import settings
 from datetime import timedelta
 import json
 
-
-async def analyze_csv_data(csv_path: str):
+async def analyze_csv_data_for_purpose(csv_path: str, year: int, month: int, purpose: str):
     df = pd.read_csv(csv_path)
-
+    
     # datetime_jst列を日時型に変換
     df['datetime_jst'] = pd.to_datetime(df['datetime_jst'])
-
-    # 最新の日付を取得
-    end_date = df['datetime_jst'].max()
-
-    # 1ヶ月前の日付を計算
-    start_date = end_date - timedelta(days=30)
-
-    # 直近1ヶ月のデータを抽出
-    df_last_month = df[(df['datetime_jst'] >= start_date)
-                       & (df['datetime_jst'] <= end_date)]
-
-    df_person = df_last_month[
-        (df_last_month['name'] == 'person') &
-        (df_last_month['countingDirection'].isin(['toNorth', 'toSouth']))
+    
+    # 全体データの概要を取得（まず全体を見る）
+    total_records = len(df)
+    date_range = f"{df['datetime_jst'].min().date()} から {df['datetime_jst'].max().date()}"
+    
+    # 指定された年月のデータを抽出
+    df_filtered = df[
+        (df['datetime_jst'].dt.year == year) &
+        (df['datetime_jst'].dt.month == month)
     ]
-
+    
+    df_person = df_filtered[
+        (df_filtered['name'] == 'person') &
+        (df_filtered['countingDirection'].isin(['toNorth', 'toSouth']))
+    ]
+    
     # 時間帯別集計
     hourly_counts = df_person.groupby(['date_jst', 'time_jst'])[
         'count_1_hour'].sum().reset_index()
-
+    
+    # 日別集計
+    daily_counts = df_person.groupby('date_jst')[
+        'count_1_hour'].sum().reset_index()
+    
     # より構造化されたプロンプト
-    prompt = f"""岐阜県高山市本町2丁目の直近1ヶ月（{start_date.date()}〜{end_date.date()}）の歩行者データを分析し,店舗経営者がデータに基づいてどのタイミングで長期休暇を取得するべきかを提案してください。
+    prompt = f"""岐阜県高山市{os.path.basename(csv_path).replace('.csv', '')}の{year}年{month}月のデータ分析を行い、「{purpose}」という目的に対するアドバイスを提供してください。
 
+    **全体データの概要:**
+    - データ収集期間: {date_range}
+    - 総レコード数: {total_records}
+    
+    **分析対象期間の詳細データ:**
+    
+    日別歩行者数:
+    {daily_counts.to_string(index=False)}
+    
+    時間帯別歩行者数サンプル:
+    {hourly_counts.head(10).to_string(index=False)}
+    
     **分析要件:**
-    1. 日別/時間帯別の歩行者数傾向を特定
-    2. 観光客が少ないと思われる期間を特定
-    3. 具体的な日付と時間帯を提示
-    4. データに基づく長期休暇のタイミングの推奨理由を説明
-
-    **生データサンプル:**
-    {hourly_counts.to_csv(index=False)}
-
-    **分析ガイドライン:**
-    - 週末（金曜日〜日曜日）と平日の比較
-    - 早朝（5-8時）と夜間（20-23時）の数値に注目
-    - 天候やイベントの可能性を考慮"""
-
-    print("Prompt:", prompt)
-
+    1. {purpose}という目的に適したアドバイスを提供する
+    2. 具体的な日付や時間帯を提案する
+    3. データに基づいた根拠を示す
+    4. 高山市の地域特性（観光地、商店街）を考慮する
+    
+    **追加情報:**
+    - 高山市は観光地であり、週末や祝日には観光客が増加する傾向がある
+    - 商店街事業者向けのアドバイスを提供する
+    - 混雑度の低い時期が事業者の長期休暇に適している可能性がある
+    - 地域のイベントや季節要因も考慮する"""
+    
     headers = {
         "Content-Type": "application/json",
         "x-goog-api-key": settings.GEMINI_API_KEY
     }
-
+    
     payload = {
         "contents": [{
             "parts": [{
@@ -61,19 +72,13 @@ async def analyze_csv_data(csv_path: str):
             }]
         }]
     }
-
+    
     async with aiohttp.ClientSession() as session:
         async with session.post(settings.AI_API_URL, headers=headers, json=payload) as response:
             response.raise_for_status()
             result = await response.json()
-
-            # デバッグ用にレスポンス全体を出力
-            print("Gemini API Response:", json.dumps(
-                result, indent=2, ensure_ascii=False))
-
-            # レスポンス構造のバリデーション
+            
             if "candidates" not in result:
-                raise ValueError(
-                    "Invalid response format from Gemini API")
-
-        return result["candidates"][0]["content"]["parts"][0]["text"]
+                raise ValueError("Invalid response format from Gemini API")
+            
+            return result["candidates"][0]["content"]["parts"][0]["text"]
