@@ -31,7 +31,7 @@ def generate_dummy_data(year: int, month: int) -> List[List[Optional[DayCongesti
     return data
 
 
-@router.post("/api/graph")
+@router.post("/api/get-graph")
 async def get_graph(request: GraphRequest):
     place = request.place
     year = request.year

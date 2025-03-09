@@ -15,7 +15,7 @@ export function CalendarProvider({ children }) {
         try {
             // 環境変数からAPIのベースURLを取得、なければデフォルト値を使用
             const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/';
-            const response = await fetch(`${baseUrl}api/graph`, {
+            const response = await fetch(`${baseUrl}api/get-graph`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -27,6 +27,7 @@ export function CalendarProvider({ children }) {
                     month: parseInt(selectedMonth)
                 })
             });
+            console.log(response); 
 
             if (!response.ok) {
                 throw new Error('データの取得に失敗しました');
