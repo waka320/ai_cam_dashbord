@@ -1,11 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from app.services.ai_service import analyze_csv_data
 import aiohttp
 
 router = APIRouter()
 
 
-# csv_analysis.py の修正
 @router.post("/analyze-csv")
 async def analyze_csv():
     try:

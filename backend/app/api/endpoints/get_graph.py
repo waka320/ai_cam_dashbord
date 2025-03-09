@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 import os
 import pandas as pd
 from app.services.analyze import get_data_for_calendar as calendar_service
-from app.services.ai_service import analyze_csv_data_for_purpose
+from app.services.ai_service import analyze_csv_data
 from app.models import GraphRequest, GraphResponse
 
 router = APIRouter()
@@ -22,15 +22,15 @@ async def get_graph(request: GraphRequest):
     
     print(place, year, month, action)
     
-    if action == "dummy":
-        # ダミーデータの生成
-        data = generate_dummy_data(request.year, request.month)
-        response = GraphResponse(
-            graph=f"Graph for {place} in {year}/{month}",
-            data=data,
-            ai_advice="これはダミーのAIアドバイスです。実際のデータ分析に基づいたアドバイスではありません。"
-        )
-        return response
+    # if action == "dummy":
+    #     # ダミーデータの生成
+    #     data = generate_dummy_data(request.year, request.month)
+    #     response = GraphResponse(
+    #         graph=f"Graph for {place} in {year}/{month}",
+    #         data=data,
+    #         ai_advice="これはダミーのAIアドバイスです。実際のデータ分析に基づいたアドバイスではありません。"
+    #     )
+    #     return response
     
     csv_file_path = f"app/data/meidai/{place}.csv"
     if not os.path.exists(csv_file_path):
@@ -56,7 +56,7 @@ async def get_graph(request: GraphRequest):
         df_filtered, year, month)
     
     # AIアドバイスの生成
-    ai_advice = await analyze_csv_data_for_purpose(csv_file_path, year, month, action)
+    ai_advice = await analyze_csv_data(csv_file_path, year, month, action)
     
     response = GraphResponse(
         graph=f"Graph for {place} in {year}/{month}",

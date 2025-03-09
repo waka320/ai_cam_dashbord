@@ -1,10 +1,10 @@
 import aiohttp
 import pandas as pd
+import os
 from app.core.config import settings
-from datetime import timedelta
-import json
 
-async def analyze_csv_data_for_purpose(csv_path: str, year: int, month: int, purpose: str):
+
+async def analyze_csv_data(csv_path: str, year: int, month: int, purpose: str):
     df = pd.read_csv(csv_path)
     
     # datetime_jst列を日時型に変換
