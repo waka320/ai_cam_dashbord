@@ -1,64 +1,48 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional
 import os
 import pandas as pd
 from app.services.analyze import get_data_for_calendar as calendar_service
-import calendar
-import random
-from app.models import DayCongestion, GraphRequest, GraphResponse
+from app.services.ai_service import analyze_csv_data
+from app.models import GraphRequest, GraphResponse
 
 router = APIRouter()
 
+# GraphResponseモデルの拡張（app/modelsに定義）
+# class GraphResponse(BaseModel):
+#     graph: str
+#     data: List[List[Optional[DayCongestion]]]
+#     ai_advice: Optional[str] = None  # AIアドバイスフィールドを追加
 
-def generate_dummy_data(year: int, month: int) -> List[List[Optional[DayCongestion]]]:
-    days_in_month = calendar.monthrange(year, month)[1]
-    data = []
-    week = []
-    for day in range(1, days_in_month + 1):
-        weekday = calendar.weekday(year, month, day)
-        if weekday == 0 and week:
-            data.append(week)
-            week = []
-        day_congestion = DayCongestion(
-            date=day, congestion=random.randint(1, 10))
-        week.append(day_congestion)
-    while len(week) < 7:
-        week.append(None)
-    data.append(week)
-    first_week = [None] * calendar.weekday(year, month, 1) + data[0]
-    data[0] = first_week + [None] * (7 - len(first_week))
-    return data
-
-
-@router.post("/api/graph")
+@router.post("/api/get-graph")
 async def get_graph(request: GraphRequest):
     place = request.place
     year = request.year
     month = request.month
     action = request.action
+    
     print(place, year, month, action)
-
-    if action == "dummy":
-        # ダミーデータの生成
-        data = generate_dummy_data(request.year, request.month)
-        response = GraphResponse(
-            graph=f"Graph for {place} in {year}/{month}",
-            data=data
-        )
-        return response
-
+    
+    # if action == "dummy":
+    #     # ダミーデータの生成
+    #     data = generate_dummy_data(request.year, request.month)
+    #     response = GraphResponse(
+    #         graph=f"Graph for {place} in {year}/{month}",
+    #         data=data,
+    #         ai_advice="これはダミーのAIアドバイスです。実際のデータ分析に基づいたアドバイスではありません。"
+    #     )
+    #     return response
+    
     csv_file_path = f"app/data/meidai/{place}.csv"
     if not os.path.exists(csv_file_path):
         raise HTTPException(
             status_code=404, detail="CSV file not found for the given place")
-
+    
     try:
         df = pd.read_csv(csv_file_path)
     except FileNotFoundError:
         raise HTTPException(
             status_code=404, detail="CSV file not found for the given place")
-
+    
     # データのフィルタリング
     df['datetime_jst'] = pd.to_datetime(df['datetime_jst'])
     df_filtered = df[
@@ -66,14 +50,18 @@ async def get_graph(request: GraphRequest):
         (df['datetime_jst'].dt.month == month) &
         (df['name'] == 'person')
     ]
-
+    
     # カレンダーデータの作成
     calendar_data = calendar_service.get_data_for_calendar(
         df_filtered, year, month)
-
+    
+    # AIアドバイスの生成
+    ai_advice = await analyze_csv_data(csv_file_path, year, month, action)
+    
     response = GraphResponse(
         graph=f"Graph for {place} in {year}/{month}",
-        data=calendar_data
+        data=calendar_data,
+        ai_advice=ai_advice
     )
-
+    
     return response

@@ -120,7 +120,7 @@ function Header() {
                     </FormControl>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, marginLeft: '16px' }}>
                         <Typography variant="labelL" sx={{ color: theme.palette.text.white, fontWeight: 'bold' }}>
-                            データの期間
+                            データの年・月
                         </Typography>
                         <Box sx={{ display: 'flex', gap: 1 }}>
                             <FormControl variant="outlined" sx={{ minWidth: 100 }}>
