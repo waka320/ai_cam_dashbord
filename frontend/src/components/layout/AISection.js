@@ -4,9 +4,11 @@ import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
 import TextField from '@mui/material/TextField';
 import SendIcon from '@mui/icons-material/Send';
 import { useCalendar } from '../../contexts/CalendarContext';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 function AISection() {
-  const { aiAdvice, loading, selectedAction } = useCalendar();
+  const { aiAdvice, loading} = useCalendar();
 
   // ローディング中の表示
   if (loading) {
@@ -54,12 +56,27 @@ function AISection() {
         <PsychologyAltIcon sx={{ fontSize: 'inherit', marginRight: '8px' }} />
         AIからのアドバイス
       </Typography>
-      <Typography variant="body1" sx={{ marginBottom: '16px' }}>
-        やりたいことは「{selectedAction}」に対するデータ分析結果
-      </Typography>
-      <Typography variant="body1" component="div" sx={{ whiteSpace: 'pre-line' }}>
-        {aiAdvice}
-      </Typography>
+      <Box className="markdown-body" sx={{ 
+        maxHeight: '400px',  // 最大高さを設定
+        overflowY: 'auto',   // 縦方向のスクロールを有効化
+        padding: '0 8px',    // 横方向に少しパディングを追加
+        '&::-webkit-scrollbar': {
+          width: '8px',
+        },
+        '&::-webkit-scrollbar-track': {
+          background: '#f1f1f1',
+          borderRadius: '4px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          background: '#888',
+          borderRadius: '4px',
+        },
+        '&::-webkit-scrollbar-thumb:hover': {
+          background: '#555',
+        }
+      }}>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{aiAdvice}</ReactMarkdown>
+      </Box>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', alignItems: 'center' }}>
         <TextField
           variant="outlined"

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const CalendarContext = createContext();
@@ -11,8 +11,23 @@ export function CalendarProvider({ children }) {
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
   const [loading, setLoading] = useState(false); // ローディング状態の追加
+  const [inputsComplete, setInputsComplete] = useState(false); // 入力完了状態を追加
+
+  // 入力が全て完了しているかチェックする
+  useEffect(() => {
+    if (selectedLocation && selectedAction && selectedYear && selectedMonth) {
+      setInputsComplete(true);
+    } else {
+      setInputsComplete(false);
+    }
+  }, [selectedLocation, selectedAction, selectedYear, selectedMonth]);
 
   const fetchCalendarData = useCallback(async () => {
+    // 全ての入力が完了していない場合は処理を行わない
+    if (!selectedLocation || !selectedAction || !selectedYear || !selectedMonth) {
+      return;
+    }
+
     try {
       setLoading(true); // リクエスト開始時にローディング状態をtrueに
 
@@ -52,11 +67,12 @@ export function CalendarProvider({ children }) {
     }
   }, [selectedLocation, selectedAction, selectedYear, selectedMonth]);
 
-  React.useEffect(() => {
-    if (selectedLocation && selectedAction && selectedYear && selectedMonth) {
+  // 入力が全て完了したらデータを取得する
+  useEffect(() => {
+    if (inputsComplete) {
       fetchCalendarData();
     }
-  }, [selectedLocation, selectedAction, selectedYear, selectedMonth, fetchCalendarData]);
+  }, [inputsComplete, fetchCalendarData]);
 
   return (
     <CalendarContext.Provider value={{
