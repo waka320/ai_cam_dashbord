@@ -5,16 +5,16 @@ import { useCalendar } from '../../contexts/CalendarContext';
 
 // 混雑度に応じた背景色を取得する関数
 const getCellColor = (congestion) => {
-    if (congestion === 1) return '#E3F2FD';
-    if (congestion === 2) return '#B3E5FC';
-    if (congestion === 3) return '#64B5F6';
-    if (congestion === 4) return '#B0E67E';
-    if (congestion === 5) return '#FFEB3B';
-    if (congestion === 6) return '#FFC107';
-    if (congestion === 7) return '#FF9800';
-    if (congestion === 8) return '#FF5722';
-    if (congestion === 9) return '#F13900';
-    if (congestion === 10) return '#CA3000';
+    if (congestion === 1) return '#FFF';
+    if (congestion === 2) return '#E2F4FD';
+    if (congestion === 3) return '#C9ECFD';
+    if (congestion === 4) return '#FAEA79';
+    if (congestion === 5) return '#FCE93A';
+    if (congestion === 6) return '#FFC008';
+    if (congestion === 7) return '#F0934A';
+    if (congestion === 8) return '#EB6441';
+    if (congestion === 9) return '#EA4035';
+    if (congestion === 10) return '#D32D1F';
     return '#FFF';
 };
 
