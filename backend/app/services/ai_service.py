@@ -149,8 +149,6 @@ async def analyze_csv_data(csv_path: str, year: int, month: int, purpose: str):
 日別歩行者数:
 {daily_counts.to_string(index=False)}
 
-時間帯別歩行者数サンプル:
-{hourly_counts.head(10).to_string(index=False)}
 
 **分析要件:**
 1. {purpose_label}という目的に適したアドバイスを提供する
