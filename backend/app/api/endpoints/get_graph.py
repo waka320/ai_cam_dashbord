@@ -2,7 +2,8 @@ from fastapi import APIRouter, HTTPException
 import os
 import pandas as pd
 from app.services.analyze import get_data_for_calendar as calendar_service
-from app.services.ai_service import analyze_csv_data
+from app.services.analyze import get_data_for_week_time as get_data_for_week_time
+from app.services.ai_service_debug import analyze_csv_data_debug
 from app.models import GraphRequest, GraphResponse
 
 router = APIRouter()
@@ -50,17 +51,19 @@ async def get_graph(request: GraphRequest):
         (df['datetime_jst'].dt.month == month) &
         (df['name'] == 'person')
     ]
-    
-    # カレンダーデータの作成
-    calendar_data = calendar_service.get_data_for_calendar(
-        df_filtered, year, month)
+    if action[:3] == "cal":
+        # カレンダーデータの作成
+        data = calendar_service.get_data_for_calendar(df_filtered, year, month)
+    elif action[:3] == "dti":
+        # 時系列データの作成
+        data = calendar_service.get_data_for_week_time(df_filtered, year, month)
     
     # AIアドバイスの生成
-    ai_advice = await analyze_csv_data(csv_file_path, year, month, action)
+    ai_advice = await analyze_csv_data_debug(csv_file_path, year, month, action)
     
     response = GraphResponse(
         graph=f"Graph for {place} in {year}/{month}",
-        data=calendar_data,
+        data=data,
         ai_advice=ai_advice
     )
     
