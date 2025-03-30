@@ -2,17 +2,11 @@ from fastapi import APIRouter, HTTPException
 import os
 import pandas as pd
 from app.services.analyze import get_data_for_calendar as calendar_service
-from app.services.analyze import get_data_for_week_time as get_data_for_week_time
+from app.services.analyze import get_data_for_week_time
 from app.services.ai_service_debug import analyze_csv_data_debug
-from app.models import GraphRequest, GraphResponse
+from app.models import GraphRequest, GraphResponse, DayWithHours
 
 router = APIRouter()
-
-# GraphResponseモデルの拡張（app/modelsに定義）
-# class GraphResponse(BaseModel):
-#     graph: str
-#     data: List[List[Optional[DayCongestion]]]
-#     ai_advice: Optional[str] = None  # AIアドバイスフィールドを追加
 
 @router.post("/api/get-graph")
 async def get_graph(request: GraphRequest):
@@ -23,48 +17,75 @@ async def get_graph(request: GraphRequest):
     
     print(place, year, month, action)
     
-    # if action == "dummy":
-    #     # ダミーデータの生成
-    #     data = generate_dummy_data(request.year, request.month)
-    #     response = GraphResponse(
-    #         graph=f"Graph for {place} in {year}/{month}",
-    #         data=data,
-    #         ai_advice="これはダミーのAIアドバイスです。実際のデータ分析に基づいたアドバイスではありません。"
-    #     )
-    #     return response
-    
     csv_file_path = f"app/data/meidai/{place}.csv"
     if not os.path.exists(csv_file_path):
         raise HTTPException(
             status_code=404, detail="CSV file not found for the given place")
     
     try:
+        # CSVファイルを読み込む
         df = pd.read_csv(csv_file_path)
-    except FileNotFoundError:
+        df['datetime_jst'] = pd.to_datetime(df['datetime_jst'])
+        
+        # データのフィルタリング（person データのみを事前に抽出）
+        df_filtered = df[
+            (df['datetime_jst'].dt.year == year) &
+            (df['datetime_jst'].dt.month == month) &
+            (df['name'] == 'person')
+        ]
+        
+        # データが存在するか確認
+        if df_filtered.empty:
+            print(f"Warning: No data found for {place} in {year}/{month}")
+        
+        # アクションに応じたデータ生成
+        if action[:3] == "cal":
+            # カレンダーデータの作成
+            data = calendar_service.get_data_for_calendar(df_filtered, year, month)
+        elif action[:3] == "dti" or action[:3] == "dwe":
+            # 時系列データまたは曜日×時間帯データの作成
+            week_data = get_data_for_week_time.get_data_for_week_time(csv_file_path, year, month)
+            
+            # 辞書をリスト形式に変換
+            data = []
+            for day_name, hours_data in week_data.items():
+                # 時間データを適切な形式に変換
+                processed_hours = []
+                for hour_data in hours_data:
+                    # キー名を変換してフロントエンドの期待する形式に合わせる
+                    processed_hour = {
+                        "hour": hour_data["hour"],
+                        "count": hour_data["count_1_hour"],
+                        "congestion": int(hour_data["level"])
+                    }
+                    processed_hours.append(processed_hour)
+                
+                day_entry = DayWithHours(day=day_name, hours=processed_hours)
+                data.append(day_entry)
+        else:
+            # 未対応のアクション
+            data = []
+            print(f"Warning: Unsupported action: {action}")
+
+        print(f"Data for {place} in {year}/{month}: {data}")
+        
+        # AIアドバイスの生成
+        ai_advice = await analyze_csv_data_debug(csv_file_path, year, month, action)
+        
+        response = GraphResponse(
+            graph=f"Graph for {place} in {year}/{month}",
+            data=data,
+            ai_advice=ai_advice
+        )
+        
+        return response
+        
+    except Exception as e:
+        # エラーが発生した場合はより詳細な情報を提供
+        print(f"Error processing request: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
         raise HTTPException(
-            status_code=404, detail="CSV file not found for the given place")
-    
-    # データのフィルタリング
-    df['datetime_jst'] = pd.to_datetime(df['datetime_jst'])
-    df_filtered = df[
-        (df['datetime_jst'].dt.year == year) &
-        (df['datetime_jst'].dt.month == month) &
-        (df['name'] == 'person')
-    ]
-    if action[:3] == "cal":
-        # カレンダーデータの作成
-        data = calendar_service.get_data_for_calendar(df_filtered, year, month)
-    elif action[:3] == "dti":
-        # 時系列データの作成
-        data = calendar_service.get_data_for_week_time(df_filtered, year, month)
-    
-    # AIアドバイスの生成
-    ai_advice = await analyze_csv_data_debug(csv_file_path, year, month, action)
-    
-    response = GraphResponse(
-        graph=f"Graph for {place} in {year}/{month}",
-        data=data,
-        ai_advice=ai_advice
-    )
-    
-    return response
+            status_code=500, 
+            detail=f"Error processing data: {str(e)}"
+        )

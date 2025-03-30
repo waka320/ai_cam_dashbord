@@ -48,9 +48,9 @@ def get_data_for_week_time(file_path_or_df: Union[str, pd.DataFrame], year: Opti
         print("Warning: No person data available for the specified period")
         return {}
     
-    # 欠損している日時情報を補完
+    # 欠損している日時情報を補完 - 非推奨警告の修正
     all_dates = pd.date_range(start=df_person["datetime_jst"].min(),
-                            end=df_person["datetime_jst"].max(), freq="H")
+                            end=df_person["datetime_jst"].max(), freq="h")  
     all_combinations = pd.DataFrame({"datetime_jst": all_dates})
     all_combinations["hour"] = all_combinations["datetime_jst"].dt.hour
     all_combinations["dayofweek"] = all_combinations["datetime_jst"].dt.day_name()
