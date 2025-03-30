@@ -2,7 +2,6 @@ import aiohttp
 import pandas as pd
 from app.core.config import settings
 import os
-from datetime import datetime
 
 # 目的のマッピング辞書
 PURPOSE_MAPPING = {
@@ -21,6 +20,7 @@ PURPOSE_MAPPING = {
     "dwe_cog": "曜日と時間帯ごとの混雑度が見たい",
 }
 
+
 # 場所のマッピング辞書
 LOCATION_MAPPING = {
     "omotesando": "表参道",
@@ -33,6 +33,7 @@ LOCATION_MAPPING = {
     "jinnya": "高山陣屋前交差点",
     "nakabashi": "中橋",
 }
+
 
 async def analyze_csv_data(csv_path: str, year: int, month: int, purpose: str):
     # purpose値をラベルに変換
@@ -117,7 +118,7 @@ async def analyze_csv_data(csv_path: str, year: int, month: int, purpose: str):
 - 商店街事業者向けのアドバイスを提供する
 - 混雑度の低い時期が事業者の長期休暇に適している可能性がある
 - 地域のイベントや季節要因も考慮する"""
-            print(prompt)   
+            # print(prompt)   
         else:
             # 日別集計
             df_filtered['date'] = df_filtered['datetime_jst'].dt.date
@@ -161,7 +162,7 @@ async def analyze_csv_data(csv_path: str, year: int, month: int, purpose: str):
 - 商店街事業者向けのアドバイスを提供する
 - 混雑度の低い時期が事業者の長期休暇に適している可能性がある
 - 地域のイベントや季節要因も考慮する"""
-        print(prompt)
+        # print(prompt)
 
         headers = {
             "Content-Type": "application/json",
