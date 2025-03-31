@@ -35,8 +35,8 @@ const TimeHeatmap = () => {
         return null;
     }
 
-    // actionが"dti"または"dwe"で始まる場合のみ表示
-    if (!selectedAction || !(selectedAction.startsWith('dti') || selectedAction.startsWith('dwe'))) {
+    // actionが"wti"または"dti"で始まる場合のみ表示
+    if (!selectedAction || !(selectedAction.startsWith('wti') || selectedAction.startsWith('dti'))) {
         return null;
     }
 

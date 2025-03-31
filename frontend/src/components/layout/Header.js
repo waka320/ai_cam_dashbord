@@ -22,14 +22,14 @@ function Header() {
         { value: "cal_long_holiday", label: "長期休暇のタイミングを検討したい" },
         { value: "cal_event", label: "イベントの開催日程を検討したい" },
         { value: "cal_training", label: "研修のタイミングを検討したい" },
-        { value: "dti_event_effect", label: "イベントの効果を確認したい" },
-        { value: "dti_event_time", label: "イベントの開催時間を検討したい" },
-        { value: "dti_shift", label: "アルバイトのシフトを検討したい" },
-        { value: "dwe_open_hour", label: "お店の営業時間を検討したい" },
-        { value: "dwe_shoping_open_hour", label: "商店街の営業時間を検討したい" },
+        { value: "wti_event_effect", label: "イベントの効果を確認したい" },
+        { value: "wti_event_time", label: "イベントの開催時間を検討したい" },
+        { value: "wti_shift", label: "アルバイトのシフトを検討したい" },
+        { value: "dti_open_hour", label: "お店の営業時間を検討したい" },
+        { value: "dti_shoping_open_hour", label: "商店街の営業時間を検討したい" },
         { value: "cal_cog", label: "カレンダー形式の混雑度が見たい" },
-        { value: "dti_cog", label: "日時形式の混雑度が見たい" },
-        { value: "dwe_cog", label: "曜日と時間帯ごとの混雑度が見たい" },
+        { value: "wti_cog", label: "日時形式の混雑度が見たい" },
+        { value: "dti_cog", label: "曜日と時間帯ごとの混雑度が見たい" },
     ];
 
     let yearItems = [

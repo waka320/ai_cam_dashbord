@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from app.services.analyze import get_data_for_calendar as calendar_service
 from app.services.analyze import get_data_for_week_time
+from app.services.analyze import get_data_for_date_time
 from app.services.ai_service_debug import analyze_csv_data_debug
 from app.models import GraphRequest, GraphResponse, DayWithHours
 
@@ -42,8 +43,8 @@ async def get_graph(request: GraphRequest):
         if action[:3] == "cal":
             # カレンダーデータの作成
             data = calendar_service.get_data_for_calendar(df_filtered, year, month)
-        elif action[:3] == "dti" or action[:3] == "dwe":
-            # 時系列データまたは曜日×時間帯データの作成
+        elif action[:3] == "wti":
+            # 曜日×時間帯データの作成
             week_data = get_data_for_week_time.get_data_for_week_time(csv_file_path, year, month)
             
             # 辞書をリスト形式に変換
@@ -62,6 +63,9 @@ async def get_graph(request: GraphRequest):
                 
                 day_entry = DayWithHours(day=day_name, hours=processed_hours)
                 data.append(day_entry)
+        elif action[:3] == "dti":
+            # 日付×時間帯データの作成
+            data = get_data_for_date_time.get_data_for_date_time(csv_file_path, year, month)
         else:
             # 未対応のアクション
             data = []
