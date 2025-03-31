@@ -1,18 +1,33 @@
 import React from 'react';
 import Inputs from '../common/Inputs';
 import Calendar from '../common/Calendar';
+import TimeHeatmap from '../common/TimeHeatmap'; // 新しいコンポーネントをインポート
 import { Box, Typography, Link } from '@mui/material';
 import AISection from './AISection';
 import theme from '../../theme/theme';
-
+import { useCalendar } from '../../contexts/CalendarContext';
 
 function Content() {
+    const { selectedAction } = useCalendar();
+    
+    // 選択されたアクションに基づいて表示するビジュアライゼーションを決定
+    const renderVisualization = () => {
+        if (!selectedAction) return null;
+        
+        if (selectedAction.startsWith('cal')) {
+            return <Calendar />;
+        } else if (selectedAction.startsWith('dti') || selectedAction.startsWith('dwe')) {
+            return <TimeHeatmap />;
+        }
+        return null;
+    };
+
     return (
         <>
             <Inputs />
             <Box sx={{ display: 'flex' }}>
                 <Box sx={{ flex: 2 }}>
-                    <Calendar />
+                    {renderVisualization()}
                 </Box>
                 <Box
                     sx={{
@@ -21,9 +36,6 @@ function Content() {
                         flexDirection: 'column'
                     }}
                 >
-                    {/* <Button variant="outlined" sx={{ width: '200px', color: 'black', borderColor: 'black' }} startIcon={<AddIcon />}>
-                        他のグラフを追加
-                    </Button> */}
                     <AISection />
                     <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
                         <Typography variant='supplementaryM' sx={{ color: theme.palette.text.secondary, }}>
@@ -49,7 +61,6 @@ function Content() {
                     </Box>
                 </Box>
             </Box>
-
         </>
     );
 }

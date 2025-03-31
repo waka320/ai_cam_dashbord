@@ -50,7 +50,12 @@ export function CalendarProvider({ children }) {
       }
 
       const data = await response.json();
-      console.log(data);
+      console.log("API Response:", data);
+      console.log("Data structure:", Array.isArray(data.data) ? "Array" : typeof data.data);
+      if (Array.isArray(data.data) && data.data.length > 0) {
+        console.log("First item type:", Array.isArray(data.data[0]) ? "Array" : typeof data.data[0]);
+        console.log("Sample data:", data.data[0]);
+      }
       setCalendarData(data.data);
 
       // AIアドバイスがレスポンスに含まれている場合、状態を更新
