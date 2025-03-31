@@ -1,25 +1,42 @@
 import React from 'react';
 import Inputs from '../common/Inputs';
 import Calendar from '../common/Calendar';
-import TimeHeatmap from '../common/TimeHeatmap'; // 新しいコンポーネントをインポート
+import TimeHeatmap from '../common/TimeHeatmap';
 import { Box, Typography, Link } from '@mui/material';
 import AISection from './AISection';
 import theme from '../../theme/theme';
 import { useCalendar } from '../../contexts/CalendarContext';
 
 function Content() {
-    const { selectedAction } = useCalendar();
+    const { selectedAction, loading, error } = useCalendar();
     
     // 選択されたアクションに基づいて表示するビジュアライゼーションを決定
     const renderVisualization = () => {
+        if (error) {
+            return (
+                <Box sx={{ p: 3, textAlign: 'center' }}>
+                    <Typography color="error">{error}</Typography>
+                </Box>
+            );
+        }
+        
+        if (loading) {
+            return (
+                <Box sx={{ p: 3, textAlign: 'center' }}>
+                    <Typography>Loading...</Typography>
+                </Box>
+            );
+        }
+        
         if (!selectedAction) return null;
         
-        if (selectedAction.startsWith('cal')) {
-            return <Calendar />;
-        } else if (selectedAction.startsWith('dti') || selectedAction.startsWith('dwe')) {
-            return <TimeHeatmap />;
-        }
-        return null;
+        // 両方のコンポーネントを常に返すが、コンポーネント内部で表示条件を処理
+        return (
+            <>
+                <Calendar />
+                <TimeHeatmap />
+            </>
+        );
     };
 
     return (

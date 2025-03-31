@@ -1,20 +1,44 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import theme from '../../theme/theme';
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend, { getCellColor } from './CongestionLegend';
 
-
 // カレンダーコンポーネント
 const CalendarHeatmap = () => {
-    const { calendarData } = useCalendar();
+    const { calendarData, selectedAction, loading } = useCalendar();
     const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
+
+    // ローディング中の表示
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     // calendarDataが空の場合は何も表示しない
     if (!calendarData || calendarData.length === 0) {
         return null;
     }
-    console.log(calendarData)
+
+    // actionが"cal"で始まる場合のみ表示
+    if (!selectedAction || !selectedAction.startsWith('cal')) {
+        return null;
+    }
+
+    // データが期待する形式でない場合の処理を追加
+    if (!Array.isArray(calendarData) || !calendarData.every(row => Array.isArray(row))) {
+        console.error("Invalid data format for Calendar:", calendarData);
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+                <Typography variant="body1" color="error">
+                    データ形式が正しくありません。別のアクションを選択してください。
+                </Typography>
+            </Box>
+        );
+    }
 
     return (
         <Box>

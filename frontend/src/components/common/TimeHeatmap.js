@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Typography, Paper, CircularProgress } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend, { getCellColor } from './CongestionLegend';
 
@@ -19,7 +19,16 @@ const getDayNameJa = (dayName) => {
 
 // 時間帯別ヒートマップコンポーネント
 const TimeHeatmap = () => {
-    const { calendarData, selectedAction } = useCalendar();
+    const { calendarData, selectedAction, loading } = useCalendar();
+
+    // ローディング中の表示
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     // calendarDataが空の場合は何も表示しない
     if (!calendarData || calendarData.length === 0) {
@@ -29,6 +38,18 @@ const TimeHeatmap = () => {
     // actionが"dti"または"dwe"で始まる場合のみ表示
     if (!selectedAction || !(selectedAction.startsWith('dti') || selectedAction.startsWith('dwe'))) {
         return null;
+    }
+
+    // データが期待する形式でない場合の処理を追加
+    if (!calendarData.every(item => item.day && Array.isArray(item.hours))) {
+        console.error("Invalid data format for TimeHeatmap:", calendarData);
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+                <Typography variant="body1" color="error">
+                    データ形式が正しくありません。別のアクションを選択してください。
+                </Typography>
+            </Box>
+        );
     }
 
     // 時間の範囲を定義（0-23時）
