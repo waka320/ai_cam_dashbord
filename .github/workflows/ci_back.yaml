@@ -3,8 +3,6 @@ name: Backend CI/CD
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build:
@@ -26,31 +24,75 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-#  deploy-prod:
-#    needs: build
-#    runs-on: ubuntu-latest
-#    if: github.ref == 'refs/heads/main'
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v4
-#
-#      - name: Setup Python
-#        uses: actions/setup-python@v4
-#        with:
-#          python-version: '3.12'
-#
-#      - name: Install dependencies
-#        working-directory: ./backend
-#        run: |
-#          pip install -r requirements.txt
-#
-#      - name: Deploy to Vercel
-#        uses: amondnet/vercel-action@v25
-#        with:
-#          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
-#          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-#          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-#          working-directory: backend
-#          vercel-args: '--prod --debug'
-#
+  deploy-to-ec2:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.EC2_KNOWN_HOSTS }}
+          if_key_exists: replace
+
+      - name: Deploy to EC2
+        run: |
+          # バックエンドコードをEC2にコピー
+          scp -r -o StrictHostKeyChecking=no ./backend/* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/dashbord/ai_cam_dashbord/backend/
+
+          # SSHでEC2に接続してデプロイスクリプトを実行
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOL'
+            # リポジトリディレクトリに移動
+            cd ~/dashbord/ai_cam_dashbord/
+
+            # 最新のコードをプル（オプション）
+            # git pull origin main
+            
+            # バックエンドディレクトリに移動
+            cd backend
+            
+            # 仮想環境の更新（存在しない場合は作成）
+            if [ ! -d ".venv" ]; then
+              python3 -m venv .venv
+            fi
+            source .venv/bin/activate
+            
+            # 依存関係のインストール
+            pip install -r requirements.txt
+            
+            # アプリケーションの再起動
+            # 既存のプロセスを停止
+            pkill -f "uvicorn app.main:app" || true
+            
+            # 新しいプロセスをバックグラウンドで開始
+            nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > app.log 2>&1 &
+            
+            # nginxの設定ファイル構文チェック
+            sudo nginx -t
+            
+            # 構文チェックが成功したら、nginxを再読み込み/再起動
+            if [ $? -eq 0 ]; then
+              echo "nginx設定は正常です。リロードします..."
+              # リロード（設定の再読み込みのみ、接続は維持）
+              sudo systemctl reload nginx
+              
+              # または完全に再起動する場合（一時的に接続が切れる可能性あり）
+              # sudo systemctl restart nginx
+            else
+              echo "nginx設定にエラーがあります。修正してください。"
+              exit 1
+            fi
+            
+            echo "バックエンドの再デプロイとnginxのリロードが完了しました"
+          EOL
