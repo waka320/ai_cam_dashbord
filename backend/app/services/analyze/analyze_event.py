@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta, date as dt_date
+from datetime import datetime, timedelta, date 
 import matplotlib as mpl
 from matplotlib.patches import Patch
 import argparse
@@ -16,7 +16,7 @@ parser.add_argument('--year', type=int, default=2025, help='分析する年 (例
 args = parser.parse_args()
 
 # CSVファイルを読み込む
-df = pd.read_csv('/Users/WakaY/Desktop/new_dashbord/backend/app/data/meidai/omotesando.csv')
+df = pd.read_csv('/Users/WakaY/Desktop/new_dashbord/backend/app/data/meidai/yasukawadori.csv')
 
 # datetime_jstをdatetime型に変換
 df['datetime_jst'] = pd.to_datetime(df['datetime_jst'])
@@ -72,20 +72,20 @@ events_by_year = {
     2024: [
         # ("二十四日市", ["2024-01-24"]),
         # ("春の江名子川ライトアップ", ["2024-04-01", "2024-05-06"]),
-        # ("春の高山祭（山王祭）", ["2024-04-14", "2024-04-15"]),
-        # ("ひだ国分寺 八日市", [
-        #     "2024-05-08", "2024-06-08", "2024-07-08", "2024-08-08", "2024-09-08",
-        #     "2024-10-08"
-        # ]),
-        # ("飛騨クラフトフェア", ["2024-06-01", "2024-06-02"]),
-        # ("桜山八幡宮 縁日イベント", ["2024-07-27"]),
-        # ("桜山風鈴まつり", [
-        #     "2024-07-20", "2024-07-27", "2024-08-03", "2024-08-10", "2024-08-17",
-        #     "2024-08-24"
-        # ]),
-        # ("陣屋前夜市", ["2024-08-05", "2024-08-06"]),
-        # ("飛騨高山手筒花火", ["2024-08-09"]),
-        # ("市民盆踊り大会", ["2024-08-25"]),
+        ("春の高山祭（山王祭）", ["2024-04-14", "2024-04-15"]),
+        ("ひだ国分寺 八日市", [
+            "2024-05-08", "2024-06-08", "2024-07-08", "2024-08-08", "2024-09-08",
+            "2024-10-08"
+        ]),
+        ("飛騨クラフトフェア", ["2024-06-01", "2024-06-02"]),
+        ("桜山八幡宮 縁日イベント", ["2024-07-27"]),
+        ("桜山風鈴まつり", [
+            "2024-07-20", "2024-07-27", "2024-08-03", "2024-08-10", "2024-08-17",
+            "2024-08-24"
+        ]),
+        ("陣屋前夜市", ["2024-08-05", "2024-08-06"]),
+        ("飛騨高山手筒花火", ["2024-08-09"]),
+        ("市民盆踊り大会", ["2024-08-25"]),
         ("秋の高山祭（八幡祭）", ["2024-10-09", "2024-10-10"]),
         ("農業まつり", ["2024-10-20"]),
         ("朝市", [
@@ -120,7 +120,7 @@ events = events_by_year[args.year]
 for event_name, event_dates in events:
     event_dates = [datetime.strptime(date, "%Y-%m-%d") for date in event_dates]
     
-    # イベント期間に応じて前後の日数を調整（コマンドライン引数で指定可能）
+    # イベント期間に応じて前後の日数を調整
     event_duration = (max(event_dates) - min(event_dates)).days + 1
     
     start_date = min(event_dates) - timedelta(days=3)
@@ -190,54 +190,52 @@ for event_name, event_dates in events:
             event_marker = "【イベント日】" if date in event_dates_as_date else ""
             print(f"{date}: {count:.0f}人 {event_marker}")
     
-    # ヒストグラムを作成
+    # ヒストグラム風の棒グラフを作成（棒の間隔なし）
     plt.figure(figsize=(14, 7))
-    ax = daily_counts.plot(kind='bar', color='lightblue')
     
+    # 通常の棒グラフから間隔を詰めたヒストグラム風に変更
+    ax = plt.subplot(111)
+    bars = ax.bar(range(len(daily_counts)), daily_counts.values, width=1.0, color='lightblue', edgecolor='gray', linewidth=0.5)
+
+    # 日付を設定
+    plt.xticks(range(len(daily_counts)), [date.strftime('%m/%d') for date in daily_counts.index], rotation=45)
+
     # イベント期間をタイトルに追加
     event_period = f"{min(event_dates).strftime('%Y/%m/%d')}～{max(event_dates).strftime('%Y/%m/%d')}" if len(event_dates) > 1 else event_dates[0].strftime('%Y/%m/%d')
-    
+
     # 増減率も表示
     if len(event_days) > 0 and len(non_event_days) > 0:
         plt.title(f"{args.year}年 {event_name}の歩行者数（イベント期間: {event_period}, 増減率: {change_percent:.1f}%）")
     else:
         plt.title(f"{args.year}年 {event_name}の歩行者数（イベント期間: {event_period}）")
-    
+
     plt.xlabel("日付")
     plt.ylabel("歩行者数")
-    
-    # 日付表示を見やすく整形
-    date_labels = [date.strftime('%m/%d') for date in daily_counts.index]
-    ax.set_xticklabels(date_labels)
-    plt.xticks(rotation=45)
-    
+
     # グラフの下部に余白を追加して日付が切れないようにする
     plt.gcf().subplots_adjust(bottom=0.2)
-    
-    # x軸の範囲を広げて最後のバーが表示されるようにする
-    ax.set_xlim(-0.5, len(daily_counts) - 0.5)
-    
+
     # イベント日をハイライト
     for i, date in enumerate(daily_counts.index):
         if date in event_dates_as_date:
-            ax.patches[i].set_facecolor('red')
+            bars[i].set_color('red')
             # イベント日の上部にラベルを追加
             count = daily_counts.iloc[i]
-            ax.text(i, count + (daily_counts.max() * 0.03), "イベント日", ha='center', color='red', fontweight='bold')
-    
+            ax.text(i, count + (daily_counts.max() * 0.03), "イベント日", ha='center', color='red', fontweight='bold', fontsize=9)
+
     # 凡例を追加
     legend_elements = [
         Patch(facecolor='lightblue', label='通常日'),
         Patch(facecolor='red', label='イベント日')
     ]
     ax.legend(handles=legend_elements, loc='upper right')
-    
-    # データの不完全な日を薄いグレーでマーク
-    for i, date in enumerate(daily_counts.index):
-        if date in incomplete_days:
-            ax.patches[i].set_alpha(0.5)
-            ax.patches[i].set_hatch('///')
-    
+
+    # # データの不完全な日を薄いグレーでマーク
+    # for i, date in enumerate(daily_counts.index):
+    #     if date in incomplete_days:
+    #         bars[i].set_alpha(0.5)
+    #         bars[i].set_hatch('///')
+
     # イベント期間が複数日の場合、背景に薄い色を付ける
     if len(event_dates) > 1:
         event_indices = [i for i, date in enumerate(daily_counts.index) if date in event_dates_as_date]
@@ -245,16 +243,19 @@ for event_name, event_dates in events:
             min_idx = min(event_indices)
             max_idx = max(event_indices)
             ax.axvspan(min_idx - 0.5, max_idx + 0.5, alpha=0.1, color='red')
-    
+
+    # グリッドラインを追加して見やすくする
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
+
     # 平均値の水平線を追加
     if event_days:
         ax.axhline(y=event_avg, color='red', linestyle='--', alpha=0.7, label=f'イベント日平均: {event_avg:.1f}人')
     if non_event_days:
         ax.axhline(y=non_event_avg, color='blue', linestyle='--', alpha=0.7, label=f'非イベント日平均: {non_event_avg:.1f}人')
-    
+
     plt.tight_layout()
-    
+
     # グラフをファイルに保存（オプション）
-    # plt.savefig(f"{args.year}_{event_name.replace(' ', '_')}.png", dpi=300)
-    
+    # plt.savefig(f"{args.year}_{event_name.replace(' ', '_')}_histogram.png", dpi=300)
+
     plt.show()
