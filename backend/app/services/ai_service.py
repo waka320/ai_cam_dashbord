@@ -2,7 +2,6 @@ import aiohttp
 import pandas as pd
 from app.core.config import settings
 import os
-from datetime import datetime
 
 # 目的のマッピング辞書
 PURPOSE_MAPPING = {
@@ -11,15 +10,16 @@ PURPOSE_MAPPING = {
     "cal_long_holiday": "長期休暇のタイミングを検討したい",
     "cal_event": "イベントの開催日程を検討したい",
     "cal_training": "研修のタイミングを検討したい",
-    "dti_event_effect": "イベントの効果を確認したい",
-    "dti_event_time": "イベントの開催時間を検討したい",
-    "dti_shift": "アルバイトのシフトを検討したい",
-    "dwe_open_hour": "お店の営業時間を検討したい",
-    "dwe_shoping_open_hour": "商店街の営業時間を検討したい",
+    "wti_event_effect": "イベントの効果を確認したい",
+    "wti_event_time": "イベントの開催時間を検討したい",
+    "wti_shift": "アルバイトのシフトを検討したい",
+    "dti_open_hour": "お店の営業時間を検討したい",
+    "dti_shoping_open_hour": "商店街の営業時間を検討したい",
     "cal_cog": "カレンダー形式の混雑度が見たい",
-    "dti_cog": "日時形式の混雑度が見たい",
-    "dwe_cog": "曜日と時間帯ごとの混雑度が見たい",
+    "wti_cog": "日時形式の混雑度が見たい",
+    "dti_cog": "曜日と時間帯ごとの混雑度が見たい",
 }
+
 
 # 場所のマッピング辞書
 LOCATION_MAPPING = {
@@ -33,6 +33,7 @@ LOCATION_MAPPING = {
     "jinnya": "高山陣屋前交差点",
     "nakabashi": "中橋",
 }
+
 
 async def analyze_csv_data(csv_path: str, year: int, month: int, purpose: str):
     # purpose値をラベルに変換
@@ -117,7 +118,7 @@ async def analyze_csv_data(csv_path: str, year: int, month: int, purpose: str):
 - 商店街事業者向けのアドバイスを提供する
 - 混雑度の低い時期が事業者の長期休暇に適している可能性がある
 - 地域のイベントや季節要因も考慮する"""
-            print(prompt)   
+            # print(prompt)   
         else:
             # 日別集計
             df_filtered['date'] = df_filtered['datetime_jst'].dt.date
@@ -161,7 +162,7 @@ async def analyze_csv_data(csv_path: str, year: int, month: int, purpose: str):
 - 商店街事業者向けのアドバイスを提供する
 - 混雑度の低い時期が事業者の長期休暇に適している可能性がある
 - 地域のイベントや季節要因も考慮する"""
-        print(prompt)
+        # print(prompt)
 
         headers = {
             "Content-Type": "application/json",
