@@ -18,7 +18,7 @@ async def get_graph(request: GraphRequest):
     
     print(place, year, month, action)
     
-    csv_file_path = f"app/data/meidai/{place}.cs    v"
+    csv_file_path = f"app/data/meidai/{place}.csv"
     if not os.path.exists(csv_file_path):
         raise HTTPException(
             status_code=404, detail="CSV file not found for the given place")
