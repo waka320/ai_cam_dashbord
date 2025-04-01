@@ -2,6 +2,7 @@ import React from 'react';
 import Inputs from '../common/Inputs';
 import Calendar from '../common/Calendar';
 import TimeHeatmap from '../common/TimeHeatmap';
+import DateTimeHeatmap from '../common/DateTimeHeatmap';
 import { Box, Typography, Link } from '@mui/material';
 import AISection from './AISection';
 import theme from '../../theme/theme';
@@ -30,11 +31,12 @@ function Content() {
         
         if (!selectedAction) return null;
         
-        // 両方のコンポーネントを常に返すが、コンポーネント内部で表示条件を処理
+        // 3つのコンポーネントを常に返すが、コンポーネント内部で表示条件を処理
         return (
             <>
                 <Calendar />
                 <TimeHeatmap />
+                <DateTimeHeatmap />
             </>
         );
     };

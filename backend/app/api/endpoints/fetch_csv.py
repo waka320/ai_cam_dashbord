@@ -1,5 +1,7 @@
 import os
 import requests
+import csv as csv_lib
+import io
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.core.config import settings
@@ -33,6 +35,37 @@ csvs = [
 ]
 
 
+def filter_person_only(csv_data):
+    """CSVデータから"name"列が"person"の行のみを抽出する関数"""
+    input_file = io.StringIO(csv_data)
+    output_file = io.StringIO()
+    
+    csv_reader = csv_lib.reader(input_file)
+    csv_writer = csv_lib.writer(output_file)
+    
+    # ヘッダー行を取得
+    header = next(csv_reader)
+    csv_writer.writerow(header)
+    
+    # name列のインデックスを見つける
+    try:
+        name_index = header.index('name')
+    except ValueError:
+        # name列がない場合は元のデータをそのまま返す
+        logger.warning("CSV does not have 'name' column, returning original data")
+        return csv_data
+    
+    # "person"の行のみをフィルタリング
+    person_rows = 0
+    for row in csv_reader:
+        if len(row) > name_index and row[name_index] == 'person':
+            csv_writer.writerow(row)
+            person_rows += 1
+    
+    logger.debug(f"Filtered {person_rows} 'person' rows from CSV")
+    return output_file.getvalue()
+
+
 @router.get("/api/fetch-csv")
 async def fetch_csv(credentials: HTTPAuthorizationCredentials = Depends(security)):
     if credentials.credentials != settings.CRON_SECRET:
@@ -45,18 +78,22 @@ async def fetch_csv(credentials: HTTPAuthorizationCredentials = Depends(security
             response = requests.get(csv['url'])
             response.raise_for_status()
             csv_data = response.text
+            
+            # "person"のみにフィルタリング
+            logger.debug(f"Filtering '{csv['name']}' for 'person' rows only")
+            filtered_csv_data = filter_person_only(csv_data)
 
             file_path = os.path.join(data_dir, csv['name'])
-            logger.debug(f"Saving CSV to {file_path}")
+            logger.debug(f"Saving filtered CSV to {file_path}")
             with open(file_path, "w", encoding="utf-8") as file:
-                file.write(csv_data)
+                file.write(filtered_csv_data)
 
-            logger.info(f"CSV {csv['name']} fetched and saved successfully")
+            logger.info(f"CSV {csv['name']} fetched, filtered, and saved successfully")
             results.append({"name": csv['name'], "status": "success"})
         except Exception as e:
             logger.error(
-                f"Error occurred while fetching {csv['name']}: {str(e)}")
+                f"Error occurred while processing {csv['name']}: {str(e)}")
             results.append(
                 {"name": csv['name'], "status": "error", "error": str(e)})
 
-    return {"message": "CSV fetch process completed", "results": results}
+    return {"message": "CSV fetch and filter process completed", "results": results}
