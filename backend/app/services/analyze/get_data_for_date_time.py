@@ -102,8 +102,11 @@ def get_data_for_date_time(file_path_or_df: Union[str, pd.DataFrame], year: Opti
             }
             processed_hours.append(processed_hour)
         
+        # WTIとの互換性を確保するため、dateとdayの両方を追加
+        # dayプロパティにはdateプロパティの値を設定
         result.append({
             "date": date,
+            "day": date,  # day属性も追加して互換性を確保
             "hours": processed_hours
         })
     
