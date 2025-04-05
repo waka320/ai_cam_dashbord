@@ -5,17 +5,23 @@ from pydantic import BaseModel, Field
 class DayCongestion(BaseModel):
     date: int
     congestion: int
+    highlighted: bool = False
+    highlight_reason: Optional[str] = None
 
 
-class HourCongestion(BaseModel):
+class HourData(BaseModel):
     hour: int
-    count_1_hour: float = Field(..., alias="count")
-    level: int = Field(..., alias="congestion")
+    count: int
+    congestion: int
+    highlighted: bool = False
+    highlight_reason: Optional[str] = None
 
 
 class DayWithHours(BaseModel):
     day: str
-    hours: List[Dict[str, Union[int, float]]]
+    hours: List[HourData]
+    highlighted: bool = False
+    highlight_reason: Optional[str] = None
 
 
 class GraphRequest(BaseModel):
@@ -27,5 +33,5 @@ class GraphRequest(BaseModel):
 
 class GraphResponse(BaseModel):
     graph: str
-    data: Union[List[List[Optional[DayCongestion]]], List[DayWithHours], List[Dict[str, Any]]]
+    data: Any
     ai_advice: str
