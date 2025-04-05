@@ -5,6 +5,7 @@ from app.services.analyze import get_data_for_calendar as calendar_service
 from app.services.analyze import get_data_for_week_time
 from app.services.analyze import get_data_for_date_time
 from app.services.ai_service_debug import analyze_csv_data_debug
+from app.services.highlighter_service import highlight_calendar_data, highlight_week_time_data, highlight_date_time_data
 from app.models import GraphRequest, GraphResponse, DayWithHours
 
 router = APIRouter()
@@ -39,33 +40,22 @@ async def get_graph(request: GraphRequest):
         if df_filtered.empty:
             print(f"Warning: No data found for {place} in {year}/{month}")
         
-        # アクションに応じたデータ生成
+        # アクションに応じたデータ生成とハイライト
         if action[:3] == "cal":
             # カレンダーデータの作成
-            data = calendar_service.get_data_for_calendar(df_filtered, year, month)
+            data = calendar_service.get_data_for_calendar(df, year, month)
+            # ハイライト処理
+            data = highlight_calendar_data(data, action)
         elif action[:3] == "wti":
             # 曜日×時間帯データの作成
-            week_data = get_data_for_week_time.get_data_for_week_time(csv_file_path, year, month)
-            
-            # 辞書をリスト形式に変換
-            data = []
-            for day_name, hours_data in week_data.items():
-                # 時間データを適切な形式に変換
-                processed_hours = []
-                for hour_data in hours_data:
-                    # キー名を変換してフロントエンドの期待する形式に合わせる
-                    processed_hour = {
-                        "hour": hour_data["hour"],
-                        "count": hour_data["count_1_hour"],
-                        "congestion": int(hour_data["level"])
-                    }
-                    processed_hours.append(processed_hour)
-                
-                day_entry = DayWithHours(day=day_name, hours=processed_hours)
-                data.append(day_entry)
+            data = get_data_for_week_time.get_data_for_week_time(csv_file_path, year, month)
+            # ハイライト処理
+            data = highlight_week_time_data(data, action)
         elif action[:3] == "dti":
             # 日付×時間帯データの作成
             data = get_data_for_date_time.get_data_for_date_time(csv_file_path, year, month)
+            # ハイライト処理
+            data = highlight_date_time_data(data, action)
         else:
             # 未対応のアクション
             data = []
