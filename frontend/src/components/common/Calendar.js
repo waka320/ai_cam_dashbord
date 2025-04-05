@@ -34,7 +34,7 @@ const CalendarHeatmap = () => {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
                 <Typography variant="body1" color="error">
-                    データ形式が正しくありません。別のアクションを選択してください。
+                    データ形式が正しくありません。別のアクションを選択してください1。
                 </Typography>
             </Box>
         );
