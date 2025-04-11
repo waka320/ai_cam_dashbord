@@ -2,69 +2,106 @@ import pandas as pd
 import requests
 import os
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
+import time
 
 # .envファイルから環境変数をロード
 load_dotenv()
 
-# 天気情報を取得する関数（tenki.jpのスクレイピングを使用）
+# 天気データをキャッシュするディクショナリ（月単位）
+weather_cache = {}  # キー: 'YYYY-MM', 値: その月の天気データ
+
+# 月間の天気データを取得する関数
+def fetch_monthly_weather(year, month):
+    # キャッシュキーを作成
+    cache_key = f"{year}-{month:02d}"
+    
+    # すでにキャッシュにある場合はキャッシュから返す
+    if cache_key in weather_cache:
+        print(f"キャッシュからデータを取得: {cache_key}")
+        return weather_cache[cache_key]
+    
+    print(f"HTTPリクエスト実行: {year}年{month}月のデータを取得します")
+    
+    # tenki.jpの過去天気ページURL
+    base_url = f"https://tenki.jp/past/{year}/{month:02d}/weather/5/24/47617/"
+    
+    try:
+        # サーバーに負荷をかけないよう少し待機
+        time.sleep(1)
+        
+        response = requests.get(base_url)
+        if response.status_code != 200:
+            print(f"データ取得失敗: ステータスコード {response.status_code}")
+            return {}
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # 月間データを格納する辞書
+        monthly_data = {}
+        
+        # 日付に該当するセルを見つける
+        day_cells = soup.find_all('td')
+        for cell in day_cells:
+            # セル内に日付データがあるか確認
+            date_span = cell.select_one("span.date")
+            if date_span and date_span.text.strip().isdigit():
+                day = int(date_span.text.strip())
+                
+                # 天気を取得 (alt属性から)
+                img = cell.find('img')
+                weather = img['alt'] if img and 'alt' in img.attrs else "不明"
+                
+                # 最高気温と最低気温を取得
+                high_temp = cell.select_one("span.high-temp")
+                low_temp = cell.select_one("span.low-temp")
+                
+                high_temp_text = high_temp.text.strip() if high_temp else None
+                low_temp_text = low_temp.text.strip() if low_temp else None
+                
+                # その日のデータを辞書に格納
+                monthly_data[day] = {
+                    'weather': weather,
+                    'high_temp': high_temp_text,
+                    'low_temp': low_temp_text
+                }
+        
+        # キャッシュに保存
+        weather_cache[cache_key] = monthly_data
+        print(f"{len(monthly_data)}日分のデータを取得しました: {cache_key}")
+        return monthly_data
+        
+    except Exception as e:
+        print(f"エラー: {cache_key}のデータ取得中に例外が発生しました: {str(e)}")
+        return {}
+
+# 天気情報を取得する関数（キャッシュシステム対応）
 def fetch_weather_info(date):
     # 過去日付か将来日付かを判定
     current_date = datetime.now().date()
     target_date = date.date() if isinstance(date, datetime) else date
     days_diff = (current_date - target_date).days
     
-    # 過去の天気情報を取得（tenki.jpのスクレイピング）
-    if days_diff >= 0:  # 過去または今日のデータ
-        # tenki.jpの過去天気ページURL - 正しい形式に修正
-        base_url = f"https://tenki.jp/past/{date.year}/{date.month:02d}/weather/5/24/47617/"
-        
-        try:
-            response = requests.get(base_url)
-            if response.status_code != 200:
-                return f"データ取得失敗: ステータスコード {response.status_code}", None, None
-            
-            soup = BeautifulSoup(response.text, 'html.parser')
-            
-            # 天気、最高気温、最低気温を抽出
-            try:
-                # 月間カレンダーから特定の日付のデータを探す
-                target_day = date.day
-                
-                # 日付に該当するセルを見つける
-                day_cells = soup.find_all('td')
-                for cell in day_cells:
-                    # セル内に日付データがあるか確認
-                    date_span = cell.select_one("span.date")
-                    if date_span and date_span.text.strip() == str(target_day):
-                        # この日のデータを取得
-                        weather_text = cell.get_text().strip()
-                        
-                        # 天気を取得 (alt属性から)
-                        img = cell.find('img')
-                        weather = img['alt'] if img and 'alt' in img.attrs else "不明"
-                        
-                        # 最高気温と最低気温を取得
-                        high_temp = cell.select_one("span.high-temp")
-                        low_temp = cell.select_one("span.low-temp")
-                        
-                        high_temp_text = high_temp.text.strip() if high_temp else None
-                        low_temp_text = low_temp.text.strip() if low_temp else None
-                        
-                        return weather, high_temp_text, low_temp_text
-                
-                # 日付が見つからない場合
-                return "データなし", None, None
-                
-            except Exception as e:
-                print(f"解析エラー: {str(e)}")
-                return f"データ解析エラー: {str(e)}", None, None
-        except Exception as e:
-            return f"通信エラー: {str(e)}", None, None
-    else:  # 将来の日付の場合
-        # 将来の日付は「予報データ」と表示
+    # 将来の日付の場合、予報データを返す
+    if days_diff < 0:
         return "予報データ", None, None
+    
+    # 対象の年月を取得
+    year = target_date.year
+    month = target_date.month
+    day = target_date.day
+    
+    # 月間データを取得
+    monthly_data = fetch_monthly_weather(year, month)
+    
+    # 指定した日のデータがあるか確認
+    if day in monthly_data:
+        data = monthly_data[day]
+        return data['weather'], data['high_temp'], data['low_temp']
+    else:
+        return "データなし", None, None
 
 def fetch_event_info(date):
     """指定された日付に応じて岐阜県高山市のイベント情報を返す関数"""
@@ -141,15 +178,14 @@ def process_csv(input_file, output_file):
     df['最低気温'] = ""
     df['備考'] = ""
     
-    # デバッグ用にループを50回までに制限
-    max_rows = 50
+    # デバッグ用にループを制限
+    max_rows = 50  # デバッグが終わったら制限を解除または大きな数に設定
     processed_rows = 0
     
     for index, row in df.iterrows():
-        # 50行に達したらループを抜ける
-        if processed_rows >= max_rows:
-            print(f"デバッグ用に{max_rows}行の処理で終了します")
-            break
+        # if processed_rows >= max_rows:
+        #     print(f"デバッグ用に{max_rows}行の処理で終了します")
+        #     break
             
         date_str = row['日付']
         date = pd.to_datetime(date_str, format='%Y/%m/%d')
@@ -176,7 +212,52 @@ def process_csv(input_file, output_file):
 
 # メイン処理
 if __name__ == "__main__":
-    input_csv = "/Users/WakaY/Desktop/new_dashbord/backend/app/data/weather_analyze.csv"  # 絶対パスを使用
-    output_csv = "/Users/WakaY/Desktop/new_dashbord/backend/app/data/weather/weather_analyze_result.csv"  # 出力先も絶対パスで指定
+    # 入力ディレクトリと出力ディレクトリを指定
+    input_dir = "/Users/WakaY/Desktop/new_dashbord/backend/app/data/weather/input"
+    output_dir = "/Users/WakaY/Desktop/new_dashbord/backend/app/data/weather/output"
     
-    process_csv(input_csv, output_csv)
+    # 処理の前に、対象期間の月ごとのデータを先にすべて取得
+    start_date = datetime(2021, 6, 1)  # 2021年6月から
+    end_date = datetime.now()
+    
+    print("対象期間の天気データを先に取得します...")
+    current_date = start_date
+    while current_date <= end_date:
+        # 月ごとに天気データを取得
+        fetch_monthly_weather(current_date.year, current_date.month)
+        # 次の月に進む
+        current_date += relativedelta(months=1)
+    
+    print("月間データの事前取得が完了しました")
+    
+    # 入力ディレクトリ内のすべてのCSVファイルをリストアップ
+    import glob
+    
+    csv_files = glob.glob(os.path.join(input_dir, "*.csv"))
+    
+    if not csv_files:
+        print(f"入力ディレクトリ {input_dir} にCSVファイルが見つかりませんでした。")
+    else:
+        print(f"{len(csv_files)}個のCSVファイルを処理します...")
+        
+        # 各CSVファイルを処理
+        for input_csv in csv_files:
+            # 入力ファイル名から出力ファイル名を生成
+            filename = os.path.basename(input_csv)
+            output_csv = os.path.join(output_dir, f"result_{filename}")
+            
+            print(f"\n処理中: {filename}")
+            print(f"入力ファイル: {input_csv}")
+            print(f"出力ファイル: {output_csv}")
+            
+            # 出力ディレクトリが存在しない場合は作成
+            os.makedirs(output_dir, exist_ok=True)
+            
+            # CSVファイルを処理
+            try:
+                process_csv(input_csv, output_csv)
+                print(f"ファイル {filename} の処理が完了しました")
+            except Exception as e:
+                print(f"エラー: ファイル {filename} の処理中に例外が発生しました: {str(e)}")
+        
+        print("\nすべてのファイルの処理が完了しました")
