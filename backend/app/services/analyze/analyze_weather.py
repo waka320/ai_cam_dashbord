@@ -131,7 +131,7 @@ TAKAYAMA_EVENTS = [
     Event("ゴールデンウィーク", lambda d: d.month == 5 and 3 <= d.day <= 5, CATEGORY_NATIONAL),
     
     # 国民的イベント（祝日）
-    Event("元日", lambda d: d.month == 1 and d.day == 1, CATEGORY_NATIONAL),
+    Event("元日", lambda d: d.month == 1 and d.day >= 1 and d.day <= 3, CATEGORY_NATIONAL),
     Event("成人の日", lambda d: d.month == 1 and d.day >= 8 and d.day <= 14 and d.weekday() == 0, CATEGORY_NATIONAL),
     Event("建国記念の日", lambda d: d.month == 2 and d.day == 11, CATEGORY_NATIONAL),
     Event("天皇誕生日", lambda d: d.month == 2 and d.day == 23, CATEGORY_NATIONAL),
@@ -159,6 +159,42 @@ TAKAYAMA_EVENTS = [
     Event("七草の節句", lambda d: d.month == 1 and d.day == 7, CATEGORY_NATIONAL),
     Event("鏡開き", lambda d: d.month == 1 and d.day in [11, 15, 20], CATEGORY_NATIONAL),
     
+    # 世界的な観光関連イベント
+    # 春節/旧正月（1月下旬～2月中旬）- 毎年変動
+    Event("春節/旧正月", lambda d: (d.month == 1 and d.day >= 20) or (d.month == 2 and d.day <= 20), CATEGORY_OTHER),
+    
+    
+    
+    # イースター（復活祭）- 毎年変動
+    Event("イースター", lambda d: (d.month == 3 and d.day >= 22) or (d.month == 4 and d.day <= 25), CATEGORY_OTHER),
+    
+    
+    # ハロウィン（10月31日）- 毎年固定
+    Event("ハロウィン", lambda d: d.month == 10 and d.day == 31, CATEGORY_OTHER),
+    
+    # イード・アル・フィトル（ラマダン明けの祭り）- ラマダン終了直後
+    Event("イード・アル・フィトル", lambda d: 
+        (d.year == 2021 and d.month == 5 and 13 <= d.day <= 15) or
+        (d.year == 2022 and d.month == 5 and 2 <= d.day <= 4) or
+        (d.year == 2023 and d.month == 4 and 22 <= d.day <= 24) or
+        (d.year == 2024 and d.month == 4 and 10 <= d.day <= 12) or
+        (d.year == 2025 and d.month == 3 and 30 <= d.day <= 31) or (d.year == 2025 and d.month == 4 and d.day == 1), 
+        CATEGORY_OTHER),
+    
+    
+    
+    # 感謝祭（米国）- 11月第4木曜日
+    Event("感謝祭（米国）", lambda d: d.month == 11 and 22 <= d.day <= 28 and d.weekday() == 3, CATEGORY_OTHER),
+    
+    # ブラックフライデー（米国）- 感謝祭の翌日
+    Event("ブラックフライデー", lambda d: d.month == 11 and 23 <= d.day <= 29 and d.weekday() == 4, CATEGORY_OTHER),
+    
+    # イルミネーションシーズン
+    Event("クリスマスシーズン", lambda d: d.month == 12 and 1 <= d.day <= 23, CATEGORY_OTHER),
+    
+    # カウントダウン
+    Event("大晦日", lambda d: d.month == 12 and d.day == 31, CATEGORY_OTHER),
+    
     # 2月
     Event("節分", lambda d: d.month == 2 and d.day in [2, 3, 4], CATEGORY_NATIONAL),
     Event("バレンタインデー", lambda d: d.month == 2 and d.day == 14, CATEGORY_NATIONAL),
@@ -170,10 +206,8 @@ TAKAYAMA_EVENTS = [
     Event("彼岸明け", lambda d: d.month == 3 and d.day in [23, 24, 25], CATEGORY_NATIONAL),
     
     # 4月
-    Event("エイプリルフール", lambda d: d.month == 4 and d.day == 1, CATEGORY_NATIONAL),
     Event("入学式シーズン", lambda d: d.month == 4 and 1 <= d.day <= 10, CATEGORY_NATIONAL),
     Event("Easter", lambda d: d.month == 4 and 1 <= d.day <= 25, CATEGORY_NATIONAL),  # 近似値
-    Event("花祭り", lambda d: d.month == 4 and d.day == 8, CATEGORY_NATIONAL),
     
     # 5月
     Event("端午の節句", lambda d: d.month == 5 and d.day == 5, CATEGORY_NATIONAL),
@@ -211,17 +245,6 @@ TAKAYAMA_EVENTS = [
     Event("クリスマス", lambda d: d.month == 12 and d.day == 25, CATEGORY_NATIONAL),
     Event("大晦日", lambda d: d.month == 12 and d.day == 31, CATEGORY_NATIONAL),
     
-    # 国際的な記念日
-    Event("世界湿地の日", lambda d: d.month == 2 and d.day == 2, CATEGORY_OTHER),
-    Event("国際女性デー", lambda d: d.month == 3 and d.day == 8, CATEGORY_OTHER),
-    Event("世界水の日", lambda d: d.month == 3 and d.day == 22, CATEGORY_OTHER),
-    Event("アースデイ", lambda d: d.month == 4 and d.day == 22, CATEGORY_OTHER),
-    Event("メーデー", lambda d: d.month == 5 and d.day == 1, CATEGORY_OTHER),
-    Event("世界禁煙デー", lambda d: d.month == 5 and d.day == 31, CATEGORY_OTHER),
-    Event("世界環境デー", lambda d: d.month == 6 and d.day == 5, CATEGORY_OTHER),
-    Event("国際平和デー", lambda d: d.month == 9 and d.day == 21, CATEGORY_OTHER),
-    Event("国連デー", lambda d: d.month == 10 and d.day == 24, CATEGORY_OTHER),
-    Event("世界エイズデー", lambda d: d.month == 12 and d.day == 1, CATEGORY_OTHER),
     
     # ビジネス関連
     Event("年度末", lambda d: d.month == 3 and 25 <= d.day <= 31, CATEGORY_OTHER),
