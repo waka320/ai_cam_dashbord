@@ -7,11 +7,39 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 import time
 
+# 天文計算用のパッケージを追加
+from astral import LocationInfo
+from astral.sun import sun
+
 # .envファイルから環境変数をロード
 load_dotenv()
 
 # 天気データをキャッシュするディクショナリ（月単位）
 weather_cache = {}  # キー: 'YYYY-MM', 値: その月の天気データ
+
+# 高山市の位置情報を設定
+city = LocationInfo("Takayama", "Japan", "Asia/Tokyo", 36.1429, 137.2526)
+
+# 日の出・日の入り時刻と日照時間を取得する関数
+def get_sun_info(date):
+    try:
+        # その日の太陽情報を取得
+        s = sun(city.observer, date=date)
+        
+        # 日本時間に変換（UTCから+9時間）
+        sunrise = (s['sunrise'] + timedelta(hours=9)).strftime('%H:%M')
+        sunset = (s['sunset'] + timedelta(hours=9)).strftime('%H:%M')
+        
+        # 日照時間計算（分単位）
+        sunrise_time = s['sunrise']
+        sunset_time = s['sunset']
+        daylight_seconds = (sunset_time - sunrise_time).total_seconds()
+        daylight_hours = daylight_seconds / 3600  # 秒から時間に変換
+        
+        return sunrise, sunset, f"{daylight_hours:.2f}h"
+    except Exception as e:
+        print(f"日の出・日の入り計算エラー: {date}, {e}")
+        return None, None, None
 
 # 月間の天気データを取得する関数
 def fetch_monthly_weather(year, month):
@@ -172,16 +200,6 @@ TAKAYAMA_EVENTS = [
     # ハロウィン（10月31日）- 毎年固定
     Event("ハロウィン", lambda d: d.month == 10 and d.day == 31, CATEGORY_OTHER),
     
-    # イード・アル・フィトル（ラマダン明けの祭り）- ラマダン終了直後
-    Event("イード・アル・フィトル", lambda d: 
-        (d.year == 2021 and d.month == 5 and 13 <= d.day <= 15) or
-        (d.year == 2022 and d.month == 5 and 2 <= d.day <= 4) or
-        (d.year == 2023 and d.month == 4 and 22 <= d.day <= 24) or
-        (d.year == 2024 and d.month == 4 and 10 <= d.day <= 12) or
-        (d.year == 2025 and d.month == 3 and 30 <= d.day <= 31) or (d.year == 2025 and d.month == 4 and d.day == 1), 
-        CATEGORY_OTHER),
-    
-    
     
     # 感謝祭（米国）- 11月第4木曜日
     Event("感謝祭（米国）", lambda d: d.month == 11 and 22 <= d.day <= 28 and d.weekday() == 3, CATEGORY_OTHER),
@@ -207,7 +225,6 @@ TAKAYAMA_EVENTS = [
     
     # 4月
     Event("入学式シーズン", lambda d: d.month == 4 and 1 <= d.day <= 10, CATEGORY_NATIONAL),
-    Event("Easter", lambda d: d.month == 4 and 1 <= d.day <= 25, CATEGORY_NATIONAL),  # 近似値
     
     # 5月
     Event("端午の節句", lambda d: d.month == 5 and d.day == 5, CATEGORY_NATIONAL),
@@ -278,12 +295,17 @@ def process_csv(input_file, output_file):
     df['天気'] = ""
     df['最高気温'] = ""
     df['最低気温'] = ""
+    df['日の出'] = ""
+    df['日の入り'] = ""
+    df['日照時間'] = ""
     df['高山イベント'] = ""
     df['国民的イベント'] = ""
     df['その他'] = ""
     
     # 列の順序を指定して並べ替える
-    df = df[['日付', '曜日', '人数', '天気', '最高気温', '最低気温', '高山イベント', '国民的イベント', 'その他']]
+    df = df[['日付', '曜日', '人数', '天気', '最高気温', '最低気温', 
+             '日の出', '日の入り', '日照時間', 
+             '高山イベント', '国民的イベント', 'その他']]
     
     # 各行を処理
     processed_rows = 0
@@ -299,6 +321,9 @@ def process_csv(input_file, output_file):
         # 天気情報取得
         weather, max_temp, min_temp = fetch_weather_info(date)
         
+        # 日の出・日の入り・日照時間情報を取得
+        sunrise, sunset, daylight = get_sun_info(date)
+        
         # イベント情報を各カテゴリ別に取得
         takayama_events = get_events_by_category(date, CATEGORY_TAKAYAMA)
         national_events = get_events_by_category(date, CATEGORY_NATIONAL)
@@ -308,6 +333,9 @@ def process_csv(input_file, output_file):
         df.at[index, '天気'] = weather
         df.at[index, '最高気温'] = max_temp
         df.at[index, '最低気温'] = min_temp
+        df.at[index, '日の出'] = sunrise
+        df.at[index, '日の入り'] = sunset
+        df.at[index, '日照時間'] = daylight
         df.at[index, '高山イベント'] = takayama_events
         df.at[index, '国民的イベント'] = national_events
         df.at[index, 'その他'] = other_events
@@ -325,7 +353,8 @@ def process_csv(input_file, output_file):
             else:
                 df.at[index, 'その他'] = "極寒日"
         
-        print(f"日付: {date_str}({weekday}), 天気: {weather}, 最高気温: {max_temp}, 最低気温: {min_temp}")
+        print(f"日付: {date_str}({weekday}), 天気: {weather}, 気温: {min_temp}～{max_temp}")
+        print(f"日の出: {sunrise}, 日の入り: {sunset}, 日照時間: {daylight}")
         print(f"高山イベント: {takayama_events}, 国民的イベント: {national_events}, その他: {other_events}")
         
         # 処理済み行数をカウントアップ
