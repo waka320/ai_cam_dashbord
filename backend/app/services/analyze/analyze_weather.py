@@ -30,7 +30,7 @@ def fetch_monthly_weather(year, month):
     
     try:
         # サーバーに負荷をかけないよう少し待機
-        time.sleep(1)
+        time.sleep(0.5)
         
         response = requests.get(base_url)
         if response.status_code != 200:
@@ -103,105 +103,207 @@ def fetch_weather_info(date):
     else:
         return "データなし", None, None
 
-def fetch_event_info(date):
-    """指定された日付に応じて岐阜県高山市のイベント情報を返す関数"""
-    # 特記事項なしをデフォルトとする
-    events = []
+# 日付から日本語の曜日を取得する関数を追加
+def get_japanese_weekday(date):
+    weekday_kanji = ["月", "火", "水", "木", "金", "土", "日"]
+    return weekday_kanji[date.weekday()]
+
+class Event:
+    """イベント情報を表すクラス"""
+    def __init__(self, name, is_match_func, category):
+        self.name = name                # イベント名
+        self.is_match_func = is_match_func  # このイベントが日付に該当するかを判定する関数
+        self.category = category        # イベントのカテゴリ
+
+# カテゴリの定数
+CATEGORY_TAKAYAMA = "高山イベント"
+CATEGORY_NATIONAL = "国民的イベント"
+CATEGORY_OTHER = "その他"
+
+# 高山市のイベント情報の定義
+TAKAYAMA_EVENTS = [
+    # 高山のイベント
+    Event("春の高山祭", lambda d: d.month == 4 and d.day in [14, 15], CATEGORY_TAKAYAMA),
+    Event("秋の高山祭", lambda d: d.month == 10 and d.day in [9, 10], CATEGORY_TAKAYAMA),
+    Event("雫宮祭", lambda d: d.month == 3 and d.day == 20, CATEGORY_TAKAYAMA),
+    Event("二十四日市", lambda d: d.month == 1 and d.day == 24, CATEGORY_TAKAYAMA),
+    Event("お盆", lambda d: d.month == 8 and 13 <= d.day <= 16, CATEGORY_NATIONAL),
+    Event("ゴールデンウィーク", lambda d: d.month == 5 and 3 <= d.day <= 5, CATEGORY_NATIONAL),
     
-    # 朝市（毎日開催）
-    # events.append("陣屋前朝市")
+    # 国民的イベント（祝日）
+    Event("元日", lambda d: d.month == 1 and d.day == 1, CATEGORY_NATIONAL),
+    Event("成人の日", lambda d: d.month == 1 and d.day >= 8 and d.day <= 14 and d.weekday() == 0, CATEGORY_NATIONAL),
+    Event("建国記念の日", lambda d: d.month == 2 and d.day == 11, CATEGORY_NATIONAL),
+    Event("天皇誕生日", lambda d: d.month == 2 and d.day == 23, CATEGORY_NATIONAL),
+    Event("春分の日", lambda d: d.month == 3 and d.day in [20, 21], CATEGORY_NATIONAL),
+    Event("昭和の日", lambda d: d.month == 4 and d.day == 29, CATEGORY_NATIONAL),
+    Event("憲法記念日", lambda d: d.month == 5 and d.day == 3, CATEGORY_NATIONAL),
+    Event("みどりの日", lambda d: d.month == 5 and d.day == 4, CATEGORY_NATIONAL),
+    Event("こどもの日", lambda d: d.month == 5 and d.day == 5, CATEGORY_NATIONAL),
+    Event("海の日", lambda d: d.month == 7 and d.day >= 15 and d.day <= 21 and d.weekday() == 0, CATEGORY_NATIONAL),
+    Event("山の日", lambda d: d.month == 8 and d.day == 11, CATEGORY_NATIONAL),
+    Event("敬老の日", lambda d: d.month == 9 and d.day >= 15 and d.day <= 21 and d.weekday() == 0, CATEGORY_NATIONAL),
+    Event("秋分の日", lambda d: d.month == 9 and d.day in [22, 23], CATEGORY_NATIONAL),
+    Event("スポーツの日", lambda d: d.month == 10 and d.day >= 8 and d.day <= 14 and d.weekday() == 0, CATEGORY_NATIONAL),
+    Event("文化の日", lambda d: d.month == 11 and d.day == 3, CATEGORY_NATIONAL),
+    Event("勤労感謝の日", lambda d: d.month == 11 and d.day == 23, CATEGORY_NATIONAL),
     
-    # 春の高山祭（4月14日・15日）
-    if date.month == 4 and date.day in [14, 15]:
-        events.append("春の高山祭")
+    # 国民的イベント（季節の変わり目）
+    Event("夏至", lambda d: (d.month == 6 and d.day in [20, 21, 22]), CATEGORY_NATIONAL),
+    Event("冬至", lambda d: (d.month == 12 and d.day in [21, 22, 23]), CATEGORY_NATIONAL),
+    Event("立春", lambda d: d.month == 2 and d.day in [3, 4, 5], CATEGORY_NATIONAL),
     
-    # 秋の高山祭（10月9日・10日）
-    if date.month == 10 and date.day in [9, 10]:
-        events.append("秋の高山祭")
+    # 追加の年中行事・記念日
+    # 1月
+    Event("松の内", lambda d: d.month == 1 and 1 <= d.day <= 7, CATEGORY_NATIONAL),
+    Event("七草の節句", lambda d: d.month == 1 and d.day == 7, CATEGORY_NATIONAL),
+    Event("鏡開き", lambda d: d.month == 1 and d.day in [11, 15, 20], CATEGORY_NATIONAL),
     
-    # 雫宮祭（3月20日）
-    if date.month == 3 and date.day == 20:
-        events.append("雫宮祭")
+    # 2月
+    Event("節分", lambda d: d.month == 2 and d.day in [2, 3, 4], CATEGORY_NATIONAL),
+    Event("バレンタインデー", lambda d: d.month == 2 and d.day == 14, CATEGORY_NATIONAL),
     
-    # 二十四日市（1月24日）
-    if date.month == 1 and date.day == 24:
-        events.append("二十四日市")
+    # 3月
+    Event("ひな祭り", lambda d: d.month == 3 and d.day == 3, CATEGORY_NATIONAL),
+    Event("ホワイトデー", lambda d: d.month == 3 and d.day == 14, CATEGORY_NATIONAL),
+    Event("彼岸入り", lambda d: d.month == 3 and d.day in [17, 18, 19], CATEGORY_NATIONAL),
+    Event("彼岸明け", lambda d: d.month == 3 and d.day in [23, 24, 25], CATEGORY_NATIONAL),
     
-    # お盆（8月13日～16日）
-    if date.month == 8 and 13 <= date.day <= 16:
-        events.append("お盆")
+    # 4月
+    Event("エイプリルフール", lambda d: d.month == 4 and d.day == 1, CATEGORY_NATIONAL),
+    Event("入学式シーズン", lambda d: d.month == 4 and 1 <= d.day <= 10, CATEGORY_NATIONAL),
+    Event("Easter", lambda d: d.month == 4 and 1 <= d.day <= 25, CATEGORY_NATIONAL),  # 近似値
+    Event("花祭り", lambda d: d.month == 4 and d.day == 8, CATEGORY_NATIONAL),
     
-    # ゴールデンウィーク（5月3日～5月5日）
-    if date.month == 5 and 3 <= date.day <= 5:
-        events.append("ゴールデンウィーク")
+    # 5月
+    Event("端午の節句", lambda d: d.month == 5 and d.day == 5, CATEGORY_NATIONAL),
+    Event("母の日", lambda d: d.month == 5 and d.day >= 8 and d.day <= 14 and d.weekday() == 6, CATEGORY_NATIONAL),
     
-    # === 特記気象災害情報 ===
+    # 6月
+    Event("父の日", lambda d: d.month == 6 and d.day >= 15 and d.day <= 21 and d.weekday() == 6, CATEGORY_NATIONAL),
+    Event("梅雨入り（東海）", lambda d: d.month == 6 and 5 <= d.day <= 10, CATEGORY_NATIONAL),
     
-    # 2021年: 停滞前線による記録的な大雨（8月11日～19日）
-    if date.year == 2021 and date.month == 8 and 11 <= date.day <= 19:
-        events.append("停滞前線による記録的な大雨")
+    # 7月
+    Event("七夕", lambda d: d.month == 7 and d.day == 7, CATEGORY_NATIONAL),
+    Event("梅雨明け（東海）", lambda d: d.month == 7 and 15 <= d.day <= 25, CATEGORY_NATIONAL),
+    Event("土用の丑", lambda d: d.month == 7 and 20 <= d.day <= 30, CATEGORY_NATIONAL),  # 近似値
     
-    # 2022年: 台風・梅雨前線の影響（7月14日～16日）
-    if date.year == 2022 and date.month == 7 and 14 <= date.day <= 16:
-        events.append("台風・梅雨前線による強い降雨")
+    # 8月
+    Event("立秋", lambda d: d.month == 8 and d.day in [7, 8, 9], CATEGORY_NATIONAL),
     
-    # 2022年: 台風14号（9月14日～20日）
-    if date.year == 2022 and date.month == 9 and 14 <= date.day <= 20:
-        events.append("台風14号（ナンマドル）による強風と大雨")
+    # 9月
+    Event("重陽の節句", lambda d: d.month == 9 and d.day == 9, CATEGORY_NATIONAL),
+    Event("十五夜", lambda d: d.month == 9 and 8 <= d.day <= 15, CATEGORY_NATIONAL),  # 近似値
+    Event("シルバーウィーク", lambda d: d.month == 9 and 19 <= d.day <= 23, CATEGORY_NATIONAL),
+    Event("彼岸入り", lambda d: d.month == 9 and d.day in [19, 20, 21], CATEGORY_NATIONAL),
+    Event("彼岸明け", lambda d: d.month == 9 and d.day in [25, 26, 27], CATEGORY_NATIONAL),
     
-    # 2023年: 台風13号から変わった熱帯低気圧（9月1日～10日）
-    if date.year == 2023 and date.month == 9 and 1 <= date.day <= 10:
-        events.append("台風13号から変わった熱帯低気圧による記録的大雨")
+    # 10月
+    Event("ハロウィン", lambda d: d.month == 10 and d.day == 31, CATEGORY_NATIONAL),
     
-    # 2024年: 台風21号が温帯低気圧に変化（11月1日～2日）
-    if date.year == 2024 and date.month == 11 and 1 <= date.day <= 2:
-        events.append("台風21号から変わった温帯低気圧による記録的大雨")
+    # 11月
+    Event("立冬", lambda d: d.month == 11 and d.day in [7, 8, 9], CATEGORY_NATIONAL),
+    Event("七五三", lambda d: d.month == 11 and d.day == 15, CATEGORY_NATIONAL),
+    Event("勤労感謝の日", lambda d: d.month == 11 and d.day == 23, CATEGORY_NATIONAL),
     
-    # 2025年: 雪と雨が交互に降る異常気象（3月16日～17日）
-    if date.year == 2025 and date.month == 3 and 16 <= date.day <= 17:
-        events.append("雪と雨が交互に降る異常気象")
+    # 12月
+    Event("クリスマスイブ", lambda d: d.month == 12 and d.day == 24, CATEGORY_NATIONAL),
+    Event("クリスマス", lambda d: d.month == 12 and d.day == 25, CATEGORY_NATIONAL),
+    Event("大晦日", lambda d: d.month == 12 and d.day == 31, CATEGORY_NATIONAL),
     
-    # 2025年: 局地的な強い雨（3月27日）
-    if date.year == 2025 and date.month == 3 and date.day == 27:
-        events.append("局地的な強い雨")
+    # 国際的な記念日
+    Event("世界湿地の日", lambda d: d.month == 2 and d.day == 2, CATEGORY_OTHER),
+    Event("国際女性デー", lambda d: d.month == 3 and d.day == 8, CATEGORY_OTHER),
+    Event("世界水の日", lambda d: d.month == 3 and d.day == 22, CATEGORY_OTHER),
+    Event("アースデイ", lambda d: d.month == 4 and d.day == 22, CATEGORY_OTHER),
+    Event("メーデー", lambda d: d.month == 5 and d.day == 1, CATEGORY_OTHER),
+    Event("世界禁煙デー", lambda d: d.month == 5 and d.day == 31, CATEGORY_OTHER),
+    Event("世界環境デー", lambda d: d.month == 6 and d.day == 5, CATEGORY_OTHER),
+    Event("国際平和デー", lambda d: d.month == 9 and d.day == 21, CATEGORY_OTHER),
+    Event("国連デー", lambda d: d.month == 10 and d.day == 24, CATEGORY_OTHER),
+    Event("世界エイズデー", lambda d: d.month == 12 and d.day == 1, CATEGORY_OTHER),
     
-    return "、".join(events) if events else ""
+    # ビジネス関連
+    Event("年度末", lambda d: d.month == 3 and 25 <= d.day <= 31, CATEGORY_OTHER),
+    Event("年度始め", lambda d: d.month == 4 and 1 <= d.day <= 5, CATEGORY_OTHER),
+    Event("夏のボーナス時期", lambda d: d.month == 6 and 15 <= d.day <= 30, CATEGORY_OTHER),
+    Event("冬のボーナス時期", lambda d: d.month == 12 and 5 <= d.day <= 20, CATEGORY_OTHER),
+    
+    # 気象災害情報
+    Event("停滞前線による記録的な大雨", lambda d: d.year == 2021 and d.month == 8 and 11 <= d.day <= 19, CATEGORY_OTHER),
+    Event("台風・梅雨前線による強い降雨", lambda d: d.year == 2022 and d.month == 7 and 14 <= d.day <= 16, CATEGORY_OTHER),
+    Event("台風14号（ナンマドル）による強風と大雨", lambda d: d.year == 2022 and d.month == 9 and d.day == 14, CATEGORY_OTHER),
+    Event("台風13号から変わった熱帯低気圧による記録的大雨", lambda d: d.year == 2023 and d.month == 9 and 1 <= d.day <= 10, CATEGORY_OTHER),
+    Event("台風21号から変わった温帯低気圧による記録的大雨", lambda d: d.year == 2024 and d.month == 11 and 1 <= d.day <= 2, CATEGORY_OTHER),
+    Event("雪と雨が交互に降る異常気象", lambda d: d.year == 2025 and d.month == 3 and 16 <= d.day <= 17, CATEGORY_OTHER),
+    Event("局地的な強い雨", lambda d: d.year == 2025 and d.month == 3 and d.day == 27, CATEGORY_OTHER),
+]
+
+def get_events_by_category(date, category):
+    """指定カテゴリのイベントのみを取得"""
+    matching_events = [event.name for event in TAKAYAMA_EVENTS 
+                       if event.is_match_func(date) and event.category == category]
+    return "、".join(matching_events) if matching_events else ""
 
 # CSVファイルを読み込み、処理する関数
 def process_csv(input_file, output_file):
     # CSV読み込み - ヘッダーがないCSVファイルのため、header=Noneを指定し、カラム名を設定
     df = pd.read_csv(input_file, header=None, names=['日付', '人数'])
 
-    # 新しい列を追加
+    # 新しい列を追加（曜日列を日付と人数の間に挿入）
+    df['曜日'] = ""
     df['天気'] = ""
     df['最高気温'] = ""
     df['最低気温'] = ""
-    df['備考'] = ""
+    df['高山イベント'] = ""
+    df['国民的イベント'] = ""
+    df['その他'] = ""
     
-    # デバッグ用にループを制限
-    max_rows = 50  # デバッグが終わったら制限を解除または大きな数に設定
+    # 列の順序を指定して並べ替える
+    df = df[['日付', '曜日', '人数', '天気', '最高気温', '最低気温', '高山イベント', '国民的イベント', 'その他']]
+    
+    # 各行を処理
     processed_rows = 0
     
     for index, row in df.iterrows():
-        # if processed_rows >= max_rows:
-        #     print(f"デバッグ用に{max_rows}行の処理で終了します")
-        #     break
-            
         date_str = row['日付']
         date = pd.to_datetime(date_str, format='%Y/%m/%d')
+        
+        # 曜日情報を追加
+        weekday = get_japanese_weekday(date)
+        df.at[index, '曜日'] = weekday
         
         # 天気情報取得
         weather, max_temp, min_temp = fetch_weather_info(date)
         
-        # イベント情報取得
-        event_info = fetch_event_info(date)
+        # イベント情報を各カテゴリ別に取得
+        takayama_events = get_events_by_category(date, CATEGORY_TAKAYAMA)
+        national_events = get_events_by_category(date, CATEGORY_NATIONAL)
+        other_events = get_events_by_category(date, CATEGORY_OTHER)
         
         # データフレームに書き込み
         df.at[index, '天気'] = weather
         df.at[index, '最高気温'] = max_temp
         df.at[index, '最低気温'] = min_temp
-        df.at[index, '備考'] = event_info
-        print(f"日付: {date_str}, 天気: {weather}, 最高気温: {max_temp}, 最低気温: {min_temp}, 備考: {event_info}")
+        df.at[index, '高山イベント'] = takayama_events
+        df.at[index, '国民的イベント'] = national_events
+        df.at[index, 'その他'] = other_events
+        
+        # 気温情報からの特殊な条件判定（猛暑日、極寒日）
+        if max_temp and float(max_temp.replace('℃', '')) >= 35:
+            if df.at[index, 'その他']:
+                df.at[index, 'その他'] += "、猛暑日"
+            else:
+                df.at[index, 'その他'] = "猛暑日"
+                
+        if min_temp and float(min_temp.replace('℃', '')) <= -10:
+            if df.at[index, 'その他']:
+                df.at[index, 'その他'] += "、極寒日"
+            else:
+                df.at[index, 'その他'] = "極寒日"
+        
+        print(f"日付: {date_str}({weekday}), 天気: {weather}, 最高気温: {max_temp}, 最低気温: {min_temp}")
+        print(f"高山イベント: {takayama_events}, 国民的イベント: {national_events}, その他: {other_events}")
         
         # 処理済み行数をカウントアップ
         processed_rows += 1
