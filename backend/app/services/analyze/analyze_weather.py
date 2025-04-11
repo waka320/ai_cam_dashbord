@@ -360,8 +360,8 @@ def process_csv(input_file, output_file):
         # 処理済み行数をカウントアップ
         processed_rows += 1
     
-    # 結果を新しいCSVに保存
-    df.to_csv(output_file, index=False)
+    # 結果を新しいCSVに保存 - Excel用にエンコーディングを指定
+    df.to_csv(output_file, index=False, encoding='utf-8-sig')  # BOM付きUTF-8で保存
     print(f"処理完了: {processed_rows}行処理されました")
 
 # メイン処理
