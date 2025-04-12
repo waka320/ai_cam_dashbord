@@ -4,7 +4,6 @@ import os
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
 import time
 
 # 天文計算用のパッケージを追加
@@ -12,7 +11,6 @@ from astral import LocationInfo
 from astral.sun import sun
 
 # .envファイルから環境変数をロード
-load_dotenv()
 
 # 天気データをキャッシュするディクショナリ（月単位）
 weather_cache = {}  # キー: 'YYYY-MM', 値: その月の天気データ
