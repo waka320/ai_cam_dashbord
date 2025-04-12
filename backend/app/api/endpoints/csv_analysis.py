@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.services.ai_service import analyze_csv_data
+from app.services.ai_service_debug import analyze_csv_data_debug
 import aiohttp
 
 router = APIRouter()
@@ -9,7 +9,7 @@ router = APIRouter()
 async def analyze_csv():
     try:
         csv_path = "app/data/honmachi2.csv"
-        ai_comment = await analyze_csv_data(csv_path)
+        ai_comment = await analyze_csv_data_debug(csv_path)
         return {"ai_comment": ai_comment}
     except aiohttp.ClientError as e:
         return {"error": f"Communication error with Gemini API: {str(e)}"}

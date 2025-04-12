@@ -3,16 +3,16 @@ import { Box, Typography } from '@mui/material';
 
 // 混雑度に応じた背景色を取得する関数
 export const getCellColor = (congestion) => {
-    if (congestion === 1) return '#FFF';
-    if (congestion === 2) return '#E2F4FD';
-    if (congestion === 3) return '#C9ECFD';
-    if (congestion === 4) return '#FAEA79';
-    if (congestion === 5) return '#FCE93A';
-    if (congestion === 6) return '#FFC008';
-    if (congestion === 7) return '#F0934A';
-    if (congestion === 8) return '#EB6441';
-    if (congestion === 9) return '#EA4035';
-    if (congestion === 10) return '#D32D1F';
+    if (congestion === 1) return '#191970';
+    if (congestion === 2) return '#0047AB';
+    if (congestion === 3) return '#4A69BD';
+    if (congestion === 4) return '#6C8EBF';
+    if (congestion === 5) return '#B0C4DE';
+    if (congestion === 6) return '#FFB6C1';
+    if (congestion === 7) return '#FF7F7F';
+    if (congestion === 8) return '#CD5C5C';
+    if (congestion === 9) return '#B22222';
+    if (congestion === 10) return '#800000';
     return '#FFF';
 };
 
@@ -29,7 +29,7 @@ const CongestionLegend = () => {
                             width: '24px', 
                             height: '24px', 
                             backgroundColor: getCellColor(level),
-                            color: level >= 8 ? 'white' : 'inherit',
+                            color: level >= 8 || level <= 3 ? 'white' : 'inherit',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
