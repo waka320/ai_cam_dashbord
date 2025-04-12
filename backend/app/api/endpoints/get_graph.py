@@ -4,7 +4,7 @@ import pandas as pd
 from app.services.analyze import get_data_for_calendar as calendar_service
 from app.services.analyze import get_data_for_week_time
 from app.services.analyze import get_data_for_date_time
-from app.services.ai_service_debug import analyze_csv_data_debug
+from app.services.ai_service import analyze_csv_data
 from app.services.highlighter_service import highlight_calendar_data, highlight_week_time_data, highlight_date_time_data
 from app.models import GraphRequest, GraphResponse, DayWithHours
 
@@ -64,7 +64,7 @@ async def get_graph(request: GraphRequest):
         print(f"Data for {place} in {year}/{month}: {data}")
         
         # AIアドバイスの生成
-        ai_advice = await analyze_csv_data_debug(csv_file_path, year, month, action)
+        ai_advice = await analyze_csv_data(csv_file_path, year, month, action)
         
         response = GraphResponse(
             graph=f"Graph for {place} in {year}/{month}",
