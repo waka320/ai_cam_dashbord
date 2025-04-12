@@ -66,7 +66,7 @@ const CalendarHeatmap = () => {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     backgroundColor: cell ? getCellColor(cell.congestion) : '#fff',
-                                    color: cell && cell.congestion >= 8 ? theme.palette.text.white : 'inherit',
+                                    color: cell && cell.congestion <= 8 && cell.congestion >= 3 ? 'inherit' : theme.palette.text.white,
                                     borderRight: colIndex !== 6 ? '1px solid #ddd' : undefined,
                                     borderBottom: rowIndex !== calendarData.length - 1 ? '1px solid #ddd' : undefined,
                                 }}
