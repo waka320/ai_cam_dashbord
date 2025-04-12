@@ -4,7 +4,6 @@ import os
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
 import time
 
 # 天文計算用のパッケージを追加
@@ -12,7 +11,6 @@ from astral import LocationInfo
 from astral.sun import sun
 
 # .envファイルから環境変数をロード
-load_dotenv()
 
 # 天気データをキャッシュするディクショナリ（月単位）
 weather_cache = {}  # キー: 'YYYY-MM', 値: その月の天気データ
@@ -360,8 +358,8 @@ def process_csv(input_file, output_file):
         # 処理済み行数をカウントアップ
         processed_rows += 1
     
-    # 結果を新しいCSVに保存
-    df.to_csv(output_file, index=False)
+    # 結果を新しいCSVに保存 - Excel用にエンコーディングを指定
+    df.to_csv(output_file, index=False, encoding='utf-8-sig')  # BOM付きUTF-8で保存
     print(f"処理完了: {processed_rows}行処理されました")
 
 # メイン処理
