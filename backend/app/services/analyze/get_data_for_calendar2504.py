@@ -3,11 +3,32 @@ import calendar
 from typing import List, Optional
 from app.models import DayCongestion
 
+# 各場所の混雑度境界値の定義
+CONGESTION_THRESHOLDS = {
+    # 場所ごとの(min_threshold, max_threshold)を定義
+    'honmachi2': (2300, 9500),
+    'honmachi3': (1500, 8500),
+    'honmachi4': (1000, 10000),
+    'jinnya': (700, 7000),
+    'kokubunjidori': (1600, 5800),
+    'nakabashi': (1600, 7800),
+    'omotesando': (700, 7000),
+    'yasukawadori': (7000, 26000),
+    'yottekan': (300, 3500),
+    # デフォルト値
+    'default': (2300, 9500)
+}
 
-def get_data_for_calendar(df: pd.DataFrame, year: int, month: int) -> List[List[Optional[DayCongestion]]]:
+def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 'default') -> List[List[Optional[DayCongestion]]]:
     """
     DataFrameから歩行者データを取得し、カレンダー形式に整形する。
     混雑度を10段階で計算する。日曜始まりのカレンダーを作成する。
+    
+    Args:
+        df: 分析対象のDataFrame
+        year: 年
+        month: 月
+        place: 場所の名前（CSVファイル名から拡張子を除いたもの）
     """
     # 人のデータのみをフィルタリング
     df_person = df[df['name'] == 'person']
@@ -16,9 +37,9 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int) -> List[List[
     daily_counts = df_person.groupby(df_person['datetime_jst'].dt.date)[
         'count_1_hour'].sum().reset_index()
 
-    # 混雑度を10段階で計算
-    min_threshold = 2300
-    max_threshold = 9500
+    # 場所に応じた混雑度の境界値を取得
+    min_threshold, max_threshold = CONGESTION_THRESHOLDS.get(place, CONGESTION_THRESHOLDS['default'])
+    
     step = (max_threshold - min_threshold) / 8  # 各レベル間のステップ
     
     # 境界値を計算
@@ -27,6 +48,8 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int) -> List[List[
         bins.append(min_threshold + step * i)
     bins.append(max_threshold)  # レベル9の上限＝レベル10の下限
     bins.append(float('inf'))  # レベル10の上限は無限大
+
+    print(bins)  # デバッグ用に境界値を表示
     
     # 定義した境界値に基づいて混雑度レベルを割り当て
     daily_counts['level'] = pd.cut(
@@ -35,6 +58,7 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int) -> List[List[
         labels=False, 
         include_lowest=True
     ) + 1  # レベルを1から始める
+
 
     # 該当する月のデータをフィルタリング
     daily_counts['datetime_jst'] = pd.to_datetime(daily_counts['datetime_jst'])

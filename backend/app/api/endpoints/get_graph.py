@@ -17,7 +17,7 @@ async def get_graph(request: GraphRequest):
     month = request.month
     action = request.action
     
-    print(place, year, month, action)
+    # print(place, year, month, action)
     
     csv_file_path = f"app/data/meidai/{place}.csv"
     if not os.path.exists(csv_file_path):
@@ -42,8 +42,9 @@ async def get_graph(request: GraphRequest):
         
         # アクションに応じたデータ生成とハイライト
         if action[:3] == "cal":
-            # カレンダーデータの作成
-            data = calendar_service.get_data_for_calendar(df, year, month)
+            # カレンダーデータの作成 - placeをファイル名から抽出して渡す
+            place_name = os.path.splitext(os.path.basename(place))[0]
+            data = calendar_service.get_data_for_calendar(df, year, month, place_name)
             # ハイライト処理
             data = highlight_calendar_data(data, action)
         elif action[:3] == "wti":
@@ -61,7 +62,7 @@ async def get_graph(request: GraphRequest):
             data = []
             print(f"Warning: Unsupported action: {action}")
 
-        print(f"Data for {place} in {year}/{month}: {data}")
+        # print(f"Data for {place} in {year}/{month}: {data}")
         
         # AIアドバイスの生成
         ai_advice = await analyze_csv_data_debug(csv_file_path, year, month, action)
