@@ -2,13 +2,8 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from typing import Dict, Tuple, List
-import numpy as np
-import calendar
-import matplotlib.dates as mdates
-from datetime import datetime
+from typing import Dict, Tuple
 import matplotlib
-import glob
 
 # 日本語フォントのサポート設定
 matplotlib.rcParams['font.family'] = 'Hiragino Sans GB'  # macOSの場合
