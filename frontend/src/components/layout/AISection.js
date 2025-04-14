@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
     Box, Typography, Button, useMediaQuery, TextField, Paper, 
-    Avatar, Divider, CircularProgress, Fade, IconButton, Tooltip 
+    Avatar, Divider, CircularProgress, Fade, 
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
@@ -48,7 +48,7 @@ function AISection() {
                         block: 'end'
                     });
                 }
-                setShouldScrollToBottom(false);
+                // setShouldScrollToBottom(false);
             }, 100);
             
             return () => clearTimeout(timer);
@@ -219,20 +219,9 @@ function AISection() {
                         fontSize: isMobile ? '1.1rem' : '1.2rem'
                     }}
                 >
-                    AIアシスタント
+                    AIからのアドバイス
                 </Typography>
-                <Tooltip title="AIアシスタントは高山市のデータを分析して、ビジネスや運営の意思決定をサポートします">
-                    <IconButton 
-                        size="small" 
-                        sx={{ 
-                            ml: 'auto', 
-                            color: 'rgba(255, 255, 255, 0.7)',
-                            '&:hover': { color: 'white' }
-                        }}
-                    >
-                        <InfoOutlinedIcon fontSize="small" />
-                    </IconButton>
-                </Tooltip>
+                
             </Box>
             
             {/* 会話エリア */}
