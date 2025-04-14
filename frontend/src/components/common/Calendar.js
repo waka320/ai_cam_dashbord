@@ -123,7 +123,7 @@ const CalendarHeatmap = () => {
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             backgroundColor: cell ? getCellColor(cell.congestion) : '#fff',
-                                            color: cell && cell.congestion <= 8 && cell.congestion >= 3 ? 'inherit' : theme.palette.text.white,
+                                            color: cell && cell.congestion <= 8? 'inherit' : theme.palette.text.white,
                                             borderRight: colIndex !== 6 ? '1px solid #ddd' : undefined,
                                             borderBottom: rowIndex !== calendarData.length - 1 ? '1px solid #ddd' : undefined,
                                             position: 'relative',
@@ -192,7 +192,7 @@ const CalendarHeatmap = () => {
                                                             right: isMobile ? '1px' : '5px',
                                                             fontSize: isMobile ? '12px' : '16px',
                                                             opacity: 0.8,
-                                                            color: cell.congestion <= 8 && cell.congestion >= 3 ? 'inherit' : theme.palette.text.white,
+                                                            color: cell.congestion <= 8? 'inherit' : theme.palette.text.white,
                                                         }}
                                                     />
                                                 )}
