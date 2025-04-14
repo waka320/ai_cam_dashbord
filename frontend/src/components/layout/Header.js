@@ -15,7 +15,8 @@ function Header() {
         selectedMonth,
         setSelectedMonth,
         fetchCalendarData,
-        loading
+        loading,
+        updateMonthAndFetch
     } = useCalendar();
     
     const isMobile = useMediaQuery('(max-width:768px)');
@@ -98,7 +99,7 @@ function Header() {
     };
 
     const handlePreviousMonth = () => {
-        if (!selectedYear || !selectedMonth) return;
+        if (!selectedYear || !selectedMonth || loading) return;
         
         let newMonth = parseInt(selectedMonth) - 1;
         let newYear = parseInt(selectedYear);
@@ -109,16 +110,14 @@ function Header() {
             if (newYear < 2021) return;
         }
         
-        setSelectedYear(newYear.toString());
-        setSelectedMonth(newMonth.toString());
+        console.log(`Moving to previous month: ${newYear}年${newMonth}月`);
         
-        if (selectedAction) {
-            setTimeout(() => fetchCalendarData(), 100);
-        }
+        // updateMonthAndFetch関数を使用して年月を更新し、データを取得
+        updateMonthAndFetch(newYear, newMonth);
     };
     
     const handleNextMonth = () => {
-        if (!selectedYear || !selectedMonth) return;
+        if (!selectedYear || !selectedMonth || loading) return;
         
         let newMonth = parseInt(selectedMonth) + 1;
         let newYear = parseInt(selectedYear);
@@ -132,12 +131,10 @@ function Header() {
             return;
         }
         
-        setSelectedYear(newYear.toString());
-        setSelectedMonth(newMonth.toString());
+        console.log(`Moving to next month: ${newYear}年${newMonth}月`);
         
-        if (selectedAction) {
-            setTimeout(() => fetchCalendarData(), 100);
-        }
+        // updateMonthAndFetch関数を使用して年月を更新し、データを取得
+        updateMonthAndFetch(newYear, newMonth);
     };
 
     return (
