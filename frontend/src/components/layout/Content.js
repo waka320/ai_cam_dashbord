@@ -7,38 +7,91 @@ import { Box, Typography, Link, useMediaQuery } from '@mui/material';
 import AISection from './AISection';
 import theme from '../../theme/theme';
 import { useCalendar } from '../../contexts/CalendarContext';
+import SectionContainer from '../ui/SectionContainer';
 
 function Content() {
-    const { selectedAction, loading, error } = useCalendar();
+    const { loading, error } = useCalendar();
     const isMobile = useMediaQuery('(max-width:768px)');
     
-    // 選択されたアクションに基づいて表示するビジュアライゼーションを決定
+    // エラー表示
+    const renderError = () => {
+        if (!error) return null;
+        
+        return (
+            <SectionContainer>
+                <Typography color="error" align="center">{error}</Typography>
+            </SectionContainer>
+        );
+    };
+    
+    // ローディング表示
+    const renderLoading = () => {
+        if (!loading) return null;
+        
+        return (
+            <SectionContainer>
+                <Typography align="center">Loading...</Typography>
+            </SectionContainer>
+        );
+    };
+    
+    // ビジュアライゼーションの表示
+    // 各コンポーネント内部で表示条件をチェックするため、常に全てのコンポーネントを返す
     const renderVisualization = () => {
-        if (error) {
-            return (
-                <Box sx={{ p: 3, textAlign: 'center' }}>
-                    <Typography color="error">{error}</Typography>
-                </Box>
-            );
-        }
-        
-        if (loading) {
-            return (
-                <Box sx={{ p: 3, textAlign: 'center' }}>
-                    <Typography>Loading...</Typography>
-                </Box>
-            );
-        }
-        
-        if (!selectedAction) return null;
-        
-        // 3つのコンポーネントを常に返すが、コンポーネント内部で表示条件を処理
         return (
             <>
                 <Calendar />
                 <TimeHeatmap />
                 <DateTimeHeatmap />
             </>
+        );
+    };
+
+    // クレジットフッターの表示
+    const renderCredits = () => {
+        return (
+            <Box sx={{ 
+                display: 'flex', 
+                flexDirection: isMobile ? 'column' : 'row',
+                justifyContent: 'center', 
+                marginTop: '16px',
+                textAlign: isMobile ? 'center' : 'left'
+            }}>
+                <Typography variant={isMobile ? 'supplementaryS' : 'supplementaryM'} sx={{ color: theme.palette.text.secondary }}>
+                    製作・協力<br />
+                    <Link
+                        href="https://mdg.si.i.nagoya-u.ac.jp/"
+                        color="inherit"
+                        sx={{ "&:hover": { color: theme.palette.text.link } }}
+                        underline="hover"
+                    >
+                        名古屋大学 安田・遠藤・浦田研究室
+                    </Link><br />
+                    <Link
+                        href="https://www.city.takayama.lg.jp/shisei/1005252/1021045.html"
+                        color="inherit"
+                        sx={{ "&:hover": { color: theme.palette.text.link } }}
+                        underline="hover"
+                    >
+                        飛騨高山DX推進官民連携プラットフォーム
+                    </Link><br />
+                    NECソリューションイノベータ株式会社
+                </Typography>
+                <Typography
+                    variant={isMobile ? 'bodyS' : 'bodyM'}
+                    sx={{
+                        color: theme.palette.text.white,
+                        textDecoration: 'underline',
+                        marginTop: isMobile ? '8px' : 0,
+                        marginLeft: isMobile ? 0 : '8px',
+                        '&:hover': {
+                            color: theme.palette.text.secondary,
+                        },
+                    }}
+                >
+                    ご意見・お問い合わせはこちらから
+                </Typography>
+            </Box>
         );
     };
 
@@ -56,6 +109,8 @@ function Content() {
                     flex: isMobile ? 'auto' : 2,
                     width: '100%'
                 }}>
+                    {renderError()}
+                    {renderLoading()}
                     {renderVisualization()}
                 </Box>
                 <Box
@@ -68,48 +123,7 @@ function Content() {
                     }}
                 >
                     <AISection />
-                    <Box sx={{ 
-                        display: 'flex', 
-                        flexDirection: isMobile ? 'column' : 'row',
-                        justifyContent: 'center', 
-                        marginTop: '16px',
-                        textAlign: isMobile ? 'center' : 'left'
-                    }}>
-                        <Typography variant={isMobile ? 'supplementaryS' : 'supplementaryM'} sx={{ color: theme.palette.text.secondary }}>
-                            製作・協力<br />
-                            <Link
-                                href="https://mdg.si.i.nagoya-u.ac.jp/"
-                                color="inherit"
-                                sx={{ "&:hover": { color: theme.palette.text.link } }}
-                                underline="hover"
-                            >
-                                名古屋大学 安田・遠藤・浦田研究室
-                            </Link><br />
-                            <Link
-                                href="https://www.city.takayama.lg.jp/shisei/1005252/1021045.html"
-                                color="inherit"
-                                sx={{ "&:hover": { color: theme.palette.text.link } }}
-                                underline="hover"
-                            >
-                                飛騨高山DX推進官民連携プラットフォーム
-                            </Link><br />
-                            NECソリューションイノベータ株式会社
-                        </Typography>
-                        <Typography
-                            variant={isMobile ? 'bodyS' : 'bodyM'}
-                            sx={{
-                                color: theme.palette.text.white,
-                                textDecoration: 'underline',
-                                marginTop: isMobile ? '8px' : 0,
-                                marginLeft: isMobile ? 0 : '8px',
-                                '&:hover': {
-                                    color: theme.palette.text.secondary,
-                                },
-                            }}
-                        >
-                            ご意見・お問い合わせはこちらから
-                        </Typography>
-                    </Box>
+                    {renderCredits()}
                 </Box>
             </Box>
         </>
