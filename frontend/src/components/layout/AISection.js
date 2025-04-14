@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, useMediaQuery } from '@mui/material';
 import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
 import TextField from '@mui/material/TextField';
 import SendIcon from '@mui/icons-material/Send';
@@ -9,13 +9,19 @@ import remarkGfm from 'remark-gfm';
 
 function AISection() {
   const { aiAdvice, loading} = useCalendar();
+  const isMobile = useMediaQuery('(max-width:768px)');
 
   // ローディング中の表示
   if (loading) {
     return (
-      <Box variant="outlined" sx={{ marginTop: '8px', border: '1px solid black', padding: '16px' }}>
+      <Box variant="outlined" sx={{ 
+        marginTop: '8px', 
+        border: '1px solid black', 
+        padding: isMobile ? '12px' : '16px',
+        borderRadius: '4px'
+      }}>
         <Typography
-          variant="h4"
+          variant={isMobile ? "h5" : "h4"}
           sx={{ fontWeight: 'bold', marginTop: '0px', display: 'flex', alignItems: 'center', marginBottom: '16px' }}
         >
           <PsychologyAltIcon sx={{ fontSize: 'inherit', marginRight: '8px' }} />
@@ -31,9 +37,14 @@ function AISection() {
   // アドバイスがない場合の表示
   if (!aiAdvice) {
     return (
-      <Box variant="outlined" sx={{ marginTop: '8px', border: '1px solid black', padding: '16px' }}>
+      <Box variant="outlined" sx={{ 
+        marginTop: '8px', 
+        border: '1px solid black', 
+        padding: isMobile ? '12px' : '16px',
+        borderRadius: '4px'
+      }}>
         <Typography
-          variant="h4"
+          variant={isMobile ? "h5" : "h4"}
           sx={{ fontWeight: 'bold', marginTop: '0px', display: 'flex', alignItems: 'center', marginBottom: '16px' }}
         >
           <PsychologyAltIcon sx={{ fontSize: 'inherit', marginRight: '8px' }} />
@@ -48,20 +59,25 @@ function AISection() {
 
   // アドバイスの表示
   return (
-    <Box variant="outlined" sx={{ marginTop: '8px', border: '1px solid black', padding: '16px' }}>
+    <Box variant="outlined" sx={{ 
+      marginTop: '8px', 
+      border: '1px solid black', 
+      padding: isMobile ? '12px' : '16px',
+      borderRadius: '4px'
+    }}>
       <Typography
-        variant="h4"
+        variant={isMobile ? "h5" : "h4"}
         sx={{ fontWeight: 'bold', marginTop: '0px', display: 'flex', alignItems: 'center', marginBottom: '16px' }}
       >
         <PsychologyAltIcon sx={{ fontSize: 'inherit', marginRight: '8px' }} />
         AIからのアドバイス
       </Typography>
       <Box className="markdown-body" sx={{ 
-        maxHeight: '400px',  // 最大高さを設定
-        overflowY: 'auto',   // 縦方向のスクロールを有効化
-        padding: '0 8px',    // 横方向に少しパディングを追加
+        maxHeight: isMobile ? '300px' : '400px',
+        overflowY: 'auto',
+        padding: '0 8px',
         '&::-webkit-scrollbar': {
-          width: '8px',
+          width: isMobile ? '4px' : '8px',
         },
         '&::-webkit-scrollbar-track': {
           background: '#f1f1f1',
@@ -77,18 +93,33 @@ function AISection() {
       }}>
         <ReactMarkdown remarkPlugins={[remarkGfm]}>{aiAdvice}</ReactMarkdown>
       </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', alignItems: 'center' }}>
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: isMobile ? 'column' : 'row',
+        justifyContent: 'flex-end', 
+        marginTop: '16px', 
+        alignItems: 'center',
+        gap: isMobile ? 1 : 0
+      }}>
         <TextField
           variant="outlined"
           size="small"
           placeholder="追加の質問をする"
-          sx={{ flexGrow: 1, marginRight: '8px' }}
+          sx={{ 
+            flexGrow: 1, 
+            marginRight: isMobile ? 0 : '8px',
+            width: isMobile ? '100%' : 'auto',
+          }}
         />
         <Button
           variant="contained"
           color="primary"
           endIcon={<SendIcon />}
-          sx={{ minWidth: 'auto' }}
+          sx={{ 
+            minWidth: 'auto',
+            width: isMobile ? '100%' : 'auto',
+            marginTop: isMobile ? 1 : 0
+          }}
         >
           送信
         </Button>

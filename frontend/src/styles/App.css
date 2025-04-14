@@ -1,0 +1,43 @@
+/* レスポンシブデザイン用のベーススタイル */
+.app-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+    box-sizing: border-box;
+}
+
+/* モバイルファースト設計 */
+body {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* メディアクエリ - タブレット */
+@media (min-width: 768px) {
+    body {
+        font-size: 16px;
+    }
+}
+
+/* メディアクエリ - デスクトップ */
+@media (min-width: 992px) {
+    .app-container {
+        padding: 0 30px;
+    }
+}
+
+/* フレキシブルなイメージ */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* タッチ対応の改善 */
+button,
+input,
+select,
+textarea {
+    font-size: 16px;
+    /* iOS Safariで自動ズームを防ぐ */
+}

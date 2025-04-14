@@ -8,7 +8,7 @@ import { CalendarProvider } from './contexts/CalendarContext';
 function App() {
   return (
     <CalendarProvider>
-      <div className="">
+      <div className="app-container">
         <Header />
         <Content />
       </div>
