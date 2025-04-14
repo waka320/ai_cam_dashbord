@@ -1,75 +1,44 @@
 import React from 'react';
+import { Paper, Box } from '@mui/material';
 import PropTypes from 'prop-types';
-import { Box, Typography, Paper, useMediaQuery } from '@mui/material';
 
-/**
- * アプリケーション全体で再利用可能なセクションコンテナコンポーネント
- */
-const SectionContainer = ({ 
-  title,
-  icon: Icon,
-  children,
-  maxWidth,
-  withPaper = true,
-  titleVariant,
-  sx = {},
-  paperSx = {}
-}) => {
-  const isMobile = useMediaQuery('(max-width:768px)');
-  
+function SectionContainer({ children, title, noPadding, elevation }) {
   return (
-    <Box
-      sx={{
-        maxWidth: maxWidth || '100%',
-        margin: '0 auto',
-        mt: 2,
-        px: isMobile ? 1 : 2,
-        ...sx
+    <Paper 
+      elevation={elevation || 1} 
+      sx={{ 
+        marginBottom: '16px', 
+        borderRadius: '8px',
+        overflow: 'hidden',
+        border: '1px solid rgba(0, 0, 0, 0.05)',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
       }}
     >
       {title && (
-        <Typography
-          variant={titleVariant || (isMobile ? "subtitle1" : "h6")}
-          gutterBottom
+        <Box 
           sx={{ 
-            textAlign: isMobile ? 'center' : 'left',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1
+            padding: '10px 16px', 
+            borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+            backgroundColor: '#f5f7f9',
+            fontWeight: 600,
+            fontSize: '1rem'
           }}
         >
-          {Icon && <Icon sx={{ fontSize: 'inherit' }} />}
           {title}
-        </Typography>
+        </Box>
       )}
-
-      {withPaper ? (
-        <Paper
-          elevation={2}
-          sx={{
-            p: isMobile ? 1 : 2,
-            borderRadius: '8px',
-            overflow: 'hidden',
-            ...paperSx
-          }}
-        >
-          {children}
-        </Paper>
-      ) : (
-        children
-      )}
-    </Box>
+      <Box sx={{ padding: noPadding ? 0 : '16px' }}>
+        {children}
+      </Box>
+    </Paper>
   );
-};
+}
+
 SectionContainer.propTypes = {
+  children: PropTypes.node.isRequired,
   title: PropTypes.string,
-  icon: PropTypes.elementType,
-  children: PropTypes.node,
-  maxWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  withPaper: PropTypes.bool,
-  titleVariant: PropTypes.string,
-  sx: PropTypes.object,
-  paperSx: PropTypes.object
+  noPadding: PropTypes.bool,
+  elevation: PropTypes.number
 };
 
 export default SectionContainer;
