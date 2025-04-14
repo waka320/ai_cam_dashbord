@@ -34,10 +34,13 @@ def ensure_directory_exists(directory_path: str):
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
 
-def count_persons_by_day(csv_file_path: str) -> Dict:
+def count_persons_by_day(csv_file_path: str) -> Tuple[Dict, str, str]:
     """
     CSVファイルから日ごとの人数を集計する
     同じ日の全方向(toEast, toWestなど)の人数を合計する
+    
+    Returns:
+        Tuple[Dict, str, str]: 集計結果の辞書、開始日、終了日
     """
     try:
         # CSVファイルを読み込む
@@ -48,7 +51,7 @@ def count_persons_by_day(csv_file_path: str) -> Dict:
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
             print(f"Warning: Missing columns in {csv_file_path}: {missing_columns}")
-            return {}
+            return {}, "", ""
         
         # 日付カラムを探す
         date_column = None
@@ -59,7 +62,7 @@ def count_persons_by_day(csv_file_path: str) -> Dict:
                 
         if not date_column:
             print(f"Warning: No date column found in {csv_file_path}")
-            return {}
+            return {}, "", ""
         
         # 日付カラムをdatetimeに変換
         df[date_column] = pd.to_datetime(df[date_column])
@@ -71,12 +74,16 @@ def count_persons_by_day(csv_file_path: str) -> Dict:
         person_df = df[df['name'] == 'person']
         daily_count = person_df.groupby('date_only')['count_1_hour'].sum()
         
+        # データ期間を取得
+        start_date = person_df['date_only'].min().strftime('%Y/%m/%d') if not person_df.empty else ""
+        end_date = person_df['date_only'].max().strftime('%Y/%m/%d') if not person_df.empty else ""
+        
         # 辞書形式に変換して返す
-        return {date: count for date, count in daily_count.items()}
+        return {date: count for date, count in daily_count.items()}, start_date, end_date
         
     except Exception as e:
         print(f"Error processing {csv_file_path}: {e}")
-        return {}
+        return {}, "", ""
 
 def calculate_congestion_bins(place: str) -> Tuple[list, str]:
     """場所に応じた混雑度の境界値を計算する"""
@@ -99,7 +106,7 @@ def calculate_congestion_bins(place: str) -> Tuple[list, str]:
 def create_histogram(file_path: str, place: str, output_dir: str):
     """指定した場所のデータを使って混雑度のヒストグラムを作成する"""
     # 日ごとの歩行者数を取得
-    daily_counts_dict = count_persons_by_day(file_path)
+    daily_counts_dict, start_date, end_date = count_persons_by_day(file_path)
     
     if not daily_counts_dict:
         print(f"データが取得できませんでした: {file_path}")
@@ -111,7 +118,10 @@ def create_histogram(file_path: str, place: str, output_dir: str):
         for date, count in daily_counts_dict.items()
     ])
     
-    bins, title = calculate_congestion_bins(place)
+    bins, title_base = calculate_congestion_bins(place)
+    
+    # タイトルにデータ期間を追加
+    title = f"{place} - 混雑度分布 ({start_date} - {end_date})"
     
     # 最大値を確認してbinsを調整
     max_count = daily_counts['count_1_hour'].max() if not daily_counts.empty else 0
@@ -128,10 +138,11 @@ def create_histogram(file_path: str, place: str, output_dir: str):
     # ヒストグラムを描画
     n, bins_result, patches = plt.hist(daily_counts['count_1_hour'], bins=bins, edgecolor='black', alpha=0.7)
     
-    # 各階級の度数を表示
+    # 各階級の度数を表示（位置を調整）
     for i in range(len(n)):
-        plt.text((bins[i] + bins[i+1])/2, n[i] + max(n)/50, f'{int(n[i])}', 
-                 ha='center', va='bottom', fontweight='bold')
+        if n[i] > 0:  # 度数が0より大きい場合のみ表示
+            plt.text((bins[i] + bins[i+1])/2, n[i] + max(n)/30, f'{int(n[i])}', 
+                     ha='center', va='bottom', fontweight='bold')
     
     # 混雑度レベルに色を付ける (10段階)
     colors = ['#191970', '#0047AB', '#4A69BD', '#6C8EBF', '#B0C4DE', 
@@ -141,24 +152,23 @@ def create_histogram(file_path: str, place: str, output_dir: str):
     for i, patch in enumerate(patches):
         patch.set_facecolor(colors[min(i, len(colors)-1)])  # 範囲を超えないようにする
     
-    # x軸ラベルを整形し、10段階目までのラベルも表示
-    tick_positions = [(bins[i] + bins[i+1]) / 2 for i in range(len(bins)-1)]
-    plt.xticks(tick_positions, [f"{int(bins[i])}" for i in range(len(bins)-1)], rotation=45, ha='right')
+    # x軸のティックとラベルを削除
+    plt.tick_params(axis='x', which='both', bottom=False, top=False, labelbottom=False)
+    
+    # 境界値を縦向きに表示
+    for i in range(len(bins)):
+        plt.axvline(x=bins[i], color='gray', linestyle='--', alpha=0.5)
+        # 境界値テキストを縦向きに表示（最後の境界は表示しない）
+        if i < len(bins) - 1:
+            plt.text(bins[i], -max(n)/50, f'{int(bins[i])}', rotation=270, ha='center', va='top', fontsize=9)
     
     # グラフ設定
     plt.title(title)
-    plt.xlabel('歩行者数')
+    # x軸ラベルを削除
+    # plt.xlabel('歩行者数')
     plt.ylabel('日数')
     plt.grid(axis='y', alpha=0.75)
     
-    # レベル番号を表示 (10段階すべてを表示)
-    for i in range(10):
-        mid_x = (bins[i] + bins[i+1]) / 2
-        plt.text(mid_x, -max(n)/20, f'{i+1}', ha='center', va='top', fontweight='bold')
-    
-    # 混雑度レベルの境界線を追加
-    for i in range(1, len(bins)):
-        plt.axvline(x=bins[i], color='gray', linestyle='--', alpha=0.5)
     
     # 混雑度レベル10が含まれるよう、x軸の範囲を明示的に設定
     plt.xlim(0, bins[-1])
@@ -203,19 +213,27 @@ def main():
             print(f"ファイルが見つかりません: {file_path}")
     
     # すべての場所を含む総合ヒストグラムも作成
-    # create_combined_histogram(data_dir, places, output_dir)
+    #create_combined_histogram(data_dir, places, output_dir)
 
 def create_combined_histogram(data_dir: str, places: list, output_dir: str):
     """すべての場所を含む総合的なヒストグラムを作成する"""
     all_counts = []
+    min_date = None
+    max_date = None
     
     for place in places:
         file_path = os.path.join(data_dir, f"{place}.csv")
         if os.path.exists(file_path):
-            # 日ごとの歩行者数を取得（新しい関数を使用）
-            daily_counts_dict = count_persons_by_day(file_path)
+            # 日ごとの歩行者数とデータ期間を取得
+            daily_counts_dict, start_date, end_date = count_persons_by_day(file_path)
             
             if daily_counts_dict:
+                # 開始日と終了日を更新
+                if start_date and (min_date is None or start_date < min_date):
+                    min_date = start_date
+                if end_date and (max_date is None or end_date > max_date):
+                    max_date = end_date
+                
                 # 辞書からDataFrameに変換して場所情報を追加
                 place_df = pd.DataFrame([
                     {"datetime_jst": date, "count_1_hour": count, "place": place} 
@@ -235,11 +253,24 @@ def create_combined_histogram(data_dir: str, places: list, output_dir: str):
     
     sns.histplot(data=combined_df, x='count_1_hour', hue='place', multiple='stack', bins=30, alpha=0.7)
     
-    plt.title('全ての場所の混雑度分布')
-    plt.xlabel('歩行者数')
+    # タイトルにデータ期間を追加
+    period_str = f" ({min_date} - {max_date})" if min_date and max_date else ""
+    plt.title(f'全ての場所の混雑度分布{period_str}')
+    
+    # x軸ラベルを削除
+    # plt.xlabel('歩行者数')
     plt.ylabel('日数')
     plt.grid(axis='y', alpha=0.75)
     plt.legend(title='場所')
+    
+    # 主要な値を縦向きに表示
+    x_ticks = plt.gca().get_xticks()
+    plt.xticks(x_ticks, [])  # 既存のx軸ラベルを削除
+    
+    for tick in x_ticks:
+        if tick >= 0 and tick < combined_df['count_1_hour'].max() * 1.1:
+            plt.text(tick, -combined_df['count_1_hour'].value_counts().max()/20, f'{int(tick)}', 
+                     rotation=90, ha='right', va='top', fontsize=9)
     
     plt.tight_layout()
     output_file = os.path.join(output_dir, "all_places_histogram.png")
