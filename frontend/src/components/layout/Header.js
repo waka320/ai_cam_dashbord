@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppBar, Toolbar, Typography, Button, Select, MenuItem, Box, FormControl } from '@mui/material';
 // import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import theme from '../../theme/theme';
@@ -17,6 +17,11 @@ function Header() {
         loading
     } = useCalendar();
 
+    // 現在の日付情報を取得
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1; // JavaScriptの月は0から始まるので+1
+
     const menuItems = [
         { value: "cal_holiday", label: "店舗の定休日を検討したい" },
         { value: "cal_shoping_holiday", label: "商店街の定休日を検討したい" },
@@ -33,40 +38,55 @@ function Header() {
         { value: "dti_cog", label: "曜日と時間帯ごとの混雑度が見たい" },
     ];
 
-    let yearItems = [
-        { value: "2021", label: "2021" },
-        { value: "2022", label: "2022" },
-        { value: "2023", label: "2023" },
-        { value: "2024", label: "2024" },
-        { value: "2025", label: "2025" },
-    ];
+    // 年のリストを動的に生成 (2021年から現在の年まで)
+    const generateYearItems = () => {
+        const years = [];
+        const startYear = 2021;
+        for (let year = startYear; year <= currentYear; year++) {
+            years.push({ value: year.toString(), label: year.toString() });
+        }
+        return years;
+    };
 
-    let monthItems = [
-        { value: "1", label: "1" },
-        { value: "2", label: "2" },
-        { value: "3", label: "3" },
-        { value: "4", label: "4" },
-        { value: "5", label: "5" },
-        { value: "6", label: "6" },
-        { value: "7", label: "7" },
-        { value: "8", label: "8" },
-        { value: "9", label: "9" },
-        { value: "10", label: "10" },
-        { value: "11", label: "11" },
-        { value: "12", label: "12" },
+    const yearItems = generateYearItems();
+    const [availableMonths, setAvailableMonths] = useState([]);
 
-    ];
+    // 年が変更されたときに月のリストを更新
+    useEffect(() => {
+        // generateMonthItems を useEffect 内に移動して依存配列の問題を解決
+        const generateMonthItemsInEffect = (year) => {
+            if (!year) return [];
+            
+            const months = [];
+            // 選択された年が現在の年なら、現在の月までしか選べないようにする
+            const maxMonth = year === currentYear.toString() ? currentMonth : 12;
+            
+            for (let month = 1; month <= maxMonth; month++) {
+                months.push({ value: month.toString(), label: month.toString() });
+            }
+            return months;
+        };
+
+        setAvailableMonths(generateMonthItemsInEffect(selectedYear));
+        
+        // もし選択中の月が新しい年の制限を超えていれば、月の選択をリセットする
+        const maxAvailableMonth = selectedYear === currentYear.toString() ? currentMonth.toString() : "12";
+        if (selectedMonth && parseInt(selectedMonth) > parseInt(maxAvailableMonth)) {
+            setSelectedMonth("");
+        }
+    }, [selectedYear, currentYear, currentMonth, selectedMonth, setSelectedMonth]);
 
     const handleYearChange = (event) => {
-        setSelectedYear(event.target.value);
-        if (event.target.value && selectedYear && selectedAction) {
+        const newYear = event.target.value;
+        setSelectedYear(newYear);
+        if (newYear && selectedMonth && selectedAction) {
             fetchCalendarData();
         }
     };
 
     const handleMonthChange = (event) => {
         setSelectedMonth(event.target.value);
-        if (event.target.value && selectedYear && selectedAction) {
+        if (selectedYear && event.target.value && selectedAction) {
             fetchCalendarData();
         }
     };
@@ -77,6 +97,7 @@ function Header() {
             fetchCalendarData();
         }
     };
+
     return (
         <AppBar position="static" color="primary" sx={{ padding: '8px 8px' }}>
             <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -163,11 +184,11 @@ function Header() {
                                 <Select
                                     value={selectedMonth}
                                     onChange={handleMonthChange}
-                                    disabled={loading}
+                                    disabled={loading || !selectedYear}
                                     displayEmpty
                                     renderValue={(value) => {
                                         if (value === "") return "--月";
-                                        const selectedMonth = monthItems.find((item) => item.value === value);
+                                        const selectedMonth = availableMonths.find((item) => item.value === value);
                                         return selectedMonth ? selectedMonth.label + "月" : "";
                                     }}
                                     sx={{
@@ -185,7 +206,7 @@ function Header() {
                                                 : theme.palette.text.primary,
                                     }}
                                 >
-                                    {monthItems.map((item) => (
+                                    {availableMonths.map((item) => (
                                         <MenuItem key={item.value} value={item.value} sx={theme.typography.bodyM}>
                                             {item.label}
                                         </MenuItem>
