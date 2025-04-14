@@ -13,7 +13,8 @@ function Header() {
         setSelectedYear,
         selectedMonth,
         setSelectedMonth,
-        fetchCalendarData
+        fetchCalendarData,
+        loading
     } = useCalendar();
 
     const menuItems = [
@@ -95,6 +96,7 @@ function Header() {
                         <Select
                             value={selectedAction}
                             onChange={handleChange}
+                            disabled={loading}
                             displayEmpty
                             renderValue={(value) => {
                                 if (value === "") return "未入力";
@@ -102,13 +104,14 @@ function Header() {
                                 return selectedItem ? selectedItem.label : "";
                             }}
                             sx={{
-                                backgroundColor: 'white',
+                                backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
                                 borderRadius: '4px',
                                 color:
                                     selectedAction === ""
                                         ? theme.palette.text.secondary
                                         : theme.palette.text.primary,
                                 padding: '4px 8px',
+                                '.MuiSelect-icon': { color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary },
                             }}
                         >
                             {menuItems.map((item) => (
@@ -127,6 +130,7 @@ function Header() {
                                 <Select
                                     value={selectedYear}
                                     onChange={handleYearChange}
+                                    disabled={loading}
                                     displayEmpty
                                     renderValue={(value) => {
                                         if (value === "") return "----年";
@@ -134,9 +138,9 @@ function Header() {
                                         return selectedYear ? selectedYear.label + "年" : "";
                                     }}
                                     sx={{
-                                        backgroundColor: 'white',
+                                        backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
                                         borderRadius: '4px',
-                                        '.MuiSelect-icon': { color: theme.palette.text.secondary },
+                                        '.MuiSelect-icon': { color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary },
                                         ...theme.typography.bodyM,
                                         padding: '4px 8px',
                                         '& .MuiOutlinedInput-input': {
@@ -159,6 +163,7 @@ function Header() {
                                 <Select
                                     value={selectedMonth}
                                     onChange={handleMonthChange}
+                                    disabled={loading}
                                     displayEmpty
                                     renderValue={(value) => {
                                         if (value === "") return "--月";
@@ -166,9 +171,9 @@ function Header() {
                                         return selectedMonth ? selectedMonth.label + "月" : "";
                                     }}
                                     sx={{
-                                        backgroundColor: 'white',
+                                        backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
                                         borderRadius: '4px',
-                                        '.MuiSelect-icon': { color: theme.palette.text.secondary },
+                                        '.MuiSelect-icon': { color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary },
                                         ...theme.typography.bodyM,
                                         padding: '4px 8px',
                                         '& .MuiOutlinedInput-input': {
@@ -189,7 +194,6 @@ function Header() {
                             </FormControl>
                         </Box>
                     </Box>
-
                 </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
