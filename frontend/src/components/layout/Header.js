@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppBar, Toolbar, Typography, Button, Select, MenuItem, Box, FormControl } from '@mui/material';
+import { AppBar, Toolbar, Typography, Select, MenuItem, Box, FormControl, Button } from '@mui/material';
 // import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import theme from '../../theme/theme';
 import logo from '../../assets/dashbord_logo.png';
@@ -98,6 +98,55 @@ function Header() {
         }
     };
 
+    // 前の月に移動する関数
+    const handlePreviousMonth = () => {
+        if (!selectedYear || !selectedMonth) return;
+        
+        let newMonth = parseInt(selectedMonth) - 1;
+        let newYear = parseInt(selectedYear);
+        
+        if (newMonth < 1) {
+            newMonth = 12;
+            newYear -= 1;
+            // 2021年より前には戻れないようにする
+            if (newYear < 2021) return;
+        }
+        
+        setSelectedYear(newYear.toString());
+        setSelectedMonth(newMonth.toString());
+        
+        // データを更新
+        if (selectedAction) {
+            setTimeout(() => fetchCalendarData(), 100);
+        }
+    };
+    
+    // 次の月に移動する関数
+    const handleNextMonth = () => {
+        if (!selectedYear || !selectedMonth) return;
+        
+        let newMonth = parseInt(selectedMonth) + 1;
+        let newYear = parseInt(selectedYear);
+        
+        if (newMonth > 12) {
+            newMonth = 1;
+            newYear += 1;
+        }
+        
+        // 現在の年月より先には進めないようにする
+        if (newYear > currentYear || (newYear === currentYear && newMonth > currentMonth)) {
+            return;
+        }
+        
+        setSelectedYear(newYear.toString());
+        setSelectedMonth(newMonth.toString());
+        
+        // データを更新
+        if (selectedAction) {
+            setTimeout(() => fetchCalendarData(), 100);
+        }
+    };
+
     return (
         <AppBar position="static" color="primary" sx={{ padding: '8px 8px' }}>
             <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -105,7 +154,7 @@ function Header() {
                     <Typography
                         variant="h6"
                         sx={{
-                            marginRight: '16px',
+                            marginRight: '12px',
                             color: theme.palette.text.white,
                             fontWeight: 'bold',
                         }}
@@ -146,6 +195,27 @@ function Header() {
                         <Typography variant="labelL" sx={{ color: theme.palette.text.white, fontWeight: 'bold' }}>
                             データの年・月
                         </Typography>
+                        
+                        <Button 
+                            variant="contained"
+                            onClick={handlePreviousMonth}
+                            disabled={loading || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
+                            sx={{ 
+                                minWidth: '80px', 
+                                bgcolor: 'white', 
+                                color: theme.palette.primary.main,
+                                '&:hover': {
+                                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                                },
+                                '&:disabled': {
+                                    bgcolor: 'rgba(255, 255, 255, 0.5)',
+                                    color: 'rgba(0, 0, 0, 0.38)',
+                                }
+                            }}
+                        >
+                            前の月
+                        </Button>
+                        
                         <Box sx={{ display: 'flex', gap: 1 }}>
                             <FormControl variant="outlined" sx={{ minWidth: 100 }}>
                                 <Select
@@ -214,32 +284,30 @@ function Header() {
                                 </Select>
                             </FormControl>
                         </Box>
+                        
+                        <Button 
+                            variant="contained"
+                            onClick={handleNextMonth}
+                            disabled={loading || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
+                            sx={{ 
+                                minWidth: '80px', 
+                                bgcolor: 'white', 
+                                color: theme.palette.primary.main,
+                                '&:hover': {
+                                    bgcolor: 'rgba(255, 255, 255, 0.8)',
+                                },
+                                '&:disabled': {
+                                    bgcolor: 'rgba(255, 255, 255, 0.5)',
+                                    color: 'rgba(0, 0, 0, 0.38)',
+                                }
+                            }}
+                        >
+                            次の月
+                        </Button>
                     </Box>
                 </Box>
 
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Button
-                        href="#"
-                        sx={{
-                            textTransform: 'none',
-
-                            fontWeight: 'bold',
-                            marginRight: '16px',
-                        }}
-                    >
-                        <Typography
-                            variant="bodyM"
-                            sx={{
-                                color: theme.palette.text.white,
-                                textDecoration: 'underline',
-                                '&:hover': {
-                                    color: theme.palette.text.secondary,
-                                },
-                            }}
-                        >
-                            ご意見・お問い合わせはこちらから
-                        </Typography>
-                    </Button>
                     <Box
                         component="img"
                         src={logo}
