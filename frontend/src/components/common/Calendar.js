@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Box, Typography, CircularProgress, Popper, Paper, ClickAwayListener } from '@mui/material';
+import { Box, Typography, CircularProgress, Popper, Paper, ClickAwayListener, useMediaQuery } from '@mui/material';
 import theme from '../../theme/theme';
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend, { getCellColor } from './CongestionLegend';
@@ -9,6 +9,10 @@ import InfoIcon from '@mui/icons-material/Info';
 const CalendarHeatmap = () => {
     const { calendarData, selectedAction, loading } = useCalendar();
     const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
+    
+    // レスポンシブ対応のためのメディアクエリ
+    const isMobile = useMediaQuery('(max-width:768px)');
+    const isSmallMobile = useMediaQuery('(max-width:480px)');
     
     // クリックしたセルの参照とポップオーバーの状態管理
     const [anchorEl, setAnchorEl] = useState(null);
@@ -63,7 +67,7 @@ const CalendarHeatmap = () => {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
                 <Typography variant="body1" color="error">
-                    データ形式が正しくありません。別のアクションを選択してください1。
+                    データ形式が正しくありません。別のアクションを選択してください。
                 </Typography>
             </Box>
         );
@@ -72,12 +76,30 @@ const CalendarHeatmap = () => {
     return (
         <ClickAwayListener onClickAway={handleClickAway}>
             <Box>
-                <Box sx={{ maxWidth: '800px', margin: '0 auto', border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
+                <Box sx={{ 
+                    maxWidth: '800px', 
+                    margin: '0 auto', 
+                    border: '1px solid #ddd', 
+                    borderRadius: '8px', 
+                    overflow: 'hidden',
+                    width: '100%'
+                }}>
                     {/* 曜日のヘッダー */}
-                    <Box sx={{ display: 'flex', backgroundColor: '#f5f5f5', borderBottom: '1px solid #ddd' }}>
+                    <Box sx={{ 
+                        display: 'flex', 
+                        backgroundColor: '#f5f5f5', 
+                        borderBottom: '1px solid #ddd'
+                    }}>
                         {daysOfWeek.map((day, index) => (
-                            <Box key={index} sx={{ flex: 1, textAlign: 'center', padding: '10px' }}>
-                                <Typography variant="bodyM" fontWeight="bold">
+                            <Box key={index} sx={{ 
+                                flex: 1, 
+                                textAlign: 'center', 
+                                padding: isMobile ? '4px 2px' : '10px' 
+                            }}>
+                                <Typography 
+                                    variant={isSmallMobile ? "bodyS" : "bodyM"} 
+                                    fontWeight="bold"
+                                >
                                     {day}
                                 </Typography>
                             </Box>
@@ -101,27 +123,28 @@ const CalendarHeatmap = () => {
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             backgroundColor: cell ? getCellColor(cell.congestion) : '#fff',
-                                            // color: cell && cell.congestion <= 6  ? 'inherit' : theme.palette.text.white,
                                             color: cell && cell.congestion <= 8 && cell.congestion >= 3 ? 'inherit' : theme.palette.text.white,
                                             borderRight: colIndex !== 6 ? '1px solid #ddd' : undefined,
                                             borderBottom: rowIndex !== calendarData.length - 1 ? '1px solid #ddd' : undefined,
                                             position: 'relative',
                                             cursor: cell && cell.highlighted ? 'pointer' : 'default',
-                                            // ハイライトエフェクト - セルの縁に沿って発光
+                                            height: isMobile ? (isSmallMobile ? '45px' : '55px') : 'auto',
+                                            minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : 'auto',
+                                            // ハイライトエフェクト
                                             ...(cell && cell.highlighted && {
                                                 '&::before': {
                                                     content: '""',
                                                     position: 'absolute',
-                                                    top: '3px',
-                                                    left: '3px',
-                                                    right: '3px',
-                                                    bottom: '3px',
+                                                    top: isMobile ? '2px' : '3px',
+                                                    left: isMobile ? '2px' : '3px',
+                                                    right: isMobile ? '2px' : '3px',
+                                                    bottom: isMobile ? '2px' : '3px',
                                                     borderRadius: '2px',
-                                                    border: '2px solid rgba(255, 215, 0, 0.8)',
+                                                    border: isMobile ? '1.5px solid rgba(255, 215, 0, 0.8)' : '2px solid rgba(255, 215, 0, 0.8)',
                                                     boxShadow: '0 0 3px rgba(255, 215, 0, 0.8)',
                                                     pointerEvents: 'none',
                                                     zIndex: 1,
-                                                    backgroundColor: 'transparent', // 背景色なし
+                                                    backgroundColor: 'transparent',
                                                 }
                                             }),
                                         }}
@@ -129,27 +152,47 @@ const CalendarHeatmap = () => {
                                         {cell && (
                                             <Box sx={{ 
                                                 textAlign: 'center', 
-                                                padding: '10px', 
+                                                padding: isMobile ? (isSmallMobile ? '2px' : '4px') : '10px',
                                                 position: 'relative',
-                                                zIndex: 2, // コンテンツをグローエフェクトの上に表示
+                                                zIndex: 2,
                                                 width: '100%',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
                                             }}>
-                                                <Typography variant="h3" sx={{ margin: '0px' }}>
+                                                <Typography 
+                                                    variant={isMobile ? (isSmallMobile ? "bodyL" : "h4") : "h3"} 
+                                                    sx={{ 
+                                                        margin: '0px',
+                                                        fontSize: isMobile ? (isSmallMobile ? '14px' : '16px') : undefined,
+                                                        lineHeight: isMobile ? '1.2' : undefined
+                                                    }}
+                                                >
                                                     {cell.date}
                                                 </Typography>
-                                                <Typography variant="bodyM">混雑度: {cell.congestion}</Typography>
+                                                
+                                                <Typography 
+                                                    variant={isMobile ? "bodyS" : "bodyM"} 
+                                                    sx={{
+                                                        fontSize: isSmallMobile ? '10px' : undefined,
+                                                        lineHeight: isSmallMobile ? '1' : undefined,
+                                                        marginTop: isSmallMobile ? '2px' : undefined
+                                                    }}
+                                                >
+                                                    {isSmallMobile ? `混:${cell.congestion}` : `混雑度: ${cell.congestion}`}
+                                                </Typography>
                                                 
                                                 {/* ハイライトされたセルにインフォアイコンを表示 */}
                                                 {cell.highlighted && cell.highlight_reason && (
                                                     <InfoIcon 
                                                         sx={{ 
                                                             position: 'absolute',
-                                                            top: '5px',
-                                                            right: '5px',
-                                                            fontSize: '16px',
+                                                            top: isMobile ? '1px' : '5px',
+                                                            right: isMobile ? '1px' : '5px',
+                                                            fontSize: isMobile ? '12px' : '16px',
                                                             opacity: 0.8,
-                                                            color: cell.congestion <= 8 && cell.congestion >= 3 ? 'inherit' : theme.palette.text.white, 
-                                                            // color: cell.congestion <= 5 && cell.congestion >= 11 ? 'inherit' : theme.palette.text.white,
+                                                            color: cell.congestion <= 8 && cell.congestion >= 3 ? 'inherit' : theme.palette.text.white,
                                                         }}
                                                     />
                                                 )}
@@ -166,30 +209,38 @@ const CalendarHeatmap = () => {
                 <Popper 
                     open={open} 
                     anchorEl={anchorEl}
-                    placement="top"
+                    placement={isMobile ? "bottom" : "top"}
                     modifiers={[
                         {
                             name: 'offset',
                             options: {
-                                offset: [0, 10],
+                                offset: [0, isMobile ? 5 : 10],
+                            },
+                        },
+                        {
+                            name: 'preventOverflow',
+                            enabled: true,
+                            options: {
+                                boundary: document.body,
                             },
                         },
                     ]}
                     sx={{ 
-                        zIndex: 1500  // 高いz-indexを設定して最前面に表示
+                        zIndex: 1500
                     }}
                 >
                     <Paper 
                         elevation={3} 
                         sx={{ 
-                            p: 2, 
+                            p: isMobile ? 1.5 : 2, 
                             backgroundColor: 'rgba(255, 255, 255, 0.95)',
                             border: '1px solid #ddd',
-                            maxWidth: '200px',
-                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)' // よりはっきりしたシャドウも追加
+                            maxWidth: isMobile ? '180px' : '200px',
+                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+                            fontSize: isMobile ? (isSmallMobile ? '12px' : '14px') : undefined
                         }}
                     >
-                        <Typography variant="bodyS" fontWeight="bold">
+                        <Typography variant={isMobile ? "bodyS" : "bodyM"} fontWeight="bold">
                             {popperText}
                         </Typography>
                     </Paper>

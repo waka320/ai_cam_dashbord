@@ -3,13 +3,14 @@ import Inputs from '../common/Inputs';
 import Calendar from '../common/Calendar';
 import TimeHeatmap from '../common/TimeHeatmap';
 import DateTimeHeatmap from '../common/DateTimeHeatmap';
-import { Box, Typography, Link } from '@mui/material';
+import { Box, Typography, Link, useMediaQuery } from '@mui/material';
 import AISection from './AISection';
 import theme from '../../theme/theme';
 import { useCalendar } from '../../contexts/CalendarContext';
 
 function Content() {
     const { selectedAction, loading, error } = useCalendar();
+    const isMobile = useMediaQuery('(max-width:768px)');
     
     // 選択されたアクションに基づいて表示するビジュアライゼーションを決定
     const renderVisualization = () => {
@@ -44,20 +45,37 @@ function Content() {
     return (
         <>
             <Inputs />
-            <Box sx={{ display: 'flex' }}>
-                <Box sx={{ flex: 2 }}>
+            <Box 
+                sx={{ 
+                    display: 'flex', 
+                    flexDirection: isMobile ? 'column' : 'row',
+                    padding: isMobile ? '8px' : '16px'
+                }}
+            >
+                <Box sx={{ 
+                    flex: isMobile ? 'auto' : 2,
+                    width: '100%'
+                }}>
                     {renderVisualization()}
                 </Box>
                 <Box
                     sx={{
-                        flex: 1,
+                        flex: isMobile ? 'auto' : 1,
                         display: 'flex',
-                        flexDirection: 'column'
+                        flexDirection: 'column',
+                        marginTop: isMobile ? '16px' : 0,
+                        marginLeft: isMobile ? 0 : '16px'
                     }}
                 >
                     <AISection />
-                    <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
-                        <Typography variant='supplementaryM' sx={{ color: theme.palette.text.secondary, }}>
+                    <Box sx={{ 
+                        display: 'flex', 
+                        flexDirection: isMobile ? 'column' : 'row',
+                        justifyContent: 'center', 
+                        marginTop: '16px',
+                        textAlign: isMobile ? 'center' : 'left'
+                    }}>
+                        <Typography variant={isMobile ? 'supplementaryS' : 'supplementaryM'} sx={{ color: theme.palette.text.secondary }}>
                             製作・協力<br />
                             <Link
                                 href="https://mdg.si.i.nagoya-u.ac.jp/"
@@ -78,10 +96,12 @@ function Content() {
                             NECソリューションイノベータ株式会社
                         </Typography>
                         <Typography
-                            variant="bodyM"
+                            variant={isMobile ? 'bodyS' : 'bodyM'}
                             sx={{
                                 color: theme.palette.text.white,
                                 textDecoration: 'underline',
+                                marginTop: isMobile ? '8px' : 0,
+                                marginLeft: isMobile ? 0 : '8px',
                                 '&:hover': {
                                     color: theme.palette.text.secondary,
                                 },
