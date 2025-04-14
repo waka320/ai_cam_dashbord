@@ -175,6 +175,9 @@ const CalendarHeatmap = () => {
                             },
                         },
                     ]}
+                    sx={{ 
+                        zIndex: 1500  // 高いz-indexを設定して最前面に表示
+                    }}
                 >
                     <Paper 
                         elevation={3} 
@@ -182,7 +185,8 @@ const CalendarHeatmap = () => {
                             p: 2, 
                             backgroundColor: 'rgba(255, 255, 255, 0.95)',
                             border: '1px solid #ddd',
-                            maxWidth: '200px'
+                            maxWidth: '200px',
+                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)' // よりはっきりしたシャドウも追加
                         }}
                     >
                         <Typography variant="bodyS" fontWeight="bold">
