@@ -6,7 +6,7 @@ import { useCalendar } from '../../contexts/CalendarContext';
 import theme from '../../theme/theme';
 
 function Inputs() {
-    const { selectedLocation, setSelectedLocation, fetchCalendarData } = useCalendar();
+    const { selectedLocation, setSelectedLocation, fetchCalendarData, loading } = useCalendar();
 
     const locationItems = [
         { value: "omotesando", label: "表参道" },
@@ -38,6 +38,7 @@ function Inputs() {
                     <Select
                         value={selectedLocation}
                         onChange={handleLocationChange}
+                        disabled={loading}
                         displayEmpty
                         renderValue={(value) => {
                             if (value === "") return "未入力";
@@ -45,9 +46,9 @@ function Inputs() {
                             return selectedLocation ? selectedLocation.label : "";
                         }}
                         sx={{
-                            backgroundColor: 'white',
+                            backgroundColor: loading ? 'rgba(0, 0, 0, 0.05)' : 'white',
                             borderRadius: '4px',
-                            '.MuiSelect-icon': { color: theme.palette.text.secondary },
+                            '.MuiSelect-icon': { color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary },
                             ...theme.typography.bodyM,
                             padding: '4px 8px',
                             '& .MuiOutlinedInput-input': {
