@@ -412,7 +412,7 @@ function Header() {
                                 </FormControl>
                                 
                                 <FormControl variant="outlined" sx={{ 
-                                    width: isMobile ? '50%' : isSmallDesktop ? 80 : 100,
+                                    width: isMobile ? '50%' : isSmallDesktop ? 100 : 120,
                                     '& .MuiOutlinedInput-root': {
                                         height: isMobile ? '36px' : '40px'
                                     }
