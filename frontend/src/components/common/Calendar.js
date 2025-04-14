@@ -101,6 +101,7 @@ const CalendarHeatmap = () => {
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             backgroundColor: cell ? getCellColor(cell.congestion) : '#fff',
+                                            // color: cell && cell.congestion <= 6  ? 'inherit' : theme.palette.text.white,
                                             color: cell && cell.congestion <= 8 && cell.congestion >= 3 ? 'inherit' : theme.palette.text.white,
                                             borderRight: colIndex !== 6 ? '1px solid #ddd' : undefined,
                                             borderBottom: rowIndex !== calendarData.length - 1 ? '1px solid #ddd' : undefined,
@@ -147,7 +148,8 @@ const CalendarHeatmap = () => {
                                                             right: '5px',
                                                             fontSize: '16px',
                                                             opacity: 0.8,
-                                                            color: cell.congestion <= 8 && cell.congestion >= 3 ? 'inherit' : theme.palette.text.white,
+                                                            color: cell.congestion <= 8 && cell.congestion >= 3 ? 'inherit' : theme.palette.text.white, 
+                                                            // color: cell.congestion <= 5 && cell.congestion >= 11 ? 'inherit' : theme.palette.text.white,
                                                         }}
                                                     />
                                                 )}
@@ -173,6 +175,9 @@ const CalendarHeatmap = () => {
                             },
                         },
                     ]}
+                    sx={{ 
+                        zIndex: 1500  // 高いz-indexを設定して最前面に表示
+                    }}
                 >
                     <Paper 
                         elevation={3} 
@@ -180,7 +185,8 @@ const CalendarHeatmap = () => {
                             p: 2, 
                             backgroundColor: 'rgba(255, 255, 255, 0.95)',
                             border: '1px solid #ddd',
-                            maxWidth: '200px'
+                            maxWidth: '200px',
+                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)' // よりはっきりしたシャドウも追加
                         }}
                     >
                         <Typography variant="bodyS" fontWeight="bold">

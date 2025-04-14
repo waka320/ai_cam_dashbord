@@ -16,6 +16,22 @@ export const getCellColor = (congestion) => {
     return '#FFF';
 };
 
+// export const getCellColor = (congestion) => {
+//     switch (congestion) {
+//         case 10: return '#000000'; // 黒
+//         case 9: return '#001433'; // 黒寄りの深い青
+//         case 8: return '#002766'; // 深い青
+//         case 7: return '#003A99'; // 濃い青
+//         case 6: return '#004DCC'; // 鮮やかな青
+//         case 5: return '#4A69BD'; // 中間青
+//         case 4: return '#7F8EBE'; // 淡い青
+//         case 3: return '#B0C4DE'; // 明るい青
+//         case 2: return '#D0E0F0'; // 非常に淡い青
+//         case 1: return '#FFFFFF'; // 白
+//         default: return '#FFF'; // デフォルト（無効な値の場合）
+//     }
+// };
+
 // 混雑度の凡例コンポーネント
 const CongestionLegend = () => {
     return (
