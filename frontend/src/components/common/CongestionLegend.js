@@ -61,7 +61,7 @@ const CongestionLegend = () => {
                             width: '24px', 
                             height: '24px', 
                             backgroundColor: getCellColor(level),
-                            color: level >= 8 || level <= 3 ? 'white' : 'inherit',
+                            color: level >= 8 ? 'white' : 'inherit',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
