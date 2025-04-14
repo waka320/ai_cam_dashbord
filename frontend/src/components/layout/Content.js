@@ -77,6 +77,18 @@ function Content() {
                             </Link><br />
                             NECソリューションイノベータ株式会社
                         </Typography>
+                        <Typography
+                            variant="bodyM"
+                            sx={{
+                                color: theme.palette.text.white,
+                                textDecoration: 'underline',
+                                '&:hover': {
+                                    color: theme.palette.text.secondary,
+                                },
+                            }}
+                        >
+                            ご意見・お問い合わせはこちらから
+                        </Typography>
                     </Box>
                 </Box>
             </Box>
