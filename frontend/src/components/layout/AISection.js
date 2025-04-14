@@ -19,7 +19,6 @@ function AISection() {
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef(null);
     const chatContainerRef = useRef(null);
-    const [shouldScrollToBottom, setShouldScrollToBottom] = useState(false);
     
     // 初期のAIアドバイスが更新されたらチャット履歴に追加
     useEffect(() => {
@@ -27,9 +26,12 @@ function AISection() {
             setConversation([
                 { type: 'ai', text: aiAdvice }
             ]);
-            setShouldScrollToBottom(true);
         }
     }, [aiAdvice, conversation]);
+    
+    // 自動スクロール機能を無効化（関連するコードをコメントアウト）
+    /*
+    const [shouldScrollToBottom, setShouldScrollToBottom] = useState(false);
     
     // 新しいメッセージが追加されたときのみスクロール処理を実行
     useEffect(() => {
@@ -54,6 +56,7 @@ function AISection() {
             return () => clearTimeout(timer);
         }
     }, [conversation, shouldScrollToBottom]);
+    */
     
     // 質問送信の処理
     const handleAskQuestion = async () => {
@@ -65,7 +68,8 @@ function AISection() {
         setConversation(prev => [...prev, { type: 'user', text: userQuestion }]);
         setFollowupQuestion('');
         setIsTyping(true);
-        setShouldScrollToBottom(true);  // ユーザーメッセージ送信時はスクロール
+        // 自動スクロール関連コードをコメントアウト
+        // setShouldScrollToBottom(true);  // ユーザーメッセージ送信時はスクロール
         
         try {
             // 本来ならapiを呼び出す
@@ -76,7 +80,8 @@ function AISection() {
                 // AIの回答をチャット履歴に追加
                 setConversation(prev => [...prev, { type: 'ai', text: aiResponse }]);
                 setIsTyping(false);
-                setShouldScrollToBottom(true);  // AI応答受信時はスクロール
+                // 自動スクロール関連コードをコメントアウト
+                // setShouldScrollToBottom(true);  // AI応答受信時はスクロール
             }, 1500);
             
             // 実際のAPI呼び出しの場合は以下のようなコードになる
@@ -108,7 +113,8 @@ function AISection() {
                 text: 'すみません、質問の処理中にエラーが発生しました。もう一度お試しください。',
                 isError: true 
             }]);
-            setShouldScrollToBottom(true);
+            // 自動スクロール関連コードをコメントアウト
+            // setShouldScrollToBottom(true);
         } finally {
             setIsTyping(false);
         }
@@ -362,7 +368,7 @@ function AISection() {
                             </Fade>
                         )}
                         
-                        {/* このdivに対してスクロールする */}
+                        {/* マニュアルスクロール用のアンカーポイント（機能は無効化済み） */}
                         <div ref={messagesEndRef} style={{ height: 1 }} />
                     </Box>
                 )}
