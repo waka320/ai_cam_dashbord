@@ -34,6 +34,8 @@ export function CalendarProvider({ children }) {
   // 状態の初期化
   const [calendarData, setCalendarData] = useState([]);
   const [aiAdvice, setAiAdvice] = useState("");
+  const [aiResponses, setAiResponses] = useState([]);
+  const [aiQuestionLoading, setAiQuestionLoading] = useState(false);
   
   // 状態と手動更新フラグを保持するRef
   const locationRef = useRef({ value: '', manuallyChanged: false });
@@ -319,11 +321,68 @@ export function CalendarProvider({ children }) {
     setCookie(COOKIE_KEYS.MONTH, '', 0);
   };
 
+  // AI質問機能
+  const askFollowupQuestion = useCallback(async (question) => {
+    if (!selectedLocation || !selectedAction || !selectedYear || !selectedMonth || !question) {
+      return null;
+    }
+    
+    try {
+      setAiQuestionLoading(true);
+      
+      // この部分は実際のAPIエンドポイントに置き換えてください
+      const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/';
+      const response = await fetch(`${baseUrl}api/ask-ai`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          place: selectedLocation,
+          action: selectedAction,
+          year: parseInt(selectedYear),
+          month: parseInt(selectedMonth),
+          question: question,
+          context: aiResponses // 過去の会話履歴
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`AIへの質問送信に失敗しました (${response.status})`);
+      }
+
+      const data = await response.json();
+      
+      // 回答を状態に保存
+      const newResponse = {
+        question,
+        answer: data.response || 'すみません、回答を生成できませんでした。',
+        timestamp: new Date().toISOString()
+      };
+      
+      setAiResponses(prev => [...prev, newResponse]);
+      
+      return newResponse;
+    } catch (error) {
+      console.error('Error asking AI:', error);
+      return {
+        question,
+        answer: 'エラーが発生しました。もう一度お試しください。',
+        isError: true,
+        timestamp: new Date().toISOString()
+      };
+    } finally {
+      setAiQuestionLoading(false);
+    }
+  }, [selectedLocation, selectedAction, selectedYear, selectedMonth, aiResponses]);
+
   return (
     <CalendarContext.Provider value={{
       calendarData,
       aiAdvice,
+      aiResponses,
       loading,
+      aiQuestionLoading,
       error,
       selectedLocation,
       setSelectedLocation,
@@ -334,6 +393,7 @@ export function CalendarProvider({ children }) {
       selectedMonth,
       setSelectedMonth,
       fetchCalendarData,
+      askFollowupQuestion,
       resetSelections,
       updateMonthAndFetch
     }}>

@@ -162,7 +162,7 @@ const CalendarHeatmap = () => {
                                                 justifyContent: 'center'
                                             }}>
                                                 <Typography 
-                                                    variant={isMobile ? (isSmallMobile ? "bodyL" : "h4") : "h3"} 
+                                                    variant={isMobile ? (isSmallMobile ? "bodyL" : "h4") : "h4"} 
                                                     sx={{ 
                                                         margin: '0px',
                                                         fontSize: isMobile ? (isSmallMobile ? '14px' : '16px') : undefined,

@@ -3,14 +3,19 @@
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 15px;
+    padding: 0 16px;
     box-sizing: border-box;
+    background-color: #f9f9f9;
+    min-height: 100vh;
 }
 
 /* モバイルファースト設計 */
 body {
     font-size: 16px;
     line-height: 1.5;
+    background-color: #f5f5f5;
+    color: #333333;
+    font-family: 'Noto Sans JP', sans-serif;
 }
 
 /* メディアクエリ - タブレット */
@@ -18,12 +23,20 @@ body {
     body {
         font-size: 16px;
     }
+
+    .app-container {
+        padding: 0 24px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
 }
 
 /* メディアクエリ - デスクトップ */
 @media (min-width: 992px) {
     .app-container {
-        padding: 0 30px;
+        padding: 0 32px;
     }
 }
 
@@ -40,4 +53,117 @@ select,
 textarea {
     font-size: 16px;
     /* iOS Safariで自動ズームを防ぐ */
+}
+
+/* 入力要素の色やスタイルを改善 */
+.MuiSelect-select,
+.MuiInput-input {
+    font-size: 16px !important;
+}
+
+/* フォーカス状態の視覚的な改善 */
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-width: 2px;
+    box-shadow: 0 0 0 2px rgba(245, 124, 0, 0.2);
+}
+
+/* グラフやチャートのコンテナスタイル */
+.chart-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* データ表示のアニメーション */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ローディングアニメーションのパルス効果 */
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.6;
+    }
+}
+
+.loading-pulse {
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* エラーメッセージの視認性向上 */
+.error-message {
+    color: #d32f2f;
+    padding: 8px 16px;
+    background-color: rgba(211, 47, 47, 0.05);
+    border-radius: 4px;
+    margin: 8px 0;
+}
+
+/* 表示・非表示のトランジション */
+.transition-element {
+    transition: all 0.3s ease;
+}
+
+/* MUIテーマに合わせたカスタムの色 */
+:root {
+    --primary-color: #F57C00;
+    --primary-light: #FFB74D;
+    --primary-dark: #E65100;
+    --secondary-color: #5D4037;
+    --text-primary: #212121;
+    --text-secondary: #757575;
+}
+
+/* スクロール制御 - スムーススクロールの調整 */
+html {
+    scroll-behavior: auto !important;
+}
+
+/* カスタムスクロールバーのスタイル */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* フォーカス時の挙動調整 */
+input:focus,
+textarea:focus,
+select:focus,
+button:focus {
+    scroll-margin: 20px;
 }
