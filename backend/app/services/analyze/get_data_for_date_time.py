@@ -15,7 +15,7 @@ def get_data_for_date_time(csv_path: str, year: int, month: int) -> List[Dict[st
         (df['datetime_jst'].dt.year == year) &
         (df['datetime_jst'].dt.month == month) &
         (df['name'] == 'person')
-    ]
+    ].copy()  # copy()を追加してSettingWithCopyWarningを回避
     
     # 日付と時間帯でグループ化
     df_filtered['date'] = df_filtered['datetime_jst'].dt.date

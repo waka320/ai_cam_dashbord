@@ -16,9 +16,6 @@ export const getCellColor = (congestion) => {
     return '#FFF';
 };
 
-// colors = ['#cfe4f0', '#b3d1eb', '#9bbfe1', '#83add5', '#699ecd', 
-//     '#fbcacc', '#fa9699', '#f97884', '#f67a80', '#f0545c']
-
 // // 混雑度に応じた背景色を取得する関数
 // export const getCellColor = (congestion) => {
 //     if (congestion === 1) return 'hsl(210, 50%, 95%)';
