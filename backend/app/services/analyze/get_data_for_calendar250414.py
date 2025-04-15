@@ -32,6 +32,8 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 
     3. (混雑度5,6の境界値 - 混雑度1,2の境界値) / 4 で混雑度2,3、3,4、4,5の境界値を計算
     4. (混雑度9,10の境界値 - 混雑度5,6の境界値) / 4 で混雑度6,7、7,8、8,9の境界値を計算
     
+    データがない日は混雑度0となり、データが1以上ある日は混雑度1～10となる。
+    
     Args:
         df: 分析対象のDataFrame
         year: 年
@@ -69,8 +71,8 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 
     # 混雑度5,6〜9,10の間の段階的な境界値を計算
     step_upper = (max_threshold - middle_threshold) / 4
     
-    # 境界値のリストを作成
-    bins = [0]  # 最小値（混雑度1の下限）
+    # 境界値のリストを作成（データが存在すれば1以上の混雑度を割り当てる）
+    bins = [0, 1]  # 0=データなし, 1以上=データあり
     bins.append(min_threshold)  # 混雑度1,2の境界
     
     # 混雑度2,3、3,4、4,5の境界値
@@ -101,13 +103,14 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 
     print(f"{place}の最大歩行者数: {max_count}")
 
     # 定義した境界値に基づいて混雑度レベルを割り当て
+    # データが0の場合は混雑度0、それ以外は1～10
     daily_counts['level'] = pd.cut(
         daily_counts['count_1_hour'], 
         bins=bins, 
         labels=False, 
         include_lowest=True,
         right=False
-    ) + 1  # レベルを1から始める
+    )  # 注：ここでは+1しない。0から始まる混雑度を作成
 
     # 該当する月のデータをフィルタリング
     monthly_counts = daily_counts[
@@ -134,7 +137,7 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 
         if date in monthly_counts.index:
             level = monthly_counts.loc[date, 'level']
         else:
-            level = 1  # データがない場合は最低レベル
+            level = 0  # データがない場合は混雑度0
 
         day_data = DayCongestion(date=day, congestion=int(level))
         week.append(day_data)

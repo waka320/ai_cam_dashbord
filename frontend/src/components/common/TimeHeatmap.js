@@ -237,11 +237,14 @@ const TimeHeatmap = () => {
               <Box sx={{ display: 'flex', flex: 1 }}>
                 {hours.map(hour => {
                   const hourData = dayData.hours.find(h => h.hour === hour);
-                  // 人数が0の場合は混雑度を1に変更
-                  const congestion = hourData ? (hourData.congestion > 0 ? hourData.congestion : 1) : 1;
+                  // 混雑度の取得 - データがない場合や混雑度が0の場合は0とする
+                  const congestion = hourData ? hourData.congestion : 0;
                   const highlighted = hourData && hourData.highlighted;
                   const highlightReason = hourData ? hourData.highlight_reason : '';
                   const cellKey = `${dayData.day}-${hour}`;
+                  
+                  // 混雑度0の場合は灰色を使用
+                  const cellColor = congestion === 0 ? '#e0e0e0' : getCellColor(congestion);
                   
                   return (
                     <Box 
@@ -253,8 +256,9 @@ const TimeHeatmap = () => {
                         flex: 1,
                         minWidth: isMobile ? '25px' : '30px',
                         height: isMobile ? '40px' : '48px',
-                        backgroundColor: getCellColor(congestion),
-                        color: congestion >= 8 ? 'white' : 'inherit',
+                        backgroundColor: cellColor,
+                        color: congestion === 0 ? '#666' : 
+                              congestion >= 8 ? 'white' : 'inherit',
                         borderRight: hour !== 23 ? '1px solid #ddd' : 'none',
                         display: 'flex',
                         flexDirection: 'column',
@@ -281,14 +285,17 @@ const TimeHeatmap = () => {
                           }
                         }),
                       }}
-                      title={`${getDayNameJa(dayData.day)} ${hour}時 (混雑度: ${congestion})`}
+                      title={`${getDayNameJa(dayData.day)} ${hour}時 ${congestion === 0 ? '(データなし)' : `(混雑度: ${congestion})`}`}
                     >
                       <Typography 
                         variant={isMobile ? "bodyXS" : "bodyS"} 
                         fontWeight="bold"
-                        sx={{ fontSize: isSmallMobile ? '0.7rem' : undefined }}
+                        sx={{ 
+                          fontSize: isSmallMobile ? '0.7rem' : undefined, 
+                          color: congestion === 0 ? '#666' : 'inherit'
+                        }}
                       >
-                        {congestion}
+                        {congestion === 0 ? '-' : congestion}
                       </Typography>
                       
                       {/* ハイライトされたセルにインフォアイコンを表示 */}

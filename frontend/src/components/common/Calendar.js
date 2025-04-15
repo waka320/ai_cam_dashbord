@@ -122,8 +122,10 @@ const CalendarHeatmap = () => {
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            backgroundColor: cell ? getCellColor(cell.congestion) : '#fff',
-                                            color: cell && cell.congestion <= 8? 'inherit' : theme.palette.text.white,
+                                            // 混雑度0の日を灰色で表示
+                                            backgroundColor: !cell ? '#fff' : 
+                                                cell.congestion === 0 ? '#e0e0e0' : getCellColor(cell.congestion),
+                                            color: cell && cell.congestion > 0 && cell.congestion <= 8 ? 'inherit' : theme.palette.text.white,
                                             borderRight: colIndex !== 6 ? '1px solid #ddd' : undefined,
                                             borderBottom: rowIndex !== calendarData.length - 1 ? '1px solid #ddd' : undefined,
                                             position: 'relative',
@@ -166,7 +168,8 @@ const CalendarHeatmap = () => {
                                                     sx={{ 
                                                         margin: '0px',
                                                         fontSize: isMobile ? (isSmallMobile ? '14px' : '16px') : undefined,
-                                                        lineHeight: isMobile ? '1.2' : undefined
+                                                        lineHeight: isMobile ? '1.2' : undefined,
+                                                        color: cell.congestion === 0 ? '#666' : 'inherit'
                                                     }}
                                                 >
                                                     {cell.date}
@@ -177,14 +180,18 @@ const CalendarHeatmap = () => {
                                                     sx={{
                                                         fontSize: isSmallMobile ? '10px' : undefined,
                                                         lineHeight: isSmallMobile ? '1' : undefined,
-                                                        marginTop: isSmallMobile ? '2px' : undefined
+                                                        marginTop: isSmallMobile ? '2px' : undefined,
+                                                        color: cell.congestion === 0 ? '#666' : 
+                                                            cell.congestion <= 8 ? 'inherit' : theme.palette.text.white
                                                     }}
                                                 >
-                                                    {isSmallMobile ? `混:${cell.congestion}` : `混雑度: ${cell.congestion}`}
+                                                    {cell.congestion === 0 ? 
+                                                        (isSmallMobile ? "" : "") : 
+                                                        (isSmallMobile ? `混:${cell.congestion}` : `混雑度: ${cell.congestion}`)}
                                                 </Typography>
                                                 
                                                 {/* ハイライトされたセルにインフォアイコンを表示 */}
-                                                {cell.highlighted && cell.highlight_reason && (
+                                                {cell.highlighted && cell.highlight_reason && cell.congestion > 0 && (
                                                     <InfoIcon 
                                                         sx={{ 
                                                             position: 'absolute',

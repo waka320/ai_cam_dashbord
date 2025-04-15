@@ -272,6 +272,9 @@ const DateTimeHeatmap = () => {
                                             const highlightReason = hourData ? hourData.highlight_reason : '';
                                             const cellKey = `${dateData.date}-${hour}`;
                                             
+                                            // 混雑度0の場合は灰色を使用
+                                            const cellColor = congestion === 0 ? '#e0e0e0' : getCellColor(congestion);
+                                            
                                             return (
                                                 <Box 
                                                     key={`${dateData.date}-${hour}`}
@@ -282,8 +285,9 @@ const DateTimeHeatmap = () => {
                                                         flex: 1,
                                                         minWidth: isMobile ? '25px' : '30px',
                                                         height: isMobile ? '35px' : '40px',
-                                                        backgroundColor: getCellColor(congestion),
-                                                        color: congestion >= 8 ? 'white' : 'inherit',
+                                                        backgroundColor: cellColor,
+                                                        color: congestion === 0 ? '#666' : 
+                                                              congestion >= 8 ? 'white' : 'inherit',
                                                         borderRight: hour !== 23 ? '1px solid #ddd' : 'none',
                                                         display: 'flex',
                                                         flexDirection: 'column',
@@ -310,14 +314,17 @@ const DateTimeHeatmap = () => {
                                                             }
                                                         }),
                                                     }}
-                                                    title={`${formatDate(dateData.date)} ${hour}時 (人数: ${count})`}
+                                                    title={`${formatDate(dateData.date)} ${hour}時 ${congestion === 0 ? '(データなし)' : `(人数: ${count})`}`}
                                                 >
                                                     <Typography 
                                                         variant={isSmallMobile ? "caption" : "bodyXS"} 
                                                         fontWeight="bold"
-                                                        sx={{ fontSize: isSmallMobile ? '0.65rem' : undefined }}
+                                                        sx={{ 
+                                                            fontSize: isSmallMobile ? '0.65rem' : undefined,
+                                                            color: congestion === 0 ? '#666' : 'inherit'
+                                                        }}
                                                     >
-                                                        {congestion > 0 ? congestion : ''}
+                                                        {congestion === 0 ? '-' : congestion}
                                                     </Typography>
                                                     
                                                     {/* ハイライトされたセルにインフォアイコンを表示 */}
