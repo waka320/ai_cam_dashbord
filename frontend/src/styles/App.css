@@ -127,9 +127,9 @@ textarea {
 
 /* MUIテーマに合わせたカスタムの色 */
 :root {
-    --primary-color: #F57C00;
-    --primary-light: #FFB74D;
-    --primary-dark: #E65100;
+    --primary-color: #383947;
+    --primary-light: #383947;
+    --primary-dark: #383947;
     --secondary-color: #5D4037;
     --text-primary: #212121;
     --text-secondary: #757575;

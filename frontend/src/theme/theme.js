@@ -3,26 +3,26 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#F57C00', // オレンジに変更（元に戻す）
-      light: '#FFB74D',
-      dark: '#E65100',
+      main: '#383947', // 黒系統のメインカラー
+      light: '#565A6F',
+      dark: '#242631',
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#5D4037', // 補色をオレンジに合わせて調整（茶色系）
-      light: '#8D6E63',
-      dark: '#3E2723',
+      main: '#5C5F73', // 黒系統に合わせたセカンダリーカラー
+      light: '#7C8093',
+      dark: '#3F4254',
       contrastText: '#FFFFFF',
     },
     background: {
-      default: '#F5F5F5',
-      paper: '#FFFFFF',
+      default: '#f5f5f5',
+      paper: '#343746',
     },
     text: {
       primary: '#212121',
-      secondary: '#757575',
-      disabled: '#9E9E9E',
-      white: '#FFFFFF',
+      secondary: '#424242',
+      disabled: '#757575',
+      white: '#FFFFFF', // white は名前通り白のままにします
     },
     error: {
       main: '#D32F2F',

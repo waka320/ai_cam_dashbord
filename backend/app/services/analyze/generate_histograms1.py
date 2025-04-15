@@ -187,8 +187,8 @@ def create_histogram(file_path: str, place: str, output_dir: str):
                      ha='center', va='bottom', fontweight='bold')
     
     # 混雑度レベルに色を付ける (10段階)
-    colors = ['#191970', '#0047AB', '#4A69BD', '#6C8EBF', '#B0C4DE', 
-              '#FFB6C1', '#FF7F7F', '#CD5C5C', '#B22222', '#800000']
+    colors = ['#cfe4f0', '#b3d1eb', '#82aed5', '#82aed5', '#699ecd', 
+              '#fbcacc', '#fa9699', '#f97884', '#f67a80', '#f0545c']
     
     # すべてのパッチ（ヒストグラムの各バー）に対して色を設定する
     for i, patch in enumerate(patches):
