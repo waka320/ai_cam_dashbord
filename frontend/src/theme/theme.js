@@ -84,6 +84,29 @@ const theme = createTheme({
         },
       },
     },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: '#FFFFFF', // メニューの背景色を白に設定
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          color: '#212121', // メニュー項目のテキスト色を黒に設定
+          '&:hover': {
+            backgroundColor: '#F5F5F5', // ホバー時の背景色
+          },
+          '&.Mui-selected': {
+            backgroundColor: '#E0E0E0', // 選択時の背景色
+            '&:hover': {
+              backgroundColor: '#D5D5D5', // 選択+ホバー時の背景色
+            },
+          },
+        },
+      },
+    },
   },
 });
 
