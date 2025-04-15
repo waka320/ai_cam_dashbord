@@ -1,17 +1,20 @@
 import pandas as pd
 from typing import List, Dict, Any, Optional
 from app.models import DayCongestion, HourData, DayWithHours
+from datetime import datetime
 
 # 目的に応じたハイライト条件の設定
 HIGHLIGHT_CONDITIONS = {
+    # カレンダー形式のハイライト条件 - 曜日と閾値ベース
+    "cal_holiday": {"condition": "weekday_threshold_below", "threshold": 10, "metric": "congestion"},  # 混雑度が少ない曜日で混雑度3以下の日
+    "cal_shoping_holiday": {"condition": "weekday_threshold_below", "threshold": 3, "metric": "congestion"},  # 混雑度が少ない曜日で混雑度3以下の日
+
     # カレンダー形式のハイライト条件 - 閾値ベース
-    "cal_holiday": {"condition": "threshold_below", "threshold": 2, "metric": "congestion"},  # 混雑度2以下の日をすべてハイライト
-    "cal_crowded": {"condition": "threshold_above", "threshold": 8, "metric": "congestion"},  # 混雑度8以上の日をすべてハイライト
+    "cal_event": {"condition": "threshold_below", "threshold": 4, "metric": "congestion"},  # 混雑度5以下の日をすべてハイライト
     "cal_long_holiday": {"condition": "threshold_below", "threshold": 2, "metric": "congestion"},  # 混雑度2以下の日をすべてハイライト
 
     # カレンダー形式のハイライト条件 - 個数ベース（既存）
     "cal_shoping_holiday": {"condition": "lowest", "count": 2, "metric": "congestion"},
-    "cal_event": {"condition": "highest", "count": 2, "metric": "congestion"},  # 最も人通りが多い日を2日ハイライト
     "cal_training": {"condition": "lowest", "count": 2, "metric": "congestion"},
     "cal_cog": {"condition": "extremes", "count": 3, "metric": "congestion"},  # 最も混雑・空いている日をそれぞれ3日ずつ
     "cal_cog_and_count": {"condition": "extremes", "count": 3, "metric": "both"},  # 混雑度と実際の値の両方でハイライト
@@ -48,6 +51,57 @@ def highlight_calendar_data(calendar_data: List[List[Optional[DayCongestion]]], 
     # ハイライト条件の取得
     condition = HIGHLIGHT_CONDITIONS[action]["condition"]
     metric = HIGHLIGHT_CONDITIONS[action].get("metric", "congestion")  # デフォルトは混雑度ベース
+    
+    # 曜日と閾値ベースのハイライト（新機能）
+    if condition == "weekday_threshold_below":
+        threshold = HIGHLIGHT_CONDITIONS[action]["threshold"]
+        
+        # 曜日ごとの平均混雑度を計算
+        weekday_congestion = {}
+        for day in valid_days:
+            # dateプロパティから曜日を取得（0=月曜、6=日曜）
+            # カレンダーデータから年月を取得する必要があるため、仮に現在の年月を使用
+            # 実際の実装では、カレンダーデータの年月情報を使用するべき
+            current_year = datetime.now().year
+            current_month = datetime.now().month
+            
+            try:
+                # day.dateは日付の数値のみを想定
+                date_obj = datetime(current_year, current_month, day.date)
+                weekday = date_obj.weekday()  # 0-6の曜日（0=月曜日）
+                
+                if weekday not in weekday_congestion:
+                    weekday_congestion[weekday] = []
+                
+                weekday_congestion[weekday].append(day.congestion)
+            except (ValueError, AttributeError) as e:
+                print(f"Error processing date: {e}")
+                continue
+        
+        # 各曜日の平均混雑度を計算
+        avg_congestion = {}
+        for weekday, congestions in weekday_congestion.items():
+            avg_congestion[weekday] = sum(congestions) / len(congestions)
+        
+        # 混雑度の低い曜日を特定（平均混雑度でソート）
+        sorted_weekdays = sorted(avg_congestion.items(), key=lambda x: x[1])
+        
+        # 混雑度の低い上位2曜日を選択
+        low_congestion_weekdays = [weekday for weekday, _ in sorted_weekdays[:2]]
+        
+        # 選択された曜日で混雑度が閾値以下の日をハイライト
+        for day in valid_days:
+            try:
+                date_obj = datetime(current_year, current_month, day.date)
+                weekday = date_obj.weekday()
+                
+                if weekday in low_congestion_weekdays and day.congestion <= threshold:
+                    day.highlighted = True
+                    day.highlight_reason = f"混雑度が少ない曜日"
+            except (ValueError, AttributeError):
+                continue
+        
+        return calendar_data
     
     # 閾値ベースのハイライト（新機能）
     if condition == "threshold_below" or condition == "threshold_above":
