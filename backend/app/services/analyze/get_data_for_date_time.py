@@ -1,6 +1,7 @@
 import pandas as pd
 from typing import List, Dict, Any
 
+
 def get_data_for_date_time(csv_path: str, year: int, month: int) -> List[Dict[str, Any]]:
     """
     CSVファイルから日付ごとの時間帯別データを取得する

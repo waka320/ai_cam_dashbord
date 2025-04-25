@@ -2,34 +2,34 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 
 
-export const getCellColor = (congestion) => {
-    if (congestion === 1) return '#cfe4f0';
-    if (congestion === 2) return '#b3d1eb';
-    if (congestion === 3) return '#9bbfe1';
-    if (congestion === 4) return '#83add5';
-    if (congestion === 5) return '#699ecd';
-    if (congestion === 6) return '#fbcacc';
-    if (congestion === 7) return '#fa9699';
-    if (congestion === 8) return '#f97884';
-    if (congestion === 9) return '#f67a80';
-    if (congestion === 10) return '#f0545c';
-    return '#FFF';
-};
-
-// // 混雑度に応じた背景色を取得する関数
 // export const getCellColor = (congestion) => {
-//     if (congestion === 1) return 'hsl(210, 50%, 95%)';
-//     if (congestion === 2) return 'hsl(210, 50%, 89%)';
-//     if (congestion === 3) return 'hsl(210, 50%, 83%)';
-//     if (congestion === 4) return 'hsl(210, 50%, 72%)';
-//     if (congestion === 5) return 'hsl(210, 50%, 66%)';
-//     if (congestion === 6) return '#FFB6C1';
-//     if (congestion === 7) return '#FF7F7F';
-//     if (congestion === 8) return '#CD5C5C';
-//     if (congestion === 9) return '#B22222';
-//     if (congestion === 10) return '#800000';
+//     if (congestion === 1) return '#cfe4f0';
+//     if (congestion === 2) return '#b3d1eb';
+//     if (congestion === 3) return '#9bbfe1';
+//     if (congestion === 4) return '#83add5';
+//     if (congestion === 5) return '#699ecd';
+//     if (congestion === 6) return '#fbcacc';
+//     if (congestion === 7) return '#fa9699';
+//     if (congestion === 8) return '#f97884';
+//     if (congestion === 9) return '#f67a80';
+//     if (congestion === 10) return '#f0545c';
 //     return '#FFF';
 // };
+
+// 混雑度に応じた背景色を取得する関数
+export const getCellColor = (congestion) => {
+    if (congestion === 1) return '#e4f6d7';
+    if (congestion === 2) return '#eff6be';
+    if (congestion === 3) return '#f9f5a6';
+    if (congestion === 4) return '#ffee90';
+    if (congestion === 5) return '#ffd069';
+    if (congestion === 6) return '#ffbd50';
+    if (congestion === 7) return '#feac42';
+    if (congestion === 8) return '#f98345';
+    if (congestion === 9) return '#f66846';
+    if (congestion === 10) return '#f25444';
+    return '#FFF';
+};
 
 // // 混雑度に応じた背景色を取得する関数
 // export const getCellColor = (congestion) => {
