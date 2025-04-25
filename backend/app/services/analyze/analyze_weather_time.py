@@ -288,10 +288,48 @@ def get_events_by_category(date, category):
                        if event.is_match_func(date) and event.category == category]
     return "、".join(matching_events) if matching_events else ""
 
+# 時間帯を定義するクラス
+class TimeEvent:
+    """時間帯に関連するイベント情報を表すクラス"""
+    def __init__(self, name, is_match_time_func):
+        self.name = name                         # イベント名
+        self.is_match_time_func = is_match_time_func  # この時間帯に該当するかを判定する関数
+
+# 時間帯ごとのイベント定義
+TIME_EVENTS = [
+    TimeEvent("早朝", lambda dt: 6 <= dt.hour < 8),
+    TimeEvent("朝の時間帯", lambda dt: 8 <= dt.hour < 10),
+    TimeEvent("午前中", lambda dt: 10 <= dt.hour < 12),
+    TimeEvent("昼食時", lambda dt: 12 <= dt.hour < 14),
+    TimeEvent("午後", lambda dt: 14 <= dt.hour < 16),
+    TimeEvent("夕方", lambda dt: 16 <= dt.hour < 18),
+    TimeEvent("夕食時", lambda dt: 18 <= dt.hour < 20),
+    TimeEvent("夜", lambda dt: 20 <= dt.hour < 23),
+    TimeEvent("深夜", lambda dt: 23 <= dt.hour or dt.hour < 6),
+    
+    # 観光関連の時間帯
+    TimeEvent("観光スポット営業時間", lambda dt: 9 <= dt.hour < 17),
+    TimeEvent("ランチタイム", lambda dt: 11 <= dt.hour < 14),
+    TimeEvent("カフェタイム", lambda dt: 14 <= dt.hour < 17),
+    TimeEvent("ディナータイム", lambda dt: 17 <= dt.hour < 21),
+    TimeEvent("バータイム", lambda dt: 19 <= dt.hour < 24),
+    
+    # 曜日・時間の組み合わせ
+    TimeEvent("週末午前", lambda dt: dt.weekday() >= 5 and 9 <= dt.hour < 12),
+    TimeEvent("週末午後", lambda dt: dt.weekday() >= 5 and 12 <= dt.hour < 18),
+    TimeEvent("平日午前", lambda dt: dt.weekday() < 5 and 9 <= dt.hour < 12),
+    TimeEvent("平日午後", lambda dt: dt.weekday() < 5 and 12 <= dt.hour < 18),
+]
+
+# 時間帯に該当するイベント名を取得する関数
+def get_time_events(datetime_obj):
+    matching_events = [event.name for event in TIME_EVENTS if event.is_match_time_func(datetime_obj)]
+    return "、".join(matching_events) if matching_events else ""
+
 # CSVファイルを読み込み、処理する関数
 def process_csv(input_file, output_file):
     # CSV読み込み - ヘッダーがないCSVファイルのため、header=Noneを指定し、カラム名を設定
-    df = pd.read_csv(input_file, header=None, names=['日付', '人数'])
+    df = pd.read_csv(input_file, header=None, names=['日時', '人数'])
 
     # 新しい列を追加（曜日列を日付と人数の間に挿入）
     df['曜日'] = ""
@@ -304,61 +342,72 @@ def process_csv(input_file, output_file):
     df['高山イベント'] = ""
     df['国民的イベント'] = ""
     df['その他'] = ""
+    df['時間帯'] = ""  # 時間帯に関する情報を格納する列を追加
     
     # 列の順序を指定して並べ替える
-    df = df[['日付', '曜日', '人数', '天気', '最高気温', '最低気温', 
-             '日の出', '日の入り', '日照時間', 
+    df = df[['日時', '曜日', '人数', '天気', '最高気温', '最低気温', 
+             '日の出', '日の入り', '日照時間', '時間帯',
              '高山イベント', '国民的イベント', 'その他']]
     
     # 各行を処理
     processed_rows = 0
     
     for index, row in df.iterrows():
-        date_str = row['日付']
-        date = pd.to_datetime(date_str, format='%Y/%m/%d')
-        
-        # 曜日情報を追加
-        weekday = get_japanese_weekday(date)
-        df.at[index, '曜日'] = weekday
-        
-        # 天気情報取得
-        weather, max_temp, min_temp = fetch_weather_info(date)
-        
-        # 日の出・日の入り・日照時間情報を取得
-        sunrise, sunset, daylight = get_sun_info(date)
-        
-        # イベント情報を各カテゴリ別に取得
-        takayama_events = get_events_by_category(date, CATEGORY_TAKAYAMA)
-        national_events = get_events_by_category(date, CATEGORY_NATIONAL)
-        other_events = get_events_by_category(date, CATEGORY_OTHER)
-        
-        # データフレームに書き込み
-        df.at[index, '天気'] = weather
-        df.at[index, '最高気温'] = max_temp
-        df.at[index, '最低気温'] = min_temp
-        df.at[index, '日の出'] = sunrise
-        df.at[index, '日の入り'] = sunset
-        df.at[index, '日照時間'] = daylight
-        df.at[index, '高山イベント'] = takayama_events
-        df.at[index, '国民的イベント'] = national_events
-        df.at[index, 'その他'] = other_events
-        
-        # 気温情報からの特殊な条件判定（猛暑日、極寒日）
-        if max_temp and float(max_temp.replace('℃', '')) >= 35:
-            if df.at[index, 'その他']:
-                df.at[index, 'その他'] += "、猛暑日"
-            else:
-                df.at[index, 'その他'] = "猛暑日"
-                
-        if min_temp and float(min_temp.replace('℃', '')) <= -10:
-            if df.at[index, 'その他']:
-                df.at[index, 'その他'] += "、極寒日"
-            else:
-                df.at[index, 'その他'] = "極寒日"
-        
-        print(f"日付: {date_str}({weekday}), 天気: {weather}, 気温: {min_temp}～{max_temp}")
-        print(f"日の出: {sunrise}, 日の入り: {sunset}, 日照時間: {daylight}")
-        print(f"高山イベント: {takayama_events}, 国民的イベント: {national_events}, その他: {other_events}")
+        date_str = row['日時']
+        try:
+            # 日時形式（YYYY-MM-DD HH:MM:SS）でパース
+            date_time = pd.to_datetime(date_str)
+            
+            # 曜日情報を追加
+            weekday = get_japanese_weekday(date_time)
+            df.at[index, '曜日'] = weekday
+            
+            # 日付のみを使って天気情報取得
+            date_only = date_time.date()
+            weather, max_temp, min_temp = fetch_weather_info(date_only)
+            
+            # 日の出・日の入り・日照時間情報を取得
+            sunrise, sunset, daylight = get_sun_info(date_only)
+            
+            # イベント情報を各カテゴリ別に取得
+            takayama_events = get_events_by_category(date_only, CATEGORY_TAKAYAMA)
+            national_events = get_events_by_category(date_only, CATEGORY_NATIONAL)
+            other_events = get_events_by_category(date_only, CATEGORY_OTHER)
+            
+            # 時間帯の情報を取得
+            time_events = get_time_events(date_time)
+            
+            # データフレームに書き込み
+            df.at[index, '天気'] = weather
+            df.at[index, '最高気温'] = max_temp
+            df.at[index, '最低気温'] = min_temp
+            df.at[index, '日の出'] = sunrise
+            df.at[index, '日の入り'] = sunset
+            df.at[index, '日照時間'] = daylight
+            df.at[index, '高山イベント'] = takayama_events
+            df.at[index, '国民的イベント'] = national_events
+            df.at[index, 'その他'] = other_events
+            df.at[index, '時間帯'] = time_events
+            
+            # 気温情報からの特殊な条件判定（猛暑日、極寒日）
+            if max_temp and max_temp.replace('℃', '').strip().isdigit() and float(max_temp.replace('℃', '')) >= 35:
+                if df.at[index, 'その他']:
+                    df.at[index, 'その他'] += "、猛暑日"
+                else:
+                    df.at[index, 'その他'] = "猛暑日"
+                    
+            if min_temp and min_temp.replace('℃', '').strip().isdigit() and float(min_temp.replace('℃', '')) <= -10:
+                if df.at[index, 'その他']:
+                    df.at[index, 'その他'] += "、極寒日"
+                else:
+                    df.at[index, 'その他'] = "極寒日"
+            
+            print(f"日時: {date_str}({weekday}), 天気: {weather}, 気温: {min_temp}～{max_temp}")
+            print(f"日の出: {sunrise}, 日の入り: {sunset}, 日照時間: {daylight}")
+            print(f"時間帯: {time_events}")
+            print(f"高山イベント: {takayama_events}, 国民的イベント: {national_events}, その他: {other_events}")
+        except Exception as e:
+            print(f"日時の処理中にエラーが発生しました: {date_str}, エラー: {e}")
         
         # 処理済み行数をカウントアップ
         processed_rows += 1
@@ -370,8 +419,8 @@ def process_csv(input_file, output_file):
 # メイン処理
 if __name__ == "__main__":
     # 入力ディレクトリと出力ディレクトリを指定
-    input_dir = "/Users/WakaY/Desktop/new_dashbord/backend/app/data/weather/input"
-    output_dir = "/Users/WakaY/Desktop/new_dashbord/backend/app/data/weather/output"
+    input_dir = "/Users/WakaY/Desktop/new_dashbord/backend/app/data/weather_time/input"
+    output_dir = "/Users/WakaY/Desktop/new_dashbord/backend/app/data/weather_time/output"
     
     # 処理の前に、対象期間の月ごとのデータを先にすべて取得
     start_date = datetime(2021, 6, 1)  # 2021年6月から
