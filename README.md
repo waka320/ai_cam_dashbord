@@ -10,13 +10,13 @@
 
 ### 1.1. コンセプト
 
-本プロダクトは、安田・遠藤・浦田研究室の「高山市におけるデータ地産地消プロジェクト」の一環として開発された目的ベースのダッシュボードです。AIカメラで収集した人流データを商店街の事業者が活用できるように設計されています[3][4]。
+本プロダクトは、遠藤・浦田研究室の「高山市におけるデータ地産地消プロジェクト」の一環として開発された目的ベースのダッシュボードです。AIカメラで収集した人流データを商店街の事業者が活用できるように設計されています。
 
-特に「何をデータを使用してすれば良いのかわからない」という事業者の課題に対して、「目的を先に入力させてから、適切なデータを示す」という解決アプローチを採用しています。地域DX推進のためのデータ活用ツールとして、複数の可視化機能と直感的なインターフェースを提供します[7]。
+特に「何をデータを使用してすれば良いのかわからない」という事業者の課題に対して、「目的を先に入力させてから、適切なデータを示す」という解決アプローチを採用しています。地域DX推進のためのデータ活用ツールとして、複数の可視化機能と直感的なインターフェースを提供します。
 
 ### 1.2. ターゲットユーザー
 
-- 高山市の商店街事業者（主要ターゲット）[7]
+- 高山市の商店街事業者（主要ターゲット）
 - 観光関連事業者
 - 地方自治体の観光・商工担当者
 - データ活用を検討している地域の事業者
@@ -24,9 +24,9 @@
 ### 1.3. 提供価値
 
 - データ活用の敷居を下げる使いやすいインターフェース
-- 目的から逆算したデータ提示による意思決定支援[4]
+- 目的から逆算したデータ提示による意思決定支援
 - 人流データの視覚化による商業活動の最適化支援
-- 地域事業者のDX促進と売上向上支援[6]
+- 地域事業者のDX促進と売上向上支援
 
 ## 2. 技術スタック
 
@@ -279,19 +279,3 @@
 - ユーザーベースの拡大（観光客向け機能の追加）
 - データベース化によるデータ管理改善
 - AIプレディクション機能の強化
-
----
-
-本仕様書は開発の進捗に応じて随時更新されます。
-
-Citations:
-[1] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/38158032/cfd9b7bd-45ee-42b7-9eee-cb5d77a8bd7f/ci_back.yaml
-[2] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/38158032/b21a5f79-e8b6-4f22-a783-805872706c67/ci_front.yaml
-[3] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_260a9487-2d1b-4387-b833-a2bd27b08e44/a06df6e7-f560-4740-8024-a4b7c82dfa9a/Ruo-Song-Yong-Xi-_20250416sahusemi.pdf
-[4] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_260a9487-2d1b-4387-b833-a2bd27b08e44/6f4167a1-6c80-410a-a7c4-2a47662707eb/Ruo-Song-Yong-Xi-_Mu-De-hesutatusiyuhoto1.pdf
-[5] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_260a9487-2d1b-4387-b833-a2bd27b08e44/c3eb6b1a-df25-47dd-bb2a-59b2262f19d7/Ruo-Song-Yong-Xi-_Quan-Ti-semi250410.pdf
-[6] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_260a9487-2d1b-4387-b833-a2bd27b08e44/67d7888f-2aa1-4e8d-b5ad-5d9e84f603a7/DXHui-Yi.pptx
-[7] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/collection_260a9487-2d1b-4387-b833-a2bd27b08e44/d7948198-492c-4986-9c93-56b298da0384/192-Ruo-Song-Yong-Xi-Gao-Shan-Fa-Chao-sinhuru-Mu-De-hesutatusiyuhoto-Bu-Xing-Zhe-Shu-ohuntetateGuan-Guang-Huo-Xing-Hua.pdf
-
----
-Perplexity の Eliot より: pplx.ai/share
