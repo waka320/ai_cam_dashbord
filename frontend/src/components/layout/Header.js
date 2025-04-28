@@ -5,6 +5,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import theme from '../../theme/theme';
 import logo from '../../assets/dashbord_logo.png';
 import { useCalendar } from '../../contexts/CalendarContext';
+import ShareButton from '../ui/ShareButton'; // インポート追加
 
 function Header() {
     const {
@@ -554,6 +555,22 @@ function Header() {
                                     </span>
                                 </Tooltip>
                             </Box>
+                        </Box>
+
+                        {/* 共有ボタン部分 */}
+                        <Box 
+                            sx={{ 
+                                display: 'flex', 
+                                flexDirection: 'row',
+                                alignItems: 'center', 
+                                gap: 1.5, 
+                                ml: isMobile ? 0 : 1
+                            }}
+                        >
+                            <ShareButton 
+                                variant={isMobile ? 'icon' : isTablet || isSmallDesktop ? 'icon' : 'button'} 
+                                size={isMobile ? 'small' : 'medium'} 
+                            />
                         </Box>
                     </Toolbar>
                 </Paper>
