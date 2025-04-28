@@ -30,39 +30,57 @@ const COOKIE_KEYS = {
 
 const CalendarContext = createContext();
 
-export function CalendarProvider({ children }) {
-  // 状態の初期化
+export function CalendarProvider({ children, searchParams, setSearchParams }) {
+  // URLパラメータから初期値を取得
+  const initialLocation = searchParams.get('location') || '';
+  const initialAction = searchParams.get('action') || '';
+  const initialYear = searchParams.get('year') || '';
+  const initialMonth = searchParams.get('month') || '';
+  
+  // Abort Controller のためのRef
+  const abortControllerRef = useRef(null);
+
+  // 状態の初期化（URLパラメータ優先）
   const [calendarData, setCalendarData] = useState([]);
   const [aiAdvice, setAiAdvice] = useState("");
   const [aiResponses, setAiResponses] = useState([]);
   const [aiQuestionLoading, setAiQuestionLoading] = useState(false);
   
-  // 状態と手動更新フラグを保持するRef
-  const locationRef = useRef({ value: '', manuallyChanged: false });
-  const actionRef = useRef({ value: '', manuallyChanged: false });
-  const yearRef = useRef({ value: '', manuallyChanged: false });
-  const monthRef = useRef({ value: '', manuallyChanged: false });
+  // 状態と手動更新フラグを保持するRef（Cookie/URLパラメータ両対応）
+  const locationRef = useRef({ value: initialLocation, manuallyChanged: !!initialLocation });
+  const actionRef = useRef({ value: initialAction, manuallyChanged: !!initialAction });
+  const yearRef = useRef({ value: initialYear, manuallyChanged: !!initialYear });
+  const monthRef = useRef({ value: initialMonth, manuallyChanged: !!initialMonth });
   
-  // 状態変数
-  const [selectedLocation, setSelectedLocationInternal] = useState("");
-  const [selectedAction, setSelectedActionInternal] = useState("");
-  const [selectedYear, setSelectedYearInternal] = useState("");
-  const [selectedMonth, setSelectedMonthInternal] = useState("");
+  // 状態変数の初期値をURLパラメータから設定
+  const [selectedLocation, setSelectedLocationInternal] = useState(initialLocation);
+  const [selectedAction, setSelectedActionInternal] = useState(initialAction);
+  const [selectedYear, setSelectedYearInternal] = useState(initialYear);
+  const [selectedMonth, setSelectedMonthInternal] = useState(initialMonth);
   
   const [loading, setLoading] = useState(false);
   const [inputsComplete, setInputsComplete] = useState(false);
   const [error, setError] = useState("");
   const [cookiesLoaded, setCookiesLoaded] = useState(false);
   
-  // 現在のリクエストをキャンセルするコントローラー
-  const abortControllerRef = useRef(null);
-
+  // URLパラメータ更新関数
+  const updateUrlParam = useCallback((key, value) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) {
+      next.set(key, value);
+    } else {
+      next.delete(key);
+    }
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
+  
   // ラッパー関数で手動変更フラグを設定
   const setSelectedLocation = useCallback((value) => {
     locationRef.current.manuallyChanged = true;
     locationRef.current.value = value;
     setSelectedLocationInternal(value);
-  }, []);
+    updateUrlParam('location', value);
+  }, [updateUrlParam]);
 
   const setSelectedAction = useCallback((value) => {
     actionRef.current.manuallyChanged = true;
@@ -70,19 +88,22 @@ export function CalendarProvider({ children }) {
     // アクションの変更時にはデータをクリア
     setCalendarData([]);
     setSelectedActionInternal(value);
-  }, []);
+    updateUrlParam('action', value);
+  }, [updateUrlParam]);
 
   const setSelectedYear = useCallback((value) => {
     yearRef.current.manuallyChanged = true;
     yearRef.current.value = value;
     setSelectedYearInternal(value);
-  }, []);
+    updateUrlParam('year', value);
+  }, [updateUrlParam]);
 
   const setSelectedMonth = useCallback((value) => {
     monthRef.current.manuallyChanged = true;
     monthRef.current.value = value;
     setSelectedMonthInternal(value);
-  }, []);
+    updateUrlParam('month', value);
+  }, [updateUrlParam]);
 
   // マウント時にCookieから値を読み込む（一度だけ）
   useEffect(() => {
@@ -293,7 +314,7 @@ export function CalendarProvider({ children }) {
   }, [selectedLocation, selectedAction, selectedYear, selectedMonth, fetchCalendarDataWithParams]);
 
   // Cookieを含めた選択値をリセットする関数
-  const resetSelections = () => {
+  const resetSelections = useCallback(() => {
     // 進行中のリクエストをキャンセル
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -314,12 +335,15 @@ export function CalendarProvider({ children }) {
     setSelectedYearInternal('');
     setSelectedMonthInternal('');
     
-    // Cookieもクリア
+    // CookieとURLパラメータもクリア
     setCookie(COOKIE_KEYS.LOCATION, '', 0);
     setCookie(COOKIE_KEYS.ACTION, '', 0);
     setCookie(COOKIE_KEYS.YEAR, '', 0);
     setCookie(COOKIE_KEYS.MONTH, '', 0);
-  };
+    
+    // URLパラメータをすべて削除
+    setSearchParams({}, { replace: true });
+  }, [setSearchParams]);
 
   // AI質問機能
   const askFollowupQuestion = useCallback(async (question) => {
@@ -402,8 +426,11 @@ export function CalendarProvider({ children }) {
   );
 }
 
+// propTypesの更新
 CalendarProvider.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
+  searchParams: PropTypes.object.isRequired, // URLSearchParamsインスタンス
+  setSearchParams: PropTypes.func.isRequired
 };
 
 export function useCalendar() {
