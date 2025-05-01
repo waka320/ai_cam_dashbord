@@ -1,9 +1,10 @@
 import React from 'react';
 import './styles/App.css';
-import { BrowserRouter, useSearchParams, } from 'react-router-dom';
+import { BrowserRouter, useSearchParams } from 'react-router-dom';
 import Header from './components/layout/Header';
 import Content from './components/layout/Content';
 import { CalendarProvider } from './contexts/CalendarContext';
+import { ColorPaletteProvider } from './contexts/ColorPaletteContext';
 
 function App() {
   return (
@@ -19,10 +20,12 @@ function SearchParamsWrapper() {
 
   return (
     <CalendarProvider searchParams={searchParams} setSearchParams={setSearchParams}>
-      <div className="app-container">
-        <Header />
-        <Content />
-      </div>
+      <ColorPaletteProvider>
+        <div className="app-container">
+          <Header />
+          <Content />
+        </div>
+      </ColorPaletteProvider>
     </CalendarProvider>
   );
 }

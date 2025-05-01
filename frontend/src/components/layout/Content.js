@@ -10,6 +10,7 @@ import { useCalendar } from '../../contexts/CalendarContext';
 import SectionContainer from '../ui/SectionContainer';
 import InfoIcon from '@mui/icons-material/Info';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import ColorPaletteSwitcher from '../ui/ColorPaletteSwitcher';
 
 function Content() {
     const { loading, error } = useCalendar();
@@ -169,6 +170,11 @@ function Content() {
             padding: isMobile ? '8px 8px 16px' : '16px 16px 24px',
             boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)'
         }}>
+            {/* 設定セクション */}
+            <Box sx={{ mb: 3 }}>
+                <ColorPaletteSwitcher />
+            </Box>
+
             <Inputs />
             
             {renderError()}
