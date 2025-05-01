@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Box, Typography, CircularProgress, ClickAwayListener, useMediaQuery } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
-import CongestionLegend, { getCellColor } from './CongestionLegend';
+import { useColorPalette } from '../../contexts/ColorPaletteContext';
+import CongestionLegend from './CongestionLegend';
 import InfoIcon from '@mui/icons-material/Info';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SectionContainer from '../ui/SectionContainer';
@@ -25,6 +26,7 @@ const getDayNameJa = (dayName) => {
 // 時間帯別ヒートマップコンポーネント
 const TimeHeatmap = () => {
   const { calendarData, selectedAction, loading } = useCalendar();
+  const { getCellColor } = useColorPalette();
   
   // レスポンシブ対応のためのメディアクエリ
   const isMobile = useMediaQuery('(max-width:768px)');

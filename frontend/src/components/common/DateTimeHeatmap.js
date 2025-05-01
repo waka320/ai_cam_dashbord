@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Box, Typography, Paper, CircularProgress, useMediaQuery, Popper, ClickAwayListener } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
-import CongestionLegend, { getCellColor } from './CongestionLegend';
+import CongestionLegend from './CongestionLegend';
+import { useColorPalette } from '../../contexts/ColorPaletteContext'; 
 import InfoIcon from '@mui/icons-material/Info';
 
 // 日付を整形する関数（例: "2024-07-01" -> "7/1"）
@@ -13,7 +14,7 @@ const formatDate = (dateStr) => {
 // 日付×時間ヒートマップコンポーネント
 const DateTimeHeatmap = () => {
     const { calendarData, selectedAction, loading } = useCalendar();
-    
+    const { getCellColor } = useColorPalette(); // ColorPaletteContextから取得
     // レスポンシブ対応のためのメディアクエリ
     const isMobile = useMediaQuery('(max-width:768px)');
     const isSmallMobile = useMediaQuery('(max-width:480px)');

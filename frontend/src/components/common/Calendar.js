@@ -2,12 +2,14 @@ import React, { useState, useRef } from 'react';
 import { Box, Typography, CircularProgress, Popper, Paper, ClickAwayListener, useMediaQuery } from '@mui/material';
 import theme from '../../theme/theme';
 import { useCalendar } from '../../contexts/CalendarContext';
-import CongestionLegend, { getCellColor } from './CongestionLegend';
+import CongestionLegend from './CongestionLegend';
 import InfoIcon from '@mui/icons-material/Info';
+import { useColorPalette } from '../../contexts/ColorPaletteContext'; // 追加
 
 // カレンダーコンポーネント
 const CalendarHeatmap = () => {
     const { calendarData, selectedAction, loading } = useCalendar();
+    const { getCellColor } = useColorPalette(); // 追加
     const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
     
     // レスポンシブ対応のためのメディアクエリ
@@ -125,7 +127,7 @@ const CalendarHeatmap = () => {
                                             // 混雑度0の日を灰色で表示
                                             backgroundColor: !cell ? '#fff' : 
                                                 cell.congestion === 0 ? '#e0e0e0' : getCellColor(cell.congestion),
-                                            color: cell && cell.congestion > 0 && cell.congestion <= 8 ? 'inherit' : theme.palette.text.white,
+                                            color: cell && cell.congestion > 0 && cell.congestion <= 5 ? 'inherit' : theme.palette.text.white,
                                             borderRight: colIndex !== 6 ? '1px solid #ddd' : undefined,
                                             borderBottom: rowIndex !== calendarData.length - 1 ? '1px solid #ddd' : undefined,
                                             position: 'relative',
@@ -182,7 +184,7 @@ const CalendarHeatmap = () => {
                                                         lineHeight: isSmallMobile ? '1' : undefined,
                                                         marginTop: isSmallMobile ? '2px' : undefined,
                                                         color: cell.congestion === 0 ? '#666' : 
-                                                            cell.congestion <= 8 ? 'inherit' : theme.palette.text.white
+                                                            cell.congestion <= 6 ? 'inherit' : theme.palette.text.white
                                                     }}
                                                 >
                                                     {cell.congestion === 0 ? 
