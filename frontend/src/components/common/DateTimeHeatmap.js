@@ -117,8 +117,8 @@ const DateTimeHeatmap = () => {
         );
     }
 
-    // 時間の範囲を定義（0-23時）
-    const hours = Array.from({ length: 24 }, (_, i) => i);
+    // 時間の範囲を定義（7-22時）に修正
+    const hours = Array.from({ length: 16 }, (_, i) => i + 7); // 7時から22時まで
 
     // 日付でソート - エラーハンドリング付き
     let sortedData = [];
@@ -215,7 +215,7 @@ const DateTimeHeatmap = () => {
                                                 flex: 1,
                                                 minWidth: isMobile ? '25px' : '30px',
                                                 textAlign: 'center', 
-                                                borderRight: hour !== 23 ? '1px solid #ddd' : 'none',
+                                                borderRight: hour !== 22 ? '1px solid #ddd' : 'none',
                                                 padding: isMobile ? '3px 0' : '4px 0'
                                             }}
                                         >
@@ -289,7 +289,7 @@ const DateTimeHeatmap = () => {
                                                         backgroundColor: cellColor,
                                                         color: congestion === 0 ? '#666' : 
                                                               congestion >= 8 ? 'white' : 'inherit',
-                                                        borderRight: hour !== 23 ? '1px solid #ddd' : 'none',
+                                                        borderRight: hour !== 22 ? '1px solid #ddd' : 'none',
                                                         display: 'flex',
                                                         flexDirection: 'column',
                                                         alignItems: 'center',

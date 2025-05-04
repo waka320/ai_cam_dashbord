@@ -40,8 +40,8 @@ function Header() {
         { value: "dti_open_hour", label: "お店の営業時間を検討したい" },
         { value: "dti_shoping_open_hour", label: "商店街の営業時間を検討したい" },
         { value: "cal_cog", label: "カレンダー形式の混雑度が見たい" },
-        { value: "wti_cog", label: "日時形式の混雑度が見たい" },
-        { value: "dti_cog", label: "曜日と時間帯ごとの混雑度が見たい" },
+        { value: "dti_cog", label: "日時形式の混雑度が見たい" },
+        { value: "wti_cog", label: "曜日と時間帯ごとの混雑度が見たい" },
     ];
 
     const generateYearItems = () => {

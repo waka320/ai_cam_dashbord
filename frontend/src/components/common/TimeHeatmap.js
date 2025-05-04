@@ -90,7 +90,7 @@ const TimeHeatmap = () => {
   }
 
   // actionが"wti"または"dti"で始まる場合のみ表示
-  if (!selectedAction || !(selectedAction.startsWith('wti') || selectedAction.startsWith('dti'))) {
+  if (!selectedAction || !(selectedAction.startsWith('wti') )) {
     return null;
   }
 
