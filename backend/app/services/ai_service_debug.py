@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+from typing import Dict, Any, Optional
 
 # 目的のマッピング辞書
 PURPOSE_MAPPING = {
@@ -18,7 +19,6 @@ PURPOSE_MAPPING = {
     "dti_cog": "曜日と時間帯ごとの混雑度が見たい",
 }
 
-
 # 場所のマッピング辞書
 LOCATION_MAPPING = {
     "omotesando": "表参道",
@@ -32,63 +32,124 @@ LOCATION_MAPPING = {
     "nakabashi": "中橋",
 }
 
+# ハイライト条件の設定（highlighter_service.pyから統合）
+HIGHLIGHT_CONDITIONS = {
+    # カレンダー形式のハイライト条件 - 曜日と閾値ベース
+    "cal_holiday": {"condition": "weekday_threshold_below", "threshold": 10, "metric": "congestion"}, # 混雑度が少ない曜日で混雑度10以下の日
+    "cal_shoping_holiday": {"condition": "weekday_threshold_below", "threshold": 3, "metric": "congestion"}, # 混雑度が少ない曜日で混雑度3以下の日
+    
+    # カレンダー形式のハイライト条件 - 閾値ベース
+    "cal_event": {"condition": "threshold_below", "threshold": 4, "metric": "congestion"}, # 混雑度4以下の日をすべてハイライト
+    "cal_long_holiday": {"condition": "threshold_below", "threshold": 2, "metric": "congestion"}, # 混雑度2以下の日をすべてハイライト
+    
+    # カレンダー形式のハイライト条件 - 個数ベース
+    "cal_training": {"condition": "lowest", "count": 2, "metric": "congestion"},
+    "cal_cog": {"condition": "extremes", "count": 3, "metric": "congestion"}, # 最も混雑・空いている日をそれぞれ3日ずつ
+    "cal_cog_and_count": {"condition": "extremes", "count": 3, "metric": "both"}, # 混雑度と実際の値の両方でハイライト
+    
+    # 日時形式のハイライト条件
+    "wti_event_effect": {"condition": "highest", "count": 3, "metric": "congestion"},
+    "wti_event_time": {"condition": "highest", "count": 5, "metric": "congestion"},
+    "wti_shift": {"condition": "extremes", "count": 3, "metric": "congestion"},
+    "wti_cog": {"condition": "extremes", "count": 3, "metric": "congestion"},
+    "wti_count": {"condition": "extremes", "count": 3, "metric": "count"}, # 実際の値ベースでハイライト
+    
+    # 曜日×時間帯形式のハイライト条件
+    "dti_open_hour": {"condition": "peak_hours", "count": 2, "metric": "congestion"}, # 各曜日のピーク時間を2時間ずつ
+    "dti_shoping_open_hour": {"condition": "peak_hours", "count": 2, "metric": "congestion"},
+    "dti_cog": {"condition": "extremes", "count": 2, "metric": "congestion"},
+    "dti_count": {"condition": "extremes", "count": 2, "metric": "count"}, # 実際の値ベースでハイライト
+}
+
+# ハイライト条件の説明辞書
+CONDITION_EXPLANATIONS = {
+    "weekday_threshold_below": "空いている曜日の中で閾値以下の日",
+    "threshold_below": "閾値以下の日",
+    "threshold_above": "閾値以上の日",
+    "lowest": "最も空いている日",
+    "highest": "最も混んでいる日",
+    "extremes": "最も混雑/空いている日",
+    "lowest_consecutive": "連続して空いている日",
+    "peak_hours": "曜日ごとのピーク時間"
+}
+
+# メトリックの説明辞書
+METRIC_EXPLANATIONS = {
+    "congestion": "混雑度基準",
+    "count": "人通り数基準",
+    "both": "混雑度と人通り数の両方"
+}
+
+# 目的別の分析アプローチ説明
+PURPOSE_ANALYSIS_APPROACHES = {
+    "cal_holiday": "お店のお休みを考える際は、どの曜日が空いているかを調べ、特に客足が少ない日を見つけます。平日の比較や週ごとのパターンも参考にします。",
+    "cal_shoping_holiday": "商店街全体のお休みは、人通りが少ない曜日・時間を探し、他のお店の定休日も参考にします。地元の方と観光客の動きも大切です。",
+    "cal_long_holiday": "長期のお休みには、連続して空いている日を探し、月の平均や前後の週末との比較、観光シーズンやイベント情報も考慮します。",
+    "cal_event": "イベント日は、人通りが多い日を見つけ、時間帯ごとの人の流れを確認します。滞在時間や曜日による参加しやすさも大切です。",
+    "cal_training": "研修には、人通りが少なく静かな環境が確保できる時間帯を探します。午前中や特定の曜日のパターンを見つけます。",
+    "wti_event_effect": "イベント効果は、開催日と通常日を比較し、時間帯別の効果や翌日以降への影響も分析します。曜日や天気の影響も確認します。",
+    "wti_event_time": "イベント時間は、人通りが最も多い時間帯を探し、曜日ごとの違いや天気の影響も考慮して最適な時間を提案します。",
+    "wti_shift": "アルバイトシフトは、混雑する時間帯を特定し、曜日による傾向や時間帯のピークを分析して、効率的な人員配置を提案します。",
+    "dti_open_hour": "お店の営業時間は、人通りのピーク時間と曜日による違いを確認し、平日・休日別の需要を分析して最適な時間を提案します。",
+    "dti_shoping_open_hour": "商店街の営業時間は、時間帯ごとの人の流れと客層の違いを考慮し、飲食・物販の需要も分析して統一時間を提案します。",
+    "cal_cog": "カレンダー形式では、日ごとの混雑度を見やすく表示し、曜日パターンや週による変動、天候の影響なども分析します。",
+    "wti_cog": "日時形式では、曜日・時間帯ごとの混雑パターンを探し、特に混む時間や空いている時間帯を見つけます。平日と休日の違いも確認します。",
+    "dti_cog": "曜日×時間帯では、曜日と時間の表で混雑パターンを表示し、特に混む・空く時間帯を見つけ、平日・休日別の傾向を分析します。"
+}
 
 async def analyze_csv_data_debug(csv_path: str, year: int, month: int, purpose: str):
     """
-    デバッグ用：CSVデータ分析の代わりに目的別の定型文を返すバージョン
+    デバッグ用：ハイライト基準と分析アプローチの説明のみを返す簡潔バージョン
     """
     # purpose値をラベルに変換
     purpose_label = PURPOSE_MAPPING.get(purpose, purpose)
     
     # CSVファイル名から場所のコードを抽出
     location_code = os.path.basename(csv_path).replace('.csv', '')
+    
     # 場所コードを日本語名に変換
     location_name = LOCATION_MAPPING.get(location_code, location_code)
+
+    # ハイライト基準の情報を取得
+    highlight_info = HIGHLIGHT_CONDITIONS.get(purpose, {})
+    condition_type = highlight_info.get("condition", "未設定")
+    threshold = highlight_info.get("threshold", None)
+    count = highlight_info.get("count", None)
+    metric = highlight_info.get("metric", "congestion")
     
-    # 目的別の定型文を返す
-    debug_responses = {
-        # カレンダー関連の返答
-        "cal_holiday": f"【デバッグ: {location_name}】店舗の定休日として水曜日をおすすめします。{year}年{month}月のデータによると、水曜日は平均して他の曜日より歩行者数が25%少なく、最も来店が少ない日です。特に第2・第4水曜日は更に10%ほど少ない傾向にあるため、定休日として適しています。観光地である高山では、平日の中でも特に水曜日は観光客の入れ替わりが少ない日であることも要因の一つです。",
+    # ハイライト基準の説明を作成（より簡潔に）
+    if condition_type in CONDITION_EXPLANATIONS:
+        highlight_explanation = CONDITION_EXPLANATIONS[condition_type]
         
-        "cal_shoping_holiday": f"【デバッグ: {location_name}】商店街全体の定休日として水曜日が最適です。{year}年{month}月の歩行者数データを分析すると、曜日別では水曜日が最も歩行者数が少なく（平日平均の約80%）、特に午前中は他の平日より40%ほど少ない傾向にあります。他の商店も水曜定休が多いため、商店街全体で統一すると顧客の混乱も避けられます。また、水曜日は地元客の利用も少ないため、商店街全体の休業日として認知されやすくなります。",
+        params = []
+        if threshold is not None:
+            params.append(f"閾値: {threshold}")
+        if count is not None:
+            params.append(f"表示数: {count}")
         
-        "cal_long_holiday": f"【デバッグ: {location_name}】{year}年{month}月のデータによると、長期休暇には第3週の月曜日から水曜日（{month}月15日〜17日頃）が最適です。この期間は歩行者数が月間平均より約35%少なく、売上への影響を最小限に抑えられます。また、前後の週末と比較しても客足が落ち着いている時期であり、休業による機会損失が最も少ないタイミングです。観光シーズンや地域イベントとも重なっていないため、休業日として適しています。",
-        
-        "cal_event": f"【デバッグ: {location_name}】イベント開催に最適なのは{month}月の第2・第4土曜日（{month}/10、{month}/24頃）です。{year}年{month}月のデータによると、これらの日は歩行者数が平均より約40%多く、イベントの集客効果が高まります。特に13時〜16時の時間帯に歩行者のピークがあるため、この時間を中心にイベントを設計すると効果的です。また、日曜日よりも土曜日の方が滞在時間も長い傾向があり、イベント参加率も高くなることが予測されます。",
-        
-        "cal_training": f"【デバッグ: {location_name}】{year}年{month}月の研修に最適なのは、火曜日もしくは木曜日の午前中（9時〜12時）です。この時間帯は歩行者数が平均より約30%少なく、静かな環境で研修を行えます。特に第2・第3週の火曜日（{month}/8、{month}/15頃）は月内でも特に人通りが少ない傾向にあります。研修場所が商店街内にある場合、周辺の混雑も少ないため、参加者のアクセスも容易になります。",
-        
-        # 日時関連の返答
-        "wti_event_effect": f"【デバッグ: {location_name}】{year}年{month}月のイベント効果分析によると、イベント開催日は通常日と比較して歩行者数が約45%増加しています。特に効果が高かったのは14時〜16時の時間帯で、通常の2倍以上の人出がありました。また、イベント翌日も約15%の増加が見られ、波及効果があることも確認できます。さらに土曜開催のイベントは日曜開催より約20%効果が高く、天候が良い日はさらに10%程度効果が増大する傾向にあります。今後のイベント計画には土曜日の午後を中心に検討することをお勧めします。",
-        
-        "wti_event_time": f"【デバッグ: {location_name}】{year}年{month}月のデータによると、イベント開催に最適な時間帯は13時〜17時です。この時間帯は歩行者数が1日の中で最も多く（1日平均の約40%が集中）、特に14時台がピークとなっています。土日祝日はさらに1時間早く12時から混雑が始まるため、週末のイベントは12時開始が効果的です。また、夕方以降も18時頃まで一定の人出があるため、夕方までイベントを延長すると追加の集客が見込めます。雨天時は全体的に人出が30%程度減少するため、室内イベントの検討も必要です。",
-        
-        "wti_shift": f"【デバッグ: {location_name}】{year}年{month}月のデータから最適なシフト配置を分析しました。最も人手が必要なのは土曜日と日曜日の13時〜17時で、平日の約2倍の人員が必要です。平日は10時〜12時と15時〜18時の2つのピークがあり、この時間帯に人員を集中させることをお勧めします。特に水曜日は全体的に客足が20%ほど少ないため、研修やミーティングに充てる日として活用できます。月曜午前と金曜夕方も比較的混雑するため、人員配置を厚くする必要があります。",
-        
-        # 曜日×時間帯関連の返答
-        "dti_open_hour": f"【デバッグ: {location_name}】{year}年{month}月の分析から、最適な営業時間は平日11時〜19時、土日祝10時〜20時です。平日は12時と17時に2つのピークがあり、この時間帯をカバーする営業時間が効率的です。土日は朝から混雑が始まり、10時には平日の正午と同程度の人出があります。また、土日は夕方以降も人出が多く、20時頃まで一定の需要があります。水曜日は特に午前中の人出が少ないため、開店時間を遅らせるか、定休日とすることも検討できます。効率を重視するなら平日11時〜19時、売上最大化を目指すなら全日10時〜20時の営業がおすすめです。",
-        
-        "dti_shoping_open_hour": f"【デバッグ: {location_name}】商店街全体の最適な営業時間として、平日は11時〜19時、土日祝は10時〜20時を提案します。{year}年{month}月のデータによると、平日の歩行者数は11時から増加し始め、12時〜13時と17時〜18時に2つのピークがあります。土日は10時から人出が多くなり、13時〜16時がピークとなっています。観光地である高山の特性上、土日は観光客が朝から訪れるため、10時開店が集客に効果的です。また、飲食店は平日でも夜20時まで営業することで、夕食需要を取り込める可能性があります。商店街全体で統一した営業時間を設定することで、来訪者の利便性も向上します。",
-        
-        # 混雑度確認関連の返答
-        "cal_cog": f"【デバッグ: {location_name}】{year}年{month}月のカレンダー形式混雑度を表示します。全体的に土日の混雑度が高く（平日の約1.8倍）、特に第2・第4土曜日の混雑度は最高レベルです。平日では金曜日の混雑度が最も高く、水曜日が最も低くなっています。{month}月前半は後半よりも全体的に10%ほど混雑度が高い傾向にあります。天候の影響も大きく、雨天時は晴天時と比較して30%程度混雑度が下がります。月末の{month}/28-30は特に混雑度が低く、最も空いている日となっています。",
-        
-        "wti_cog": f"【デバッグ: {location_name}】{year}年{month}月の日時別混雑度を表示します。平日は12時〜13時と17時〜18時に2つのピークがあり、土日は13時〜16時が最も混雑します。朝9時以前と夜19時以降は全日で混雑度が低くなります。特に水曜日の午前中は週間で最も空いており、混雑度は平均の60%程度です。第2週目の土曜日（{month}/13頃）の14時〜15時は月間で最も混雑する時間帯となっています。平日でも昼休みの12時台は混雑度が高いため、この時間帯の買い物は避けた方が良いでしょう。",
-        
-        "dti_cog": f"【デバッグ: {location_name}】曜日×時間帯別の混雑度分析です。最も混雑するのは土曜日の14時〜16時で、次いで日曜日の同時間帯です。平日では金曜日の17時〜19時が最も混雑します。全曜日を通じて、9時以前と20時以降は比較的空いています。水曜日は一日を通して最も混雑度が低く、特に午前中は他の曜日の半分程度の混雑度です。曜日別の混雑度は土曜>日曜>金曜>木曜>火曜>月曜>水曜の順となっています。時間帯別では14時〜16時が最も混雑し、次いで12時〜13時、17時〜19時と続きます。買い物が快適にできるのは、水曜日か月曜日の午前中、または平日の19時以降です。"
-    }
+        if params:
+            highlight_explanation += f"（{', '.join(params)}）"
+            
+        if metric in METRIC_EXPLANATIONS:
+            highlight_explanation += f" / {METRIC_EXPLANATIONS[metric]}"
+    else:
+        highlight_explanation = "未設定"
     
-    # CSVファイルが実際に存在するか確認（オプション）
+    # 分析アプローチの説明を取得
+    analysis_approach = PURPOSE_ANALYSIS_APPROACHES.get(purpose, "この目的の分析方法は定義されていません")
+    
+    # CSVファイルが実際に存在するか確認
     try:
-        # 実際にCSVファイルを開いてみる（データ読み込みは行わない）
         with open(csv_path, 'r') as file:
             pass
     except FileNotFoundError:
-        # ファイルが見つからない場合のメッセージ
-        return f"【デバッグエラー】{location_name}のデータファイルが見つかりません。パス: {csv_path}"
-    
-    # 目的に合った返答を返す、なければデフォルトメッセージ
-    return debug_responses.get(
-        purpose, 
-        f"【デバッグ: {location_name}】{year}年{month}月のデータ分析結果：「{purpose_label}」目的のアドバイス。このメッセージは目的コード「{purpose}」に対応する定型文が未設定の場合に表示されます。実際の分析結果は本番環境で確認してください。"
-    )
+        return f"【エラー】{location_name}のデータファイルが見つかりません。パス: {csv_path}"
+
+    # ハイライト基準と分析アプローチの説明のみを返す（簡潔なフォーマット）
+    return f"""【{location_name}】{purpose_label}
+
+■ ハイライト方法
+{highlight_explanation}
+
+■ 分析のポイント
+{analysis_approach}"""
