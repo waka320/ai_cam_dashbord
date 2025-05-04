@@ -225,7 +225,7 @@ function AISection() {
                         fontSize: isMobile ? '1.1rem' : '1.2rem'
                     }}
                 >
-                    AIからのアドバイス
+                    分析のアドバイス
                 </Typography>
                 
             </Box>
