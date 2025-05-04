@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from app.services.analyze import get_data_for_calendar250414 as calendar_service
 from app.services.analyze import get_data_for_week_time
-from app.services.analyze import get_data_for_date_time
+from app.services.analyze import get_data_for_date_time250504
 from app.services.ai_service_debug import analyze_csv_data_debug
 from app.services.highlighter_service import highlight_calendar_data, highlight_week_time_data, highlight_date_time_data
 from app.models import GraphRequest, GraphResponse, DayWithHours
@@ -39,7 +39,6 @@ async def get_graph(request: GraphRequest):
         # データが存在するか確認
         if df_filtered.empty:
             print(f"Warning: No data found for {place} in {year}/{month}")
-        
         # アクションに応じたデータ生成とハイライト
         if action[:3] == "cal":
             # カレンダーデータの作成 - placeをファイル名から抽出して渡す
@@ -54,7 +53,7 @@ async def get_graph(request: GraphRequest):
             data = highlight_week_time_data(data, action)
         elif action[:3] == "dti":
             # 日付×時間帯データの作成
-            data = get_data_for_date_time.get_data_for_date_time(csv_file_path, year, month)
+            data = get_data_for_date_time250504.get_data_for_date_time(df, year, month, place)
             # ハイライト処理
             data = highlight_date_time_data(data, action)
         else:
