@@ -21,7 +21,7 @@ CONGESTION_THRESHOLDS = {
     'honmachi3': (35, 750),
     'honmachi4': (50, 2000),
     'jinnya': (50, 1000),
-    'kokubunjidori': (1600, 5800),
+    'kokubunjidori': (40, 450),
     'nakabashi': (40, 650),
     'omotesando': (25, 700),
     'yasukawadori': (400, 2900),

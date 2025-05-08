@@ -568,7 +568,7 @@ function Header() {
                             }}
                         >
                             <ShareButton 
-                                variant={isMobile ? 'icon' : isTablet || isSmallDesktop ? 'button' : 'button'} 
+                                variant='button' 
                                 size={isMobile ? 'small' : 'medium'} 
                             />
                         </Box>
