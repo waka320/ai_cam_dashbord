@@ -131,9 +131,6 @@ function Content() {
                         >
                             飛騨高山DX推進官民連携プラットフォーム
                         </Link>
-                        <Typography variant="body2">
-                            NECソリューションイノベータ株式会社
-                        </Typography>
                     </Box>
                 </Box>
                 
