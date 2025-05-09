@@ -260,7 +260,7 @@ const TimeHeatmap = () => {
                         height: isMobile ? '40px' : '48px',
                         backgroundColor: cellColor,
                         color: congestion === 0 ? '#666' : 
-                              congestion >= 8 ? 'white' : 'inherit',
+                              congestion >= 6 ? 'white' : 'inherit',
                         borderRight: hour !== 23 ? '1px solid #ddd' : 'none',
                         display: 'flex',
                         flexDirection: 'column',
@@ -309,7 +309,7 @@ const TimeHeatmap = () => {
                             right: '1px',
                             fontSize: isMobile ? '10px' : '12px',
                             opacity: 0.8,
-                            color: congestion >= 8 ? 'white' : 'inherit',
+                            color: congestion >= 6 ? 'white' : 'inherit',
                           }}
                         />
                       )}

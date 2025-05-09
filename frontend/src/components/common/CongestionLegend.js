@@ -40,7 +40,7 @@ const CongestionLegend = () => {
                 width: isSmallMobile ? '28px' : isMobile ? '30px' : '35px',
                 height: isSmallMobile ? '28px' : isMobile ? '30px' : '35px',
                 backgroundColor: getCellColor(level),
-                color: level >= 7 ? '#fff' : 'inherit',
+                color: level >= 6 ? '#fff' : 'inherit',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',

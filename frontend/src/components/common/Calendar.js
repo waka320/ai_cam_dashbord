@@ -201,7 +201,7 @@ const CalendarHeatmap = () => {
                                                             right: isMobile ? '1px' : '5px',
                                                             fontSize: isMobile ? '12px' : '16px',
                                                             opacity: 0.8,
-                                                            color: cell.congestion <= 8? 'inherit' : theme.palette.text.white,
+                                                            color: cell.congestion >=6 ? 'inherit' : theme.palette.text.white,
                                                         }}
                                                     />
                                                 )}
