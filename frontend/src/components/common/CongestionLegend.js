@@ -4,7 +4,7 @@ import { Box, Typography, useMediaQuery } from '@mui/material';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
 
 const CongestionLegend = () => {
-  const { getCellColor } = useColorPalette();
+  const { getCellColor, getTextColor } = useColorPalette(); // getTextColorを追加
   const isMobile = useMediaQuery('(max-width:768px)');
   const isSmallMobile = useMediaQuery('(max-width:480px)');
 
@@ -61,7 +61,7 @@ const CongestionLegend = () => {
                 width: isSmallMobile ? '28px' : isMobile ? '30px' : '35px',
                 height: isSmallMobile ? '28px' : isMobile ? '30px' : '35px',
                 backgroundColor: getCellColor(level),
-                color: level >= 6 ? '#fff' : 'inherit',
+                color: getTextColor(level), // カラーパレットに応じた文字色を使用
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -99,7 +99,7 @@ const CongestionLegend = () => {
           variant={isSmallMobile ? "caption" : "bodyS"} 
           color="text.secondary"
         >
-          グレーはデータなし
+          グレーはデータなし（休業日または非営業時間）
         </Typography>
       </Box>
     </Box>
