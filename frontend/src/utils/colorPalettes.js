@@ -9,6 +9,12 @@ export const COLOR_PALETTE_NAMES = {
     VIRIDIS: 'Viridis',
     VIRIDIS_REVERSE: 'Viridis（反転）',
     WHITE_TO_BLUE: '白→青→黒',
+    RDYLBU_R: 'RdYlBu（反転）',
+    JET: 'jet',
+    TURBO: 'turbo',
+    GRADS: 'GrADSデフォルト',
+    CMTHERMAL: 'cmthermal',
+ 
 };
 
 // テキスト色の設定：閾値とパターン（通常または反転）
@@ -40,7 +46,28 @@ export const TEXT_COLOR_SETTINGS = {
   WHITE_TO_BLUE: { 
     threshold: 6,
     inverted: false    // 反転パターン（明るい色は黒文字、暗い色は白文字）
-  }
+  },
+  RDYLBU_R: {
+    mode: 'range',
+    blackRanges: [[3, 8]]      // 通常パターン
+  },
+  JET: {
+    mode: 'range',
+    blackRanges: [[3, 8]]      // 通常パターン
+  },
+  TURBO: {
+    mode: 'range',
+    blackRanges: [[3, 8]]     // 通常パターン
+  },
+  GRADS: {
+    mode: 'range',
+    blackRanges: [[3, 8]]    // 通常パターン
+  },
+  CMTHERMAL: {
+    threshold: 6,       // 3以上で白文字（暗い部分）
+    inverted: true      // 反転パターン（高い混雑度で黒文字）
+  },
+
 };
 
 // カラーパレットの定義
@@ -150,7 +177,73 @@ export const colorPalettes = {
     if (congestion === 9) return '#e57373'; // 中程度の赤
     if (congestion === 10) return '#d32f2f'; // 暗い赤
     return '#FFF';
-  }
+  },
+  [COLOR_PALETTE_NAMES.RDYLBU_R]: (congestion) => {
+    if (congestion === 1) return '#053061'; // 濃い青
+    if (congestion === 2) return '#2166ac'; // 青
+    if (congestion === 3) return '#4393c3'; // 薄い青
+    if (congestion === 4) return '#92c5de'; // とても薄い青
+    if (congestion === 5) return '#d1e5f0'; // 非常に薄い青
+    if (congestion === 6) return '#fddbc7'; // 非常に薄い赤
+    if (congestion === 7) return '#f4a582'; // 薄い赤
+    if (congestion === 8) return '#d6604d'; // 中間の赤
+    if (congestion === 9) return '#b2182b'; // 赤
+    if (congestion === 10) return '#67001f'; // 濃い赤
+    return '#FFF';
+  },
+  [COLOR_PALETTE_NAMES.JET]: (congestion) => {
+    if (congestion === 1) return '#000080'; // 濃い青
+    if (congestion === 2) return '#0000ff'; // 青
+    if (congestion === 3) return '#00bfff'; // 明るい青
+    if (congestion === 4) return '#00ffff'; // シアン
+    if (congestion === 5) return '#00ff00'; // 緑
+    if (congestion === 6) return '#80ff00'; // 黄緑
+    if (congestion === 7) return '#ffff00'; // 黄
+    if (congestion === 8) return '#ff8000'; // オレンジ
+    if (congestion === 9) return '#ff0000'; // 赤
+    if (congestion === 10) return '#800000'; // 暗い赤
+    return '#FFF';
+  },
+  [COLOR_PALETTE_NAMES.TURBO]: (congestion) => {
+    if (congestion === 1) return '#30123b'; // 暗い青紫
+    if (congestion === 2) return '#4067e9'; // 青
+    if (congestion === 3) return '#26a4f2'; // 明るい青
+    if (congestion === 4) return '#4ac16d'; // 青緑
+    if (congestion === 5) return '#a7d65d'; // 黄緑
+    if (congestion === 6) return '#fcce2e'; // 黄
+    if (congestion === 7) return '#fb9e24'; // 明るいオレンジ
+    if (congestion === 8) return '#f06b22'; // オレンジ
+    if (congestion === 9) return '#d93806'; // 赤
+    if (congestion === 10) return '#7a0403'; // 非常に暗い赤
+    return '#FFF';
+  },
+  [COLOR_PALETTE_NAMES.GRADS]: (congestion) => {
+    if (congestion === 1) return '#000080'; // 濃い青
+    if (congestion === 2) return '#0000ff'; // 青
+    if (congestion === 3) return '#0080ff'; // 明るい青
+    if (congestion === 4) return '#00ffff'; // シアン
+    if (congestion === 5) return '#00ff80'; // 青緑
+    if (congestion === 6) return '#00ff00'; // 緑
+    if (congestion === 7) return '#80ff00'; // 黄緑
+    if (congestion === 8) return '#ffff00'; // 黄
+    if (congestion === 9) return '#ff8000'; // オレンジ
+    if (congestion === 10) return '#ff0000'; // 赤
+    return '#FFF';
+  },
+  [COLOR_PALETTE_NAMES.CMTHERMAL]: (congestion) => {
+    if (congestion === 1) return '#000000'; // 黒
+    if (congestion === 2) return '#240000'; // 非常に暗い赤
+    if (congestion === 3) return '#580000'; // 暗い赤
+    if (congestion === 4) return '#8c0000'; // 赤
+    if (congestion === 5) return '#c03b00'; // 明るい赤
+    if (congestion === 6) return '#f07800'; // オレンジ
+    if (congestion === 7) return '#ffb000'; // 明るいオレンジ
+    if (congestion === 8) return '#ffe060'; // 黄色
+    if (congestion === 9) return '#ffff9f'; // 明るい黄色
+    if (congestion === 10) return '#ffffff'; // 白
+    return '#FFF';
+  },
+  
 };
 
 // パレットとテキスト色の設定を一体化したヘルパー関数
@@ -164,6 +257,9 @@ export const getPaletteInfo = (paletteKey) => {
     name: displayName,
     textThreshold: textSettings.threshold,
     inverted: textSettings.inverted,
+    mode: textSettings.mode,
+    whiteRanges: textSettings.whiteRanges,
+    blackRanges: textSettings.blackRanges,
     getColor: colorFunction
   };
 };

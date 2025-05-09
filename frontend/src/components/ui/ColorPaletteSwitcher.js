@@ -159,9 +159,36 @@ const ColorPaletteSwitcher = () => {
                           {palette.sample.map((color, index) => {
                             const congestionLevel = index + 1;
                             
-                            // テキスト色の判定ロジックを修正
-                            let textColor;
-                            if (palette.inverted) {
+                            // テキスト色の判定ロジック
+                            let textColor = 'black';
+
+                            // 範囲モードの場合
+                            if (palette.mode === 'range') {
+                              // 黒文字範囲が指定されている場合
+                              if (palette.blackRanges) {
+                                textColor = 'white'; // デフォルトは白文字
+                                // 指定された範囲内にあるかどうかをチェック
+                                for (const range of palette.blackRanges) {
+                                  if (congestionLevel >= range[0] && congestionLevel <= range[1]) {
+                                    textColor = 'black'; // 範囲内なら黒文字
+                                    break;
+                                  }
+                                }
+                              }
+                              // 白文字範囲が指定されている場合
+                              else if (palette.whiteRanges) {
+                                textColor = 'black'; // デフォルトは黒文字
+                                // 指定された範囲内にあるかどうかをチェック
+                                for (const range of palette.whiteRanges) {
+                                  if (congestionLevel >= range[0] && congestionLevel <= range[1]) {
+                                    textColor = 'white'; // 範囲内なら白文字
+                                    break;
+                                  }
+                                }
+                              }
+                            }
+                            // 従来の閾値モードの場合
+                            else if (palette.inverted) {
                               // 反転パターン
                               textColor = congestionLevel < palette.textThreshold ? 'white' : 'black';
                             } else {

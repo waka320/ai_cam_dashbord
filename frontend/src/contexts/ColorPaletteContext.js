@@ -83,7 +83,32 @@ export const ColorPaletteProvider = ({ children }) => {
     // 現在のパレットのテキスト色設定を取得
     const settings = TEXT_COLOR_SETTINGS[currentPalette] || { threshold: 6, inverted: false };
     
-    // 反転パターンに対応
+    // 範囲モードの場合の処理
+    if (settings.mode === 'range') {
+      // 黒文字範囲が指定されている場合
+      if (settings.blackRanges) {
+        // 指定された範囲内にあるかどうかをチェック
+        for (const range of settings.blackRanges) {
+          if (congestion >= range[0] && congestion <= range[1]) {
+            return 'inherit'; // 範囲内なら黒文字
+          }
+        }
+        return '#fff'; // 範囲外なら白文字
+      }
+      // 白文字範囲が指定されている場合
+      else if (settings.whiteRanges) {
+        // 指定された範囲内にあるかどうかをチェック
+        for (const range of settings.whiteRanges) {
+          if (congestion >= range[0] && congestion <= range[1]) {
+            return '#fff'; // 範囲内なら白文字
+          }
+        }
+        return 'inherit'; // 範囲外なら黒文字
+      }
+      return 'inherit'; // デフォルトは黒文字
+    }
+    
+    // 従来の閾値モードの処理
     if (settings.inverted) {
       // 反転パターン: 閾値未満が白、閾値以上が黒
       return congestion < settings.threshold ? '#fff' : 'inherit';
@@ -126,7 +151,10 @@ export const ColorPaletteProvider = ({ children }) => {
         }
       }),
       textThreshold: textSettings.threshold,
-      inverted: textSettings.inverted
+      inverted: textSettings.inverted,
+      mode: textSettings.mode,
+      whiteRanges: textSettings.whiteRanges,
+      blackRanges: textSettings.blackRanges // blackRangesの追加
     };
   });
   
