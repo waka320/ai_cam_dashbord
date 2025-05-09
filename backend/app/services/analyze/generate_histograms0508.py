@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Dict, Tuple
 import matplotlib
-import numpy as np
 
 # 日本語フォントのサポート設定
 matplotlib.rcParams['font.family'] = 'Hiragino Sans GB'  # macOSの場合
@@ -49,7 +48,6 @@ def count_persons_by_hour(csv_file_path: str) -> Tuple[pd.DataFrame, str, str]:
     try:
         # CSVファイルを読み込む
         df = pd.read_csv(csv_file_path)
-        print(f"Processing {csv_file_path}...")
         
         # 必要なカラムがあることを確認
         required_columns = ['name', 'count_1_hour', 'time_jst']
@@ -196,11 +194,191 @@ def create_histogram(file_path: str, place: str, output_dir: str):
         print(f"データが取得できませんでした: {file_path}")
         return
     
-    # データに基づいて混雑度の境界値を計算
-    bins, title_base = calculate_congestion_bins(place, hourly_data)
-    
     # タイトルにデータ期間と時間帯を追加
     title = f"{place} - 1時間ごとの混雑度分布 (7時〜22時, {start_date} - {end_date})"
     
-    # 最大値を確認してbinsを調整
-    max_count = hourly_data['count
+    # CONGESTION_THRESHOLDSからレベル1-2と9-10の境界値を取得（凡例表示用）
+    min_threshold, max_threshold = CONGESTION_THRESHOLDS.get(place, CONGESTION_THRESHOLDS['default'])
+    
+    # データの最小値と最大値
+    min_count = hourly_data['count_1_hour'].min()
+    max_count = hourly_data['count_1_hour'].max()
+    
+    # ------ 改良部分: ヒストグラム表示のアプローチを変更 ------
+    
+    plt.figure(figsize=(12, 8))
+    
+    # オプション1: 対数スケールでのヒストグラム
+    # この場合は均等な階級幅でもデータを見やすく分布表示できる
+    # log=Trueの代わりに、xscaleを使う方法
+    # ax = plt.gca()
+    # ax.set_xscale('log')
+    
+    # オプション2: 均等な階級数を使用（データの分布に基づいて自動調整）
+    n_bins = min(30, len(hourly_data['count_1_hour'].unique()))  # ユニークな値の数によって調整
+    
+    # ヒストグラムを描画（均等な階級幅）
+    counts, bin_edges, patches = plt.hist(hourly_data['count_1_hour'], bins=n_bins, 
+                                        edgecolor='black', alpha=0.7)
+    
+    # 度数の重要性を強調するために各バーに値を表示
+    for i in range(len(counts)):
+        if counts[i] > 0:  # 度数が0より大きい場合のみ表示
+            bin_center = (bin_edges[i] + bin_edges[i+1]) / 2
+            plt.text(bin_center, counts[i] + max(counts)/30, f'{int(counts[i])}', 
+                    ha='center', va='bottom', fontweight='bold')
+    
+    # 混雑度レベルの色分け
+    colors = ['#fde725', '#b5de2b', '#6ece58', '#35b779', '#1f9e89', 
+              '#26828e', '#31688e', '#3e4989', '#482878', '#440154']
+    
+    # 混雑度レベルに基づいて色を設定
+    congestion_bins = calculate_congestion_bins(place, hourly_data)[0]
+    
+    for i, patch in enumerate(patches):
+        left_edge = bin_edges[i]
+        
+        # 値がどの混雑度レベルに対応するかを決定
+        level = 0
+        for j in range(len(congestion_bins)-1):
+            if left_edge >= congestion_bins[j] and left_edge < congestion_bins[j+1]:
+                level = j
+                break
+        
+        # 対応する混雑度レベルの色を設定
+        color_idx = min(level, len(colors)-1)
+        patch.set_facecolor(colors[color_idx])
+    
+    # 主要な混雑度レベルの境界線を描画
+    for i, threshold in enumerate(congestion_bins):
+        if i > 0 and i < len(congestion_bins) - 1:  # 最初と最後の境界は除外
+            plt.axvline(x=threshold, color='gray', linestyle='--', alpha=0.5)
+            plt.text(threshold, -max(counts)/40, f'{int(threshold)}', 
+                    rotation=90, ha='right', va='top', fontsize=9)
+    
+    # グラフ設定
+    plt.title(title)
+    plt.xlabel('歩行者数')
+    plt.ylabel('時間数')
+    plt.grid(axis='y', alpha=0.75)
+    
+    # 凡例を追加
+    legend_items = []
+    for i in range(10):
+        start_val = congestion_bins[i] if i < len(congestion_bins) else 0
+        if i == 9:
+            end_val = ''
+            label = f'レベル {i+1} ({int(start_val)}-)'
+        else:
+            end_val = congestion_bins[i+1] if i+1 < len(congestion_bins) else 0
+            label = f'レベル {i+1} ({int(start_val)}-{int(end_val)})'
+        
+        legend_items.append(plt.Rectangle((0,0), 1, 1, color=colors[i], label=label))
+    
+    plt.legend(handles=legend_items, loc='upper right', title='混雑度レベル', fontsize=9)
+    
+    plt.tight_layout()
+    
+    # 出力ファイル名
+    output_file = os.path.join(output_dir, f"{place}_histogram.png")
+    plt.savefig(output_file, dpi=300)
+    plt.close()
+    
+    print(f"ヒストグラム保存完了: {output_file}")
+
+
+def create_combined_histogram(data_dir: str, places: list, output_dir: str):
+    """すべての場所を含む総合的なヒストグラムを作成する"""
+    all_counts = []
+    min_date = None
+    max_date = None
+    
+    for place in places:
+        file_path = os.path.join(data_dir, f"{place}.csv")
+        if os.path.exists(file_path):
+            # 1時間ごとの歩行者数とデータ期間を取得
+            hourly_data, start_date, end_date = count_persons_by_hour(file_path)
+            
+            if not hourly_data.empty:
+                # 開始日と終了日を更新
+                if start_date and (min_date is None or start_date < min_date):
+                    min_date = start_date
+                if end_date and (max_date is None or end_date > max_date):
+                    max_date = end_date
+                
+                # 場所情報を追加
+                hourly_data['place'] = place
+                all_counts.append(hourly_data)
+    
+    if not all_counts:
+        print("データが見つかりませんでした")
+        return
+        
+    # 全てのデータを結合
+    combined_df = pd.concat(all_counts)
+    
+    # グラフ作成
+    plt.figure(figsize=(14, 10))
+    
+    sns.histplot(data=combined_df, x='count_1_hour', hue='place', multiple='stack', bins=30, alpha=0.7)
+    
+    # タイトルにデータ期間を追加
+    period_str = f" ({min_date} - {max_date})" if min_date and max_date else ""
+    plt.title(f'全ての場所の混雑度分布{period_str}')
+    
+    # x軸ラベルを削除
+    # plt.xlabel('歩行者数')
+    plt.ylabel('日数')
+    plt.grid(axis='y', alpha=0.75)
+    plt.legend(title='場所')
+    
+    # 主要な値を縦向きに表示
+    x_ticks = plt.gca().get_xticks()
+    plt.xticks(x_ticks, [])  # 既存のx軸ラベルを削除
+    
+    for tick in x_ticks:
+        if tick >= 0 and tick < combined_df['count_1_hour'].max() * 1.1:
+            plt.text(tick, -combined_df['count_1_hour'].value_counts().max()/20, f'{int(tick)}', 
+                     rotation=90, ha='right', va='top', fontsize=9)
+    
+    plt.tight_layout()
+    output_file = os.path.join(output_dir, "all_places_histogram.png")
+    plt.savefig(output_file, dpi=300)
+    plt.close()
+    
+    print(f"総合ヒストグラム保存完了: {output_file}")
+
+
+def main():
+    """すべての場所のヒストグラムを生成する"""
+    # 出力ディレクトリを確認/作成
+    output_dir = "/Users/WakaY/Desktop/new_dashbord/backend/app/data/weather_time/hist"
+    ensure_directory_exists(output_dir)
+    
+    # データディレクトリ
+    data_dir = "/Users/WakaY/Desktop/new_dashbord/backend/app/data/meidai"
+    
+    # 対象のCSVファイル
+    places = [
+        'honmachi2', 'honmachi3', 'honmachi4', 'jinnya', 
+        'kokubunjidori', 'nakabashi', 'omotesando', 
+        'yasukawadori', 'yottekan'
+    ]
+    
+    # すべての場所についてヒストグラム作成
+    for place in places:
+        file_path = os.path.join(data_dir, f"{place}.csv")
+        if os.path.exists(file_path):
+            print(f"処理中: {place}")
+            create_histogram(file_path, place, output_dir)
+        else:
+            print(f"ファイルが見つかりません: {file_path}")
+    
+    # すべての場所を含む総合ヒストグラムも作成
+    create_combined_histogram(data_dir, places, output_dir)
+
+
+# スクリプトがメインとして実行された場合のみ実行
+if __name__ == "__main__":
+    main()
+    print("すべてのヒストグラム生成が完了しました")

@@ -1,6 +1,5 @@
 // src/utils/colorPalettes.js
 export const COLOR_PALETTE_NAMES = {
-    GREEN_TO_RED: '緑→赤',
     BLUE_TO_RED: '青→赤',
     VIRIDIS: 'Viridis',
     VIRIDIS_REVERSE: 'Viridis（反転）',

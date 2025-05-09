@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Dict, Tuple
 import matplotlib
+import numpy as np
 
 # 日本語フォントのサポート設定
 matplotlib.rcParams['font.family'] = 'Hiragino Sans GB'  # macOSの場合
@@ -48,6 +49,7 @@ def count_persons_by_hour(csv_file_path: str) -> Tuple[pd.DataFrame, str, str]:
     try:
         # CSVファイルを読み込む
         df = pd.read_csv(csv_file_path)
+        print(f"Processing {csv_file_path}...")
         
         # 必要なカラムがあることを確認
         required_columns = ['name', 'count_1_hour', 'time_jst']
@@ -202,12 +204,22 @@ def create_histogram(file_path: str, place: str, output_dir: str):
     
     # 最大値を確認してbinsを調整
     max_count = hourly_data['count_1_hour'].max() if not hourly_data.empty else 0
-    print(f"{place}の最大歩行者数: {max_count}")
     
     # 最大値が最後のbin（混雑度10の下限）より大きい場合は、最後のbinを調整
     if max_count > bins[-2]:
         # 最後のbinを最大値より少し大きい値に設定
         bins[-1] = max_count * 1.1  # 最大値より10%大きい値
+    
+    # ヒストグラムを描画して度数を取得（この時点ではまだプロットしない）
+    n, bins_result = np.histogram(hourly_data['count_1_hour'], bins=bins)
+    
+    # 混雑度レベルごとの人数境界値と度数を標準出力に表示
+    print(f"\n■ {place} の混雑度レベルごとの人数境界値と度数:")
+    for i in range(10):
+        if i == 9:
+            print(f"混雑度{i+1}: {int(bins[i])+1}人〜 ({int(n[i])}件)")
+        else:
+            print(f"混雑度{i+1}: {int(bins[i])+1}人〜{int(bins[i+1])}人 ({int(n[i])}件)")
     
     # ヒストグラムの設定
     plt.figure(figsize=(12, 8))
@@ -222,8 +234,8 @@ def create_histogram(file_path: str, place: str, output_dir: str):
                      ha='center', va='bottom', fontweight='bold')
     
     # 混雑度レベルに色を付ける (10段階)
-    colors = ['#cfe4f0', '#b3d1eb', '#82aed5', '#82aed5', '#699ecd', 
-              '#fbcacc', '#fa9699', '#f97884', '#f67a80', '#f0545c']
+    colors = ['#fde725', '#b5de2b', '#6ece58', '#35b779', '#1f9e89', 
+              '#26828e', '#31688e', '#3e4989', '#482878', '#440154']
     
     # すべてのパッチ（ヒストグラムの各バー）に対して色を設定する
     for i, patch in enumerate(patches):
@@ -277,6 +289,7 @@ def create_combined_histogram(data_dir: str, places: list, output_dir: str):
         if os.path.exists(file_path):
             # 1時間ごとの歩行者数とデータ期間を取得
             hourly_data, start_date, end_date = count_persons_by_hour(file_path)
+
             
             if not hourly_data.empty:
                 # 開始日と終了日を更新
@@ -288,6 +301,7 @@ def create_combined_histogram(data_dir: str, places: list, output_dir: str):
                 # 場所情報を追加
                 hourly_data['place'] = place
                 all_counts.append(hourly_data)
+                print
     
     if not all_counts:
         print("データが見つかりませんでした")

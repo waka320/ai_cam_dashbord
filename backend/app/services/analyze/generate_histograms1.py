@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from typing import Dict, Tuple
 import matplotlib
+import numpy as np
 
 # 日本語フォントのサポート設定
 matplotlib.rcParams['font.family'] = 'Hiragino Sans GB'  # macOSの場合
@@ -174,6 +175,17 @@ def create_histogram(file_path: str, place: str, output_dir: str):
         # 最後のbinを最大値より少し大きい値に設定
         bins[-1] = max_count * 1.1  # 最大値より10%大きい値
     
+    # ヒストグラムを描画して度数を取得（この時点ではまだプロットしない）
+    n, bins_result = np.histogram(daily_counts['count_1_hour'], bins=bins)
+    
+    # 混雑度レベルごとの人数境界値と度数を標準出力に表示
+    print(f"\n■ {place} の混雑度レベルごとの人数境界値と度数:")
+    for i in range(10):
+        if i == 9:
+            print(f"混雑度{i+1}: {int(bins[i])+1}人〜 ({int(n[i])}件)")
+        else:
+            print(f"混雑度{i+1}: {int(bins[i])+1}人〜{int(bins[i+1])}人 ({int(n[i])}件)")
+    
     # ヒストグラムの設定
     plt.figure(figsize=(12, 8))
     
@@ -187,8 +199,8 @@ def create_histogram(file_path: str, place: str, output_dir: str):
                      ha='center', va='bottom', fontweight='bold')
     
     # 混雑度レベルに色を付ける (10段階)
-    colors = ['#cfe4f0', '#b3d1eb', '#82aed5', '#82aed5', '#699ecd', 
-              '#fbcacc', '#fa9699', '#f97884', '#f67a80', '#f0545c']
+    colors = ['#fde725', '#b5de2b', '#6ece58', '#35b779', '#1f9e89', 
+              '#26828e', '#31688e', '#3e4989', '#482878', '#440154']
     
     # すべてのパッチ（ヒストグラムの各バー）に対して色を設定する
     for i, patch in enumerate(patches):
