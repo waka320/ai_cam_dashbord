@@ -1,15 +1,30 @@
 // src/utils/colorPalettes.js
 export const COLOR_PALETTE_NAMES = {
+    GREEN_YELLOW_RED_ONE: '緑→黄→赤①',
+    GREEN_YELLOW_RED: '緑→黄→赤②',
+    GREEN_YELLOW_RED_ALT: '緑→黄→赤③',
     BLUE_TO_RED: '青→赤',
     VIRIDIS: 'Viridis',
     VIRIDIS_REVERSE: 'Viridis（反転）',
     WHITE_TO_BLUE: '白→青→黒',
-    GREEN_YELLOW_RED: '緑→黄→赤',
-    GREEN_YELLOW_RED_ALT: '緑→黄→赤(代替)'
+    
   };
   
   // カラーパレットの定義
   export const colorPalettes = {
+    [COLOR_PALETTE_NAMES.GREEN_YELLOW_RED_ONE]: (congestion) => {
+      if (congestion === 1) return '#e4f6d7'; // 非常に薄い緑
+      if (congestion === 2) return '#eff6be'; // 薄い緑
+      if (congestion === 3) return '#f9f5a6'; // 明るい緑
+      if (congestion === 4) return '#ffee90'; // 黄色
+      if (congestion === 5) return '#ffd069'; // 薄いオレンジ
+      if (congestion === 6) return '#ffbd50'; // オレンジ
+      if (congestion === 7) return '#feac42'; // 薄い赤オレンジ
+      if (congestion === 8) return '#f98345'; // 薄い赤
+      if (congestion === 9) return '#f66846'; // 中間の赤
+      if (congestion === 10) return '#f25444'; // 濃い赤
+      return '#FFF';
+    },
     // 緑→黄→オレンジ→赤のグラデーション
     [COLOR_PALETTE_NAMES.GREEN_TO_RED]: (congestion) => {
       if (congestion === 1) return '#e8f5e9'; // 非常に薄い緑
