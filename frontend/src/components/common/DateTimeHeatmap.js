@@ -14,7 +14,7 @@ const formatDate = (dateStr) => {
 // 日付×時間ヒートマップコンポーネント
 const DateTimeHeatmap = () => {
     const { calendarData, selectedAction, loading } = useCalendar();
-    const { getCellColor } = useColorPalette(); // ColorPaletteContextから取得
+    const { getCellColor, getTextColor } = useColorPalette(); // getTextColorを追加
     // レスポンシブ対応のためのメディアクエリ
     const isMobile = useMediaQuery('(max-width:768px)');
     const isSmallMobile = useMediaQuery('(max-width:480px)');
@@ -287,8 +287,7 @@ const DateTimeHeatmap = () => {
                                                         minWidth: isMobile ? '25px' : '30px',
                                                         height: isMobile ? '35px' : '40px',
                                                         backgroundColor: cellColor,
-                                                        color: congestion === 0 ? '#666' : 
-                                                              congestion >= 6 ? 'white' : 'inherit',
+                                                        color: getTextColor(congestion),
                                                         borderRight: hour !== 22 ? '1px solid #ddd' : 'none',
                                                         display: 'flex',
                                                         flexDirection: 'column',
@@ -322,7 +321,7 @@ const DateTimeHeatmap = () => {
                                                         fontWeight="bold"
                                                         sx={{ 
                                                             fontSize: isSmallMobile ? '0.65rem' : undefined,
-                                                            color: congestion === 0 ? '#666' : 'inherit'
+                                                            color: congestion === 0 ? '#666' : getTextColor(congestion)
                                                         }}
                                                     >
                                                         {congestion === 0 ? '-' : congestion}
@@ -337,7 +336,7 @@ const DateTimeHeatmap = () => {
                                                                 right: '1px',
                                                                 fontSize: isMobile ? '10px' : '12px',
                                                                 opacity: 0.8,
-                                                                color: congestion >= 6 ? 'white' : 'inherit',
+                                                                color: getTextColor(congestion),
                                                             }}
                                                         />
                                                     )}

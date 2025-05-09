@@ -26,7 +26,7 @@ const getDayNameJa = (dayName) => {
 // 時間帯別ヒートマップコンポーネント
 const TimeHeatmap = () => {
   const { calendarData, selectedAction, loading } = useCalendar();
-  const { getCellColor } = useColorPalette();
+  const { getCellColor, getTextColor } = useColorPalette(); // getTextColorを追加
   
   // レスポンシブ対応のためのメディアクエリ
   const isMobile = useMediaQuery('(max-width:768px)');
@@ -259,8 +259,7 @@ const TimeHeatmap = () => {
                         minWidth: isMobile ? '25px' : '30px',
                         height: isMobile ? '40px' : '48px',
                         backgroundColor: cellColor,
-                        color: congestion === 0 ? '#666' : 
-                              congestion >= 6 ? 'white' : 'inherit',
+                        color: getTextColor(congestion),
                         borderRight: hour !== 23 ? '1px solid #ddd' : 'none',
                         display: 'flex',
                         flexDirection: 'column',
@@ -294,7 +293,7 @@ const TimeHeatmap = () => {
                         fontWeight="bold"
                         sx={{ 
                           fontSize: isSmallMobile ? '0.7rem' : undefined, 
-                          color: congestion === 0 ? '#666' : 'inherit'
+                          color: congestion === 0 ? '#666' : getTextColor(congestion)
                         }}
                       >
                         {congestion === 0 ? '-' : congestion}
@@ -309,7 +308,7 @@ const TimeHeatmap = () => {
                             right: '1px',
                             fontSize: isMobile ? '10px' : '12px',
                             opacity: 0.8,
-                            color: congestion >= 6 ? 'white' : 'inherit',
+                            color: getTextColor(congestion),
                           }}
                         />
                       )}

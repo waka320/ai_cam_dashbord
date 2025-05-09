@@ -1,15 +1,14 @@
 import React, { useState, useRef } from 'react';
 import { Box, Typography, CircularProgress, Popper, Paper, ClickAwayListener, useMediaQuery } from '@mui/material';
-import theme from '../../theme/theme';
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
 import InfoIcon from '@mui/icons-material/Info';
-import { useColorPalette } from '../../contexts/ColorPaletteContext'; // 追加
+import { useColorPalette } from '../../contexts/ColorPaletteContext';
 
 // カレンダーコンポーネント
 const CalendarHeatmap = () => {
     const { calendarData, selectedAction, loading } = useCalendar();
-    const { getCellColor } = useColorPalette(); // 追加
+    const { getCellColor, getTextColor } = useColorPalette(); // getTextColorを追加
     const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
     
     // レスポンシブ対応のためのメディアクエリ
@@ -127,7 +126,8 @@ const CalendarHeatmap = () => {
                                             // 混雑度0の日を灰色で表示
                                             backgroundColor: !cell ? '#fff' : 
                                                 cell.congestion === 0 ? '#e0e0e0' : getCellColor(cell.congestion),
-                                            color: cell && cell.congestion > 0 && cell.congestion <= 5 ? 'inherit' : theme.palette.text.white,
+                                            // getTextColorを使用して文字色を動的に設定
+                                            color: !cell ? 'inherit' : getTextColor(cell.congestion),
                                             borderRight: colIndex !== 6 ? '1px solid #ddd' : undefined,
                                             borderBottom: rowIndex !== calendarData.length - 1 ? '1px solid #ddd' : undefined,
                                             position: 'relative',
@@ -183,8 +183,8 @@ const CalendarHeatmap = () => {
                                                         fontSize: isSmallMobile ? '10px' : undefined,
                                                         lineHeight: isSmallMobile ? '1' : undefined,
                                                         marginTop: isSmallMobile ? '2px' : undefined,
-                                                        color: cell.congestion === 0 ? '#666' : 
-                                                            cell.congestion <= 6 ? 'inherit' : theme.palette.text.white
+                                                        // セルのメイン文字色と同じにする
+                                                        color: cell.congestion === 0 ? '#666' : getTextColor(cell.congestion)
                                                     }}
                                                 >
                                                     {cell.congestion === 0 ? 
@@ -201,7 +201,8 @@ const CalendarHeatmap = () => {
                                                             right: isMobile ? '1px' : '5px',
                                                             fontSize: isMobile ? '12px' : '16px',
                                                             opacity: 0.8,
-                                                            color: cell.congestion >=6 ? 'inherit' : theme.palette.text.white,
+                                                            // アイコンの色も動的に決定
+                                                            color: getTextColor(cell.congestion)
                                                         }}
                                                     />
                                                 )}

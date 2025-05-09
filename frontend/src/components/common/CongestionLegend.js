@@ -29,8 +29,29 @@ const CongestionLegend = () => {
         display: 'flex', 
         flexWrap: 'wrap', 
         gap: 0.5,
-        justifyContent: isMobile ? 'center' : 'flex-start'
+        justifyContent: isMobile ? 'center' : 'flex-start',
+        mb: 1.5
       }}>
+        {/* データなしの凡例を追加 */}
+        <Box
+          sx={{
+            width: isSmallMobile ? '28px' : isMobile ? '30px' : '35px',
+            height: isSmallMobile ? '28px' : isMobile ? '30px' : '35px',
+            backgroundColor: '#e0e0e0',
+            color: '#666',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: isSmallMobile ? '0.75rem' : isMobile ? '0.85rem' : '0.95rem',
+            fontWeight: 'bold',
+            border: '1px solid rgba(0,0,0,0.1)',
+            borderRadius: '4px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+          }}
+        >
+          -
+        </Box>
+        
         {[...Array(10)].map((_, i) => {
           const level = i + 1;
           return (
@@ -55,6 +76,31 @@ const CongestionLegend = () => {
             </Box>
           );
         })}
+      </Box>
+      
+      {/* データなしの説明テキスト */}
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: 1,
+        ml: isMobile ? 0 : 0.5,
+        justifyContent: isMobile ? 'center' : 'flex-start'
+      }}>
+        <Box
+          sx={{
+            width: isSmallMobile ? '16px' : '18px',
+            height: isSmallMobile ? '16px' : '18px',
+            backgroundColor: '#e0e0e0',
+            border: '1px solid rgba(0,0,0,0.1)',
+            borderRadius: '3px'
+          }}
+        />
+        <Typography 
+          variant={isSmallMobile ? "caption" : "bodyS"} 
+          color="text.secondary"
+        >
+          グレーはデータなし
+        </Typography>
       </Box>
     </Box>
   );

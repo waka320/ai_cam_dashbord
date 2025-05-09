@@ -1,10 +1,14 @@
 // src/contexts/ColorPaletteContext.js
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { colorPalettes, COLOR_PALETTE_NAMES } from '../utils/colorPalettes';
+import { 
+  colorPalettes, 
+  COLOR_PALETTE_NAMES, 
+  TEXT_COLOR_SETTINGS,
+} from '../utils/colorPalettes';
 
 // デフォルトのカラーパレット - キー名を使用
-const DEFAULT_PALETTE = 'GREEN_TO_RED';
+const DEFAULT_PALETTE = 'GREEN_YELLOW_RED';
 
 // ローカルストレージのキー
 const STORAGE_KEY = 'dashboard_color_palette';
@@ -69,6 +73,26 @@ export const ColorPaletteProvider = ({ children }) => {
     }
   };
   
+  // 混雑度に基づいてテキストの色を決定する関数
+  const getTextColor = (congestion) => {
+    // 無効な混雑度または混雑度0の場合は灰色テキスト
+    if (!congestion || congestion === 0) {
+      return '#666';
+    }
+    
+    // 現在のパレットのテキスト色設定を取得
+    const settings = TEXT_COLOR_SETTINGS[currentPalette] || { threshold: 6, inverted: false };
+    
+    // 反転パターンに対応
+    if (settings.inverted) {
+      // 反転パターン: 閾値未満が白、閾値以上が黒
+      return congestion < settings.threshold ? '#fff' : 'inherit';
+    } else {
+      // 通常パターン: 閾値未満が黒、閾値以上が白
+      return congestion >= settings.threshold ? '#fff' : 'inherit';
+    }
+  };
+  
   // カラーパレットを切り替える関数
   const changePalette = (paletteKey) => {
     if (Object.keys(COLOR_PALETTE_NAMES).includes(paletteKey)) {
@@ -88,9 +112,11 @@ export const ColorPaletteProvider = ({ children }) => {
   // パレットのサンプルデータを生成
   const availablePalettes = Object.keys(COLOR_PALETTE_NAMES).map(key => {
     const displayName = COLOR_PALETTE_NAMES[key];
+    const textSettings = TEXT_COLOR_SETTINGS[key] || { threshold: 6, inverted: false };
+    
     return {
-      id: key, // キー名（例: GREEN_TO_RED）
-      name: displayName, // 表示名（例: 緑→赤）
+      id: key,
+      name: displayName,
       sample: Array.from({ length: 10 }, (_, i) => {
         try {
           return colorPalettes[displayName](i + 1);
@@ -98,7 +124,9 @@ export const ColorPaletteProvider = ({ children }) => {
           console.error(`サンプル色取得エラー: ${key}, ${i+1}`, error);
           return '#FFF';
         }
-      })
+      }),
+      textThreshold: textSettings.threshold,
+      inverted: textSettings.inverted
     };
   });
   
@@ -106,6 +134,7 @@ export const ColorPaletteProvider = ({ children }) => {
     currentPalette,
     changePalette,
     getCellColor,
+    getTextColor,
     availablePalettes
   };
   

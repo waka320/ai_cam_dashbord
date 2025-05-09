@@ -156,16 +156,37 @@ const ColorPaletteSwitcher = () => {
                           overflow: 'hidden',
                           boxShadow: currentPalette === palette.id ? '0 0 0 2px rgba(25, 118, 210, 0.5)' : 'none'
                         }}>
-                          {palette.sample.map((color, index) => (
-                            <Box 
-                              key={index}
-                              sx={{ 
-                                width: isMobile ? '0.8rem' : '1rem', 
-                                height: '100%', 
-                                backgroundColor: color
-                              }}
-                            />
-                          ))}
+                          {palette.sample.map((color, index) => {
+                            const congestionLevel = index + 1;
+                            
+                            // テキスト色の判定ロジックを修正
+                            let textColor;
+                            if (palette.inverted) {
+                              // 反転パターン
+                              textColor = congestionLevel < palette.textThreshold ? 'white' : 'black';
+                            } else {
+                              // 通常パターン
+                              textColor = congestionLevel >= palette.textThreshold ? 'white' : 'black';
+                            }
+                            
+                            return (
+                              <Box 
+                                key={index}
+                                sx={{ 
+                                  width: isMobile ? '0.8rem' : '1rem', 
+                                  height: '100%', 
+                                  backgroundColor: color,
+                                  color: textColor,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '0.5rem'
+                                }}
+                              >
+                                {congestionLevel}
+                              </Box>
+                            );
+                          })}
                         </Box>
                       </Tooltip>
                     </Box>
