@@ -117,7 +117,7 @@ function Content() {
                                 borderBottom: '1px dotted rgba(255,255,255,0.5)'
                             }}
                         >
-                            名古屋大学 安田・遠藤・浦田研究室
+                            名古屋大学 遠藤・浦田研究室
                         </Link>
                         <Link
                             href="https://www.city.takayama.lg.jp/shisei/1005252/1021045.html"

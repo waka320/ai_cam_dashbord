@@ -88,8 +88,8 @@ const CongestionLegend = () => {
       }}>
         <Box
           sx={{
-            width: isSmallMobile ? '16px' : '18px',
-            height: isSmallMobile ? '16px' : '18px',
+            width: isSmallMobile ? '13px' : '18px',
+            height: isSmallMobile ? '13px' : '18px',
             backgroundColor: '#e0e0e0',
             border: '1px solid rgba(0,0,0,0.1)',
             borderRadius: '3px'
@@ -99,7 +99,7 @@ const CongestionLegend = () => {
           variant={isSmallMobile ? "caption" : "bodyS"} 
           color="text.secondary"
         >
-          グレーはデータなし（休業日または非営業時間）
+          グレーはデータなし
         </Typography>
       </Box>
     </Box>
