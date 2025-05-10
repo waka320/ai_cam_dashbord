@@ -8,7 +8,7 @@ import {
 } from '../utils/colorPalettes';
 
 // デフォルトのカラーパレット - キー名を使用
-const DEFAULT_PALETTE = 'GREEN_YELLOW_RED';
+const DEFAULT_PALETTE = 'GREEN_YELLOW_RED_ONE';
 
 // ローカルストレージのキー
 const STORAGE_KEY = 'dashboard_color_palette';
