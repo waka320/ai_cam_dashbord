@@ -155,47 +155,39 @@ const DateTimeHeatmap = () => {
                     日付×時間帯の混雑度
                 </Typography>
                 
-                {/* スクロール可能なコンテナ */}
+                {/* ヘッダーとセルを分離したコンテナ */}
                 <Box sx={{ 
-                    overflowX: 'auto', 
-                    WebkitOverflowScrolling: 'touch',
-                    position: 'relative', // position: stickyの親要素に必要
-                    '&::-webkit-scrollbar': {
-                        height: '8px'
-                    },
-                    '&::-webkit-scrollbar-track': {
-                        backgroundColor: '#f1f1f1',
-                        borderRadius: '4px'
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                        backgroundColor: '#c1c1c1',
-                        borderRadius: '4px'
-                    }
+                    border: '1px solid #ddd', 
+                    borderRadius: '8px', 
+                    overflow: 'hidden',
+                    width: '100%'
                 }}>
-                    {/* 全体コンテナ */}
+                    {/* スクロール可能なコンテンツエリア */}
                     <Box sx={{ 
-                        display: 'flex', 
-                        flexDirection: 'column',
-                        minWidth: isMobile ? '800px' : 'auto', // モバイルでは最小幅を設定
-                        border: '1px solid #ddd', 
-                        borderRadius: '8px', 
-                        overflow: 'hidden',
-                        width: '100%'
+                        display: 'flex',
+                        position: 'relative',
                     }}>
-                        {/* 時間帯のヘッダー行 */}
-                        <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                            {/* 空のセル（左上角） */}
+                        {/* 日付ラベル列 - 垂直方向に固定 */}
+                        <Box sx={{ 
+                            display: 'flex',
+                            flexDirection: 'column',
+                            width: isMobile ? '50px' : '60px', 
+                            minWidth: isMobile ? '50px' : '60px',
+                            position: 'sticky',
+                            left: 0,
+                            zIndex: 2,
+                            boxShadow: '2px 0 4px rgba(0,0,0,0.05)'
+                        }}>
+                            {/* 左上角（日付ヘッダー） */}
                             <Box sx={{ 
-                                width: isMobile ? '50px' : '60px', 
-                                minWidth: isMobile ? '50px' : '60px',
+                                borderRight: '1px solid #ddd',
                                 borderBottom: '1px solid #ddd',
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
+                                padding: isMobile ? '5px 2px' : '10px 5px',
                                 backgroundColor: '#f5f5f5',
-                                position: 'sticky',
-                                left: 0,
-                                zIndex: 12 // 最も前面に表示
+                                height: isMobile ? (isSmallMobile ? '35px' : '40px') : '50px',
                             }}>
                                 <Typography 
                                     variant={isSmallMobile ? "bodyS" : "bodyM"} 
@@ -204,60 +196,22 @@ const DateTimeHeatmap = () => {
                                     日付
                                 </Typography>
                             </Box>
-                            
-                            {/* 時間帯ヘッダー */}
-                            <Box sx={{ 
-                                display: 'flex', 
-                                flex: 1,
-                                borderBottom: '1px solid #ddd',
-                                backgroundColor: '#f5f5f5'
-                            }}>
-                                {hours.map(hour => (
-                                    <Box 
-                                        key={`hour-${hour}`} 
-                                        sx={{ 
-                                            flex: 1,
-                                            minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : 'auto',
-                                            textAlign: 'center', 
-                                            borderRight: hour !== hours[hours.length - 1] ? '1px solid #ddd' : 'none',
-                                            padding: isMobile ? '4px 2px' : '10px'
-                                        }}
-                                    >
-                                        <Typography 
-                                            variant={isSmallMobile ? "bodyS" : "bodyM"}
-                                            fontWeight="bold"
-                                        >
-                                            {hour}
-                                        </Typography>
-                                    </Box>
-                                ))}
-                            </Box>
-                        </Box>
 
-                        {/* 日付ごとの行 */}
-                        {sortedData.map((dateData, rowIndex) => (
-                            <Box 
-                                key={`date-${dateData.date}`} 
-                                sx={{ 
-                                    display: 'flex', 
-                                    flexDirection: 'row'
-                                }}
-                            >
-                                {/* 日付ラベル */}
-                                <Box sx={{ 
-                                    width: isMobile ? '50px' : '60px', 
-                                    minWidth: isMobile ? '50px' : '60px',
-                                    borderRight: '1px solid #ddd',
-                                    borderBottom: rowIndex !== sortedData.length - 1 ? '1px solid #ddd' : 'none',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    padding: isMobile ? '4px 0' : '8px 0',
-                                    backgroundColor: '#f9f9f9',
-                                    position: 'sticky',
-                                    left: 0,
-                                    zIndex: 11 // ヘッダー行よりは下、他のセルよりは上
-                                }}>
+                            {/* 日付ラベル */}
+                            {sortedData.map((dateData, rowIndex) => (
+                                <Box 
+                                    key={`date-label-${dateData.date}`}
+                                    sx={{ 
+                                        borderRight: '1px solid #ddd',
+                                        borderBottom: rowIndex !== sortedData.length - 1 ? '1px solid #ddd' : 'none',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        padding: isMobile ? '4px 0' : '8px 0',
+                                        backgroundColor: '#f9f9f9',
+                                        height: isMobile ? (isSmallMobile ? '45px' : '55px') : '70px',
+                                    }}
+                                >
                                     <Box sx={{ 
                                         display: 'flex', 
                                         flexDirection: 'column', 
@@ -281,100 +235,164 @@ const DateTimeHeatmap = () => {
                                         </Typography>
                                     </Box>
                                 </Box>
-                                
-                                {/* 時間ごとのセル */}
-                                <Box sx={{ display: 'flex', flex: 1 }}>
-                                    {hours.map((hour, colIndex) => {
-                                        const hourData = dateData.hours.find(h => h.hour === hour);
-                                        const congestion = hourData ? hourData.congestion : 0;
-                                        const count = hourData ? hourData.count : 0;
-                                        const highlighted = hourData && hourData.highlighted;
-                                        const highlightReason = hourData ? hourData.highlight_reason : '';
-                                        const cellKey = `${dateData.date}-${hour}`;
-                                        
-                                        return (
-                                            <Box 
-                                                key={`${dateData.date}-${hour}`}
-                                                ref={(el) => cellRefs.current[cellKey] = el}
-                                                onClick={() => highlighted && highlightReason ? 
-                                                    handleCellClick(dateData.date, hour, highlightReason) : null}
-                                                sx={{ 
-                                                    flex: 1,
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : 'auto',
-                                                    height: isMobile ? (isSmallMobile ? '45px' : '55px') : 'auto',
-                                                    backgroundColor: congestion === 0 ? '#e0e0e0' : getCellColor(congestion),
-                                                    color: congestion === 0 ? '#666' : getTextColor(congestion),
-                                                    borderRight: colIndex !== hours.length - 1 ? '1px solid #ddd' : 'none',
-                                                    borderBottom: rowIndex !== sortedData.length - 1 ? '1px solid #ddd' : 'none',
-                                                    position: 'relative',
-                                                    cursor: highlighted ? 'pointer' : 'default',
-                                                    // ハイライトエフェクト
-                                                    ...(highlighted && {
-                                                        '&::before': {
-                                                            content: '""',
-                                                            position: 'absolute',
-                                                            top: isMobile ? '2px' : '3px',
-                                                            left: isMobile ? '2px' : '3px',
-                                                            right: isMobile ? '2px' : '3px',
-                                                            bottom: isMobile ? '2px' : '3px',
-                                                            borderRadius: '2px',
-                                                            border: isMobile ? '1.5px solid rgba(255, 215, 0, 0.8)' : '2px solid rgba(255, 215, 0, 0.8)',
-                                                            boxShadow: '0 0 3px rgba(255, 215, 0, 0.8)',
-                                                            pointerEvents: 'none',
-                                                            zIndex: 1,
-                                                            backgroundColor: 'transparent',
-                                                        }
-                                                    }),
-                                                }}
-                                                title={`${formatDate(dateData.date)} ${hour}時 ${congestion === 0 ? '(データなし)' : `(人数: ${count})`}`}
-                                            >
-                                                <Box sx={{ 
-                                                    textAlign: 'center', 
-                                                    padding: isMobile ? (isSmallMobile ? '2px' : '4px') : '10px',
-                                                    position: 'relative',
-                                                    zIndex: 2,
-                                                    width: '100%',
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center'
-                                                }}>
-                                                    <Typography 
-                                                        variant={isSmallMobile ? "caption" : "bodyXS"} 
-                                                        fontWeight="bold"
-                                                        sx={{ 
-                                                            fontSize: isSmallMobile ? '0.65rem' : undefined
-                                                        }}
-                                                    >
-                                                        {congestion === 0 ? '-' : congestion}
-                                                    </Typography>
-                                                    
-                                                    {/* ハイライトされたセルにインフォアイコンを表示 */}
-                                                    {highlighted && highlightReason && (
-                                                        <InfoIcon 
-                                                            sx={{ 
-                                                                position: 'absolute',
-                                                                top: isMobile ? '1px' : '5px',
-                                                                right: isMobile ? '1px' : '5px',
-                                                                fontSize: isMobile ? '12px' : '16px',
-                                                                opacity: 0.8
-                                                            }}
-                                                        />
-                                                    )}
-                                                </Box>
-                                            </Box>
-                                        );
-                                    })}
-                                </Box>
+                            ))}
+                        </Box>
+                        
+                        {/* セルとヘッダーのスクロール可能なエリア */}
+                        <Box sx={{ 
+                            overflowX: 'auto',
+                            overflowY: 'auto',
+                            // maxHeight: isMobile ? 'calc(100vh - 280px)' : 'calc(100vh - 300px)',
+                            WebkitOverflowScrolling: 'touch',
+                            zIndex: 1,
+                            '&::-webkit-scrollbar': {
+                                height: '8px',
+                                width: '8px'
+                            },
+                            '&::-webkit-scrollbar-track': {
+                                backgroundColor: '#f1f1f1',
+                                borderRadius: '4px'
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                backgroundColor: '#c1c1c1',
+                                borderRadius: '4px'
+                            }
+                        }}>
+                            {/* 時間帯ヘッダー */}
+                            <Box sx={{ 
+                                display: 'flex',
+                                backgroundColor: '#f5f5f5',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+                            }}>
+                                {hours.map(hour => (
+                                    <Box 
+                                        key={`hour-${hour}`} 
+                                        sx={{ 
+                                            minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '60px',
+                                            width: isMobile ? (isSmallMobile ? '30px' : '40px') : '60px',
+                                            textAlign: 'center', 
+                                            padding: isMobile ? '4px 2px' : '10px 5px',
+                                            borderRight: hour !== hours[hours.length - 1] ? '1px solid #ddd' : 'none',
+                                            borderBottom: '1px solid #ddd',
+                                            flexShrink: 0,
+                                            height: isMobile ? (isSmallMobile ? '35px' : '40px') : '50px',
+                                        }}
+                                    >
+                                        <Typography 
+                                            variant={isSmallMobile ? "bodyS" : "bodyM"}
+                                            fontWeight="bold"
+                                        >
+                                            {hour}
+                                        </Typography>
+                                    </Box>
+                                ))}
                             </Box>
-                        ))}
+
+                            {/* 時間ごとのセル（行） */}
+                            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                {sortedData.map((dateData, rowIndex) => (
+                                    <Box 
+                                        key={`date-row-${dateData.date}`} 
+                                        sx={{ 
+                                            display: 'flex', 
+                                            flexDirection: 'row'
+                                        }}
+                                    >
+                                        {/* 時間ごとのセル */}
+                                        {hours.map((hour, colIndex) => {
+                                            const hourData = dateData.hours.find(h => h.hour === hour);
+                                            const congestion = hourData ? hourData.congestion : 0;
+                                            const count = hourData ? hourData.count : 0;
+                                            const highlighted = hourData && hourData.highlighted;
+                                            const highlightReason = hourData ? hourData.highlight_reason : '';
+                                            const cellKey = `${dateData.date}-${hour}`;
+                                            
+                                            return (
+                                                <Box 
+                                                    key={`${dateData.date}-${hour}`}
+                                                    ref={(el) => cellRefs.current[cellKey] = el}
+                                                    onClick={() => highlighted && highlightReason ? 
+                                                        handleCellClick(dateData.date, hour, highlightReason) : null}
+                                                    sx={{ 
+                                                        minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '60px',
+                                                        width: isMobile ? (isSmallMobile ? '30px' : '40px') : '60px',
+                                                        height: isMobile ? (isSmallMobile ? '45px' : '55px') : '70px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        backgroundColor: congestion === 0 ? '#e0e0e0' : getCellColor(congestion),
+                                                        color: congestion === 0 ? '#666' : getTextColor(congestion),
+                                                        borderRight: colIndex !== hours.length - 1 ? '1px solid #ddd' : 'none',
+                                                        borderBottom: rowIndex !== sortedData.length - 1 ? '1px solid #ddd' : 'none',
+                                                        position: 'relative',
+                                                        cursor: highlighted ? 'pointer' : 'default',
+                                                        flexShrink: 0,
+                                                        // ハイライトエフェクト
+                                                        ...(highlighted && {
+                                                            '&::before': {
+                                                                content: '""',
+                                                                position: 'absolute',
+                                                                top: isMobile ? '2px' : '3px',
+                                                                left: isMobile ? '2px' : '3px',
+                                                                right: isMobile ? '2px' : '3px',
+                                                                bottom: isMobile ? '2px' : '3px',
+                                                                borderRadius: '2px',
+                                                                border: isMobile ? '1.5px solid rgba(255, 215, 0, 0.8)' : '2px solid rgba(255, 215, 0, 0.8)',
+                                                                boxShadow: '0 0 3px rgba(255, 215, 0, 0.8)',
+                                                                pointerEvents: 'none',
+                                                                zIndex: 1,
+                                                                backgroundColor: 'transparent',
+                                                            }
+                                                        }),
+                                                    }}
+                                                    title={`${formatDate(dateData.date)} ${hour}時 ${congestion === 0 ? '(データなし)' : `(人数: ${count})`}`}
+                                                >
+                                                    {/* セル内容（変更なし） */}
+                                                    <Box sx={{ 
+                                                        textAlign: 'center', 
+                                                        padding: isMobile ? (isSmallMobile ? '2px' : '4px') : '10px',
+                                                        position: 'relative',
+                                                        zIndex: 2,
+                                                        width: '100%',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center'
+                                                    }}>
+                                                        <Typography 
+                                                            variant={isSmallMobile ? "caption" : "bodyXS"} 
+                                                            fontWeight="bold"
+                                                            sx={{ 
+                                                                fontSize: isSmallMobile ? '0.65rem' : undefined
+                                                            }}
+                                                        >
+                                                            {congestion === 0 ? '-' : congestion}
+                                                        </Typography>
+                                                        
+                                                        {/* ハイライトされたセルにインフォアイコンを表示 */}
+                                                        {highlighted && highlightReason && (
+                                                            <InfoIcon 
+                                                                sx={{ 
+                                                                    position: 'absolute',
+                                                                    top: isMobile ? '1px' : '5px',
+                                                                    right: isMobile ? '1px' : '5px',
+                                                                    fontSize: isMobile ? '12px' : '16px',
+                                                                    opacity: 0.8
+                                                                }}
+                                                            />
+                                                        )}
+                                                    </Box>
+                                                </Box>
+                                            );
+                                        })}
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Box>
                     </Box>
                 </Box>
                 
-                {/* ハイライト理由のポップオーバー */}
+                {/* ポッパーとレジェンドは変更なし */}
                 <Popper 
                     open={open} 
                     anchorEl={anchorEl}
