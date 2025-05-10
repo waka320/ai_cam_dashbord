@@ -268,14 +268,14 @@ const DateTimeHeatmap = () => {
                                     <Box 
                                         key={`hour-${hour}`} 
                                         sx={{ 
-                                            minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '60px',
-                                            width: isMobile ? (isSmallMobile ? '30px' : '40px') : '60px',
+                                            minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
+                                            width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
                                             textAlign: 'center', 
-                                            padding: isMobile ? '4px 2px' : '10px 5px',
+                                            padding: isMobile ? '4px 2px' : '6px 2px',
                                             borderRight: hour !== hours[hours.length - 1] ? '1px solid #ddd' : 'none',
                                             borderBottom: '1px solid #ddd',
                                             flexShrink: 0,
-                                            height: isMobile ? (isSmallMobile ? '35px' : '40px') : '50px',
+                                            height: isMobile ? (isSmallMobile ? '35px' : '40px') : '40px',
                                         }}
                                     >
                                         <Typography 
@@ -314,9 +314,9 @@ const DateTimeHeatmap = () => {
                                                     onClick={() => highlighted && highlightReason ? 
                                                         handleCellClick(dateData.date, hour, highlightReason) : null}
                                                     sx={{ 
-                                                        minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '60px',
-                                                        width: isMobile ? (isSmallMobile ? '30px' : '40px') : '60px',
-                                                        height: isMobile ? (isSmallMobile ? '45px' : '55px') : '70px',
+                                                        minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
+                                                        width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
+                                                        height: isMobile ? (isSmallMobile ? '45px' : '55px') : '50px',
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
