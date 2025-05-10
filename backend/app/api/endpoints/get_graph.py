@@ -7,8 +7,15 @@ from app.services.analyze import get_data_for_date_time250504
 from app.services.ai_service_debug import analyze_csv_data_debug
 from app.services.highlighter_service import highlight_calendar_data, highlight_week_time_data, highlight_date_time_data
 from app.models import GraphRequest, GraphResponse, DayWithHours
+import time
+from datetime import datetime, timedelta
 
 router = APIRouter()
+
+# キャッシュを格納する辞書
+cache = {}
+# キャッシュの有効期限（1日 = 86400秒）
+CACHE_EXPIRY = 86400
 
 @router.post("/api/get-graph")
 async def get_graph(request: GraphRequest):
@@ -17,8 +24,22 @@ async def get_graph(request: GraphRequest):
     month = request.month
     action = request.action
     
-    # print(place, year, month, action)
+    # キャッシュキーの作成
+    cache_key = f"{place}_{year}_{month}_{action}"
     
+    # キャッシュが存在し、期限内であれば、キャッシュから返す
+    current_time = time.time()
+    if cache_key in cache:
+        cached_data, timestamp = cache[cache_key]
+        if current_time - timestamp < CACHE_EXPIRY:
+            print(f"Cache hit for {cache_key}")
+            return cached_data
+        else:
+            # 期限切れのキャッシュを削除
+            del cache[cache_key]
+            print(f"Cache expired for {cache_key}")
+    
+    # キャッシュがない場合、通常の処理を実行
     csv_file_path = f"app/data/meidai/{place}.csv"
     if not os.path.exists(csv_file_path):
         raise HTTPException(
@@ -39,6 +60,7 @@ async def get_graph(request: GraphRequest):
         # データが存在するか確認
         if df_filtered.empty:
             print(f"Warning: No data found for {place} in {year}/{month}")
+            
         # アクションに応じたデータ生成とハイライト
         if action[:3] == "cal":
             # カレンダーデータの作成 - placeをファイル名から抽出して渡す
@@ -61,8 +83,6 @@ async def get_graph(request: GraphRequest):
             data = []
             print(f"Warning: Unsupported action: {action}")
 
-        # print(f"Data for {place} in {year}/{month}: {data}")
-        
         # AIアドバイスの生成
         ai_advice = await analyze_csv_data_debug(csv_file_path, year, month, action)
         
@@ -71,6 +91,10 @@ async def get_graph(request: GraphRequest):
             data=data,
             ai_advice=ai_advice
         )
+        
+        # キャッシュにレスポンスを保存
+        cache[cache_key] = (response, current_time)
+        print(f"Cache set for {cache_key}")
         
         return response
         
@@ -83,3 +107,16 @@ async def get_graph(request: GraphRequest):
             status_code=500, 
             detail=f"Error processing data: {str(e)}"
         )
+
+# キャッシュのクリーンアップ関数（定期的に実行する場合）
+def cleanup_cache():
+    """期限切れのキャッシュエントリを削除します"""
+    current_time = time.time()
+    expired_keys = [key for key, (_, timestamp) in cache.items() 
+                   if current_time - timestamp > CACHE_EXPIRY]
+    
+    for key in expired_keys:
+        del cache[key]
+    
+    if expired_keys:
+        print(f"Cleaned up {len(expired_keys)} expired cache entries")
