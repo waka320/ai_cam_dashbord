@@ -429,27 +429,5 @@ def highlight_date_time_data(date_time_data: List[Dict], action: str) -> List[Di
                 hour["hour_data"]["highlighted"] = True
                 hour["hour_data"]["highlight_reason"] = "最も人通りが少ない時間"
     
-    # 特定の目的に応じた追加ハイライト
-    if action == "dti_open_hour" or action == "dti_shoping_open_hour":
-        # 営業時間の設定に最適な時間帯を特定
-        # 午前と午後のピーク時間をハイライト
-        for day_data in date_time_data:
-            # 午前（12時まで）と午後（12時以降）に分ける
-            morning_hours = [h for h in day_data["hours"] if h["hour"] < 12 and h["congestion"] > 0]
-            afternoon_hours = [h for h in day_data["hours"] if h["hour"] >= 12 and h["congestion"] > 0]
-            
-            # 午前のピーク
-            if morning_hours:
-                morning_peak = sorted(morning_hours, key=lambda x: x["congestion"], reverse=True)[0]
-                if not morning_peak.get("highlighted", False):
-                    morning_peak["highlighted"] = True
-                    morning_peak["highlight_reason"] = "午前のピーク時間"
-            
-            # 午後のピーク
-            if afternoon_hours:
-                afternoon_peak = sorted(afternoon_hours, key=lambda x: x["congestion"], reverse=True)[0]
-                if not afternoon_peak.get("highlighted", False):
-                    afternoon_peak["highlighted"] = True
-                    afternoon_peak["highlight_reason"] = "午後のピーク時間"
     
     return date_time_data
