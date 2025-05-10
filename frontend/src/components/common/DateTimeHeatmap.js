@@ -187,7 +187,7 @@ const DateTimeHeatmap = () => {
                                 alignItems: 'center',
                                 padding: isMobile ? '5px 2px' : '10px 5px',
                                 backgroundColor: '#f5f5f5',
-                                height: isMobile ? (isSmallMobile ? '35px' : '40px') : '50px',
+                                height: isMobile ? (isSmallMobile ? '35px' : '40px') : '40px',
                             }}>
                                 <Typography 
                                     variant={isSmallMobile ? "bodyS" : "bodyM"} 
@@ -209,7 +209,8 @@ const DateTimeHeatmap = () => {
                                         alignItems: 'center',
                                         padding: isMobile ? '4px 0' : '8px 0',
                                         backgroundColor: '#f9f9f9',
-                                        height: isMobile ? (isSmallMobile ? '45px' : '55px') : '70px',
+                                        height: isMobile ? (isSmallMobile ? '35px' : '40px') : '50px',
+
                                     }}
                                 >
                                     <Box sx={{ 
