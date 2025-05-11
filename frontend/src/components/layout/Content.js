@@ -140,7 +140,7 @@ function Content() {
                     backgroundColor: 'rgba(0,0,0,0.1)'
                 }}>
                     <Link
-                        href="#contact"
+                        href="https://docs.google.com/forms/d/e/1FAIpQLSeEalJjup-hR6BN6M8MfETrPn3is0i-5Rskxz_rkEZvI7mvFw/viewform?usp=header"
                         color="inherit"
                         sx={{
                             textDecoration: 'none',
