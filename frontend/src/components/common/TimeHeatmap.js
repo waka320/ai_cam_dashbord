@@ -220,7 +220,7 @@ const TimeHeatmap = () => {
             {/* セルとヘッダーのスクロール可能なエリア */}
             <Box sx={{ 
               overflowX: 'auto',
-              overflowY: 'auto',
+              overflowY: 'hidden', // 'auto'から'hidden'に変更
               WebkitOverflowScrolling: 'touch',
               zIndex: 1,
               '&::-webkit-scrollbar': {

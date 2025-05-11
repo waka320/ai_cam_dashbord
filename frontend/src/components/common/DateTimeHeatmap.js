@@ -241,7 +241,7 @@ const DateTimeHeatmap = () => {
                         {/* セルとヘッダーのスクロール可能なエリア */}
                         <Box sx={{ 
                             overflowX: 'auto',
-                            overflowY: 'auto',
+                            overflowY: 'hidden',
                             // maxHeight: isMobile ? 'calc(100vh - 280px)' : 'calc(100vh - 300px)',
                             WebkitOverflowScrolling: 'touch',
                             zIndex: 1,

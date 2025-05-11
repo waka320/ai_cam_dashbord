@@ -179,14 +179,17 @@ function Content() {
                 }}
             >
                 <Box sx={{ 
-                    flex: isMobile ? 'auto' : 2,
-                    width: '100%'
+                    flex: isMobile ? 'auto' : '1 1 auto',  // 可能な限り拡大するが
+                    width: '100%',
+                    maxWidth: isMobile ? '100%' : 'calc(100% - 340px)', // AIセクション用に幅を確保（余白も含む）
                 }}>
                     {renderVisualization()}
                 </Box>
                 <Box
                     sx={{
-                        flex: isMobile ? 'auto' : 1,
+                        flex: isMobile ? 'auto' : '0 0 320px', // 幅を固定して縮小しないように
+                        minWidth: isMobile ? 'auto' : '320px', // 最小幅も保証
+                        width: isMobile ? '100%' : '320px',    // 明示的に幅を指定
                         display: 'flex',
                         flexDirection: 'column',
                     }}
