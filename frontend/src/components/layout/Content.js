@@ -8,7 +8,6 @@ import AISection from './AISection';
 import theme from '../../theme/theme';
 import { useCalendar } from '../../contexts/CalendarContext';
 import SectionContainer from '../ui/SectionContainer';
-import InfoIcon from '@mui/icons-material/Info';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 function Content() {
@@ -85,54 +84,7 @@ function Content() {
                 borderRadius: '8px',
                 overflow: 'hidden',
                 mb: 2
-            }}>
-                <Box sx={{ 
-                    display: 'flex', 
-                    flexDirection: isMobile ? 'column' : 'row',
-                    justifyContent: 'space-between',
-                    alignItems: isMobile ? 'center' : 'flex-start',
-                    padding: isMobile ? '12px' : '16px',
-                    borderBottom: '1px solid rgba(255,255,255,0.2)'
-                }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: isMobile ? 1 : 0 }}>
-                        <InfoIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
-                        <Typography variant="body2" fontWeight={600}>
-                            製作・協力
-                        </Typography>
-                    </Box>
-                    
-                    <Box sx={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        alignItems: isMobile ? 'center' : 'flex-end'
-                    }}>
-                        <Link
-                            href="https://mdg.si.i.nagoya-u.ac.jp/"
-                            color="inherit"
-                            sx={{ 
-                                "&:hover": { color: 'rgba(255,255,255,0.8)' },
-                                mb: 0.5,
-                                textDecoration: 'none',
-                                borderBottom: '1px dotted rgba(255,255,255,0.5)'
-                            }}
-                        >
-                            名古屋大学 遠藤・浦田研究室
-                        </Link>
-                        <Link
-                            href="https://www.city.takayama.lg.jp/shisei/1005252/1021045.html"
-                            color="inherit"
-                            sx={{ 
-                                "&:hover": { color: 'rgba(255,255,255,0.8)' },
-                                mb: 0.5,
-                                textDecoration: 'none',
-                                borderBottom: '1px dotted rgba(255,255,255,0.5)'
-                            }}
-                        >
-                            飛騨高山DX推進官民連携プラットフォーム
-                        </Link>
-                    </Box>
-                </Box>
-                
+            }}>      
                 <Box sx={{ 
                     p: 2, 
                     textAlign: 'center', 
