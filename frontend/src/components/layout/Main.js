@@ -2,8 +2,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 import { Routes, Route } from 'react-router-dom';
 import Content from './Content';
-import PrivacyPolicy from '../../pages/PrivacyPolicy';
-import TermsOfService from '../../pages/TermsOfService';
+import TermsAndPrivacy from '../../pages/TermsAndPrivacy';
 import Sitemap from '../../pages/Sitemap';
 
 const Main = () => {
@@ -18,8 +17,7 @@ const Main = () => {
     >
       <Routes>
         <Route path="/" element={<Content />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/terms" element={<TermsAndPrivacy />} />
         <Route path="/sitemap" element={<Sitemap />} />
       </Routes>
     </Box>

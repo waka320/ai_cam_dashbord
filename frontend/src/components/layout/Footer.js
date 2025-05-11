@@ -15,7 +15,6 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ArticleIcon from '@mui/icons-material/Article';
-import SecurityIcon from '@mui/icons-material/Security';
 import MapIcon from '@mui/icons-material/Map';
 import theme from '../../theme/theme';
 
@@ -269,21 +268,6 @@ const Footer = () => {
               gap: { xs: 0, sm: 3 },
               alignItems: { xs: 'flex-start', sm: 'center' }
             }}>
-              <RouterLink 
-                to="/privacy-policy" 
-                onClick={handleLinkClick('/privacy-policy')}
-                style={{ 
-                  color: 'inherit',
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: isMobile ? '8px' : '0',
-                  textDecoration: 'none'
-                }}
-                aria-label="プライバシーポリシーページへ"
-              >
-                <SecurityIcon fontSize="small" style={{ marginRight: '4px', fontSize: '0.9rem' }} />
-                プライバシーポリシー
-              </RouterLink>
               
               <RouterLink 
                 to="/terms" 
@@ -298,7 +282,7 @@ const Footer = () => {
                 aria-label="利用規約ページへ"
               >
                 <ArticleIcon fontSize="small" style={{ marginRight: '4px', fontSize: '0.9rem' }} />
-                利用規約
+                利用規約プライバシーポリシー
               </RouterLink>
               
               <RouterLink 
