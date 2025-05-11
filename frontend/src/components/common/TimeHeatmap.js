@@ -182,7 +182,7 @@ const TimeHeatmap = () => {
                 alignItems: 'center',
                 padding: isMobile ? '5px 2px' : '10px 5px',
                 backgroundColor: '#f5f5f5',
-                height: isMobile ? (isSmallMobile ? '35px' : '40px') : '40px',
+                height: isMobile ? (isSmallMobile ? '45px' : '55px') : '50px',
               }}>
                 <Typography 
                   variant={isSmallMobile ? "bodyS" : "bodyM"} 
