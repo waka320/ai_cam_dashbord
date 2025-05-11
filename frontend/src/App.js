@@ -2,8 +2,8 @@ import React from 'react';
 import './styles/App.css';
 import { BrowserRouter, useSearchParams } from 'react-router-dom';
 import Header from './components/layout/Header';
-import Content from './components/layout/Content';
-import Footer from './components/layout/Footer'; // フッターをインポート
+import Footer from './components/layout/Footer';
+import Main from './components/layout/Main';
 import { CalendarProvider } from './contexts/CalendarContext';
 import { ColorPaletteProvider } from './contexts/ColorPaletteContext';
 
@@ -24,8 +24,8 @@ function SearchParamsWrapper() {
       <ColorPaletteProvider>
         <div className="app-container">
           <Header />
-          <Content />
-          <Footer /> {/* フッターを追加 */}
+          <Main />
+          <Footer />
         </div>
       </ColorPaletteProvider>
     </CalendarProvider>

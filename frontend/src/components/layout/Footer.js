@@ -2,13 +2,14 @@ import React from 'react';
 import { 
   Box, 
   Typography, 
-  Link, 
+  Link as MuiLink, 
   Container, 
   Divider, 
   useMediaQuery,
   IconButton,
   Tooltip
 } from '@mui/material';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -21,12 +22,20 @@ import theme from '../../theme/theme';
 const Footer = () => {
   const isMobile = useMediaQuery('(max-width:768px)');
   const isSmallMobile = useMediaQuery('(max-width:480px)');
+  const navigate = useNavigate();
 
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
+  };
+
+  // ページ遷移と同時にスクロールトップのハンドラー
+  const handleLinkClick = (path) => (e) => {
+    e.preventDefault();
+    navigate(path);
+    window.scrollTo(0, 0);  // 即時にスクロールをトップに戻す
   };
 
   return (
@@ -94,7 +103,7 @@ const Footer = () => {
             sx={{ opacity: 0.85, mb: 1.5 }}
           >
             ※本ページは、高山市のオープンデータ(
-            <Link 
+            <MuiLink 
               href="https://www.city.takayama.lg.jp/shisei/1000062/1004915/1012977/index.html"
               target="_blank" 
               rel="noopener noreferrer"
@@ -102,7 +111,7 @@ const Footer = () => {
               sx={{ fontWeight: 500 }}
             >
               まちなかにおける観光通行量調査データ
-            </Link>
+            </MuiLink>
             )から作成しています。本ページを参考にした意思決定によるいかなる損失も、責任は負いかねます。
           </Typography>
           <Typography 
@@ -140,7 +149,7 @@ const Footer = () => {
               <Box sx={{ ml: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                   <GitHubIcon sx={{ mr: 1, fontSize: '1rem' }} />
-                  <Link 
+                  <MuiLink 
                     href="https://github.com/waka320/ai_cam_dashbord" 
                     target="_blank" 
                     rel="noopener noreferrer"
@@ -153,10 +162,10 @@ const Footer = () => {
                     }}
                   >
                     GitHubリポジトリ
-                  </Link>
+                  </MuiLink>
                 </Box>
                 <Typography variant="body2" sx={{ mb: 1 }}>
-                  作成: <Link 
+                  作成: <MuiLink 
                     href="https://github.com/waka320" 
                     target="_blank" 
                     rel="noopener noreferrer"
@@ -169,7 +178,7 @@ const Footer = () => {
                     }}
                   >
                     @waka320
-                  </Link>
+                  </MuiLink>
                 </Typography>
                 <Typography variant="body2">
                   最終更新: 2025年5月
@@ -191,7 +200,7 @@ const Footer = () => {
               製作・協力
             </Typography>
             <Box sx={{ ml: 1 }}>
-              <Link 
+              <MuiLink 
                 href="https://www.city.takayama.lg.jp/" 
                 target="_blank" 
                 rel="noopener noreferrer"
@@ -205,8 +214,8 @@ const Footer = () => {
                 }}
               >
                 高山市公式ウェブサイト
-              </Link>
-              <Link 
+              </MuiLink>
+              <MuiLink 
                 href="https://mdg.si.i.nagoya-u.ac.jp/" 
                 target="_blank" 
                 rel="noopener noreferrer"
@@ -220,8 +229,8 @@ const Footer = () => {
                 }}
               >
                 名古屋大学 遠藤・浦田研究室
-              </Link>
-              <Link 
+              </MuiLink>
+              <MuiLink 
                 href="https://www.city.takayama.lg.jp/shisei/1005252/1021045.html" 
                 target="_blank" 
                 rel="noopener noreferrer"
@@ -234,7 +243,7 @@ const Footer = () => {
                 }}
               >
                 飛騨高山DX推進官民連携プラットフォーム
-              </Link>
+              </MuiLink>
             </Box>
           </Box>
         </Box>
@@ -260,50 +269,52 @@ const Footer = () => {
               gap: { xs: 0, sm: 3 },
               alignItems: { xs: 'flex-start', sm: 'center' }
             }}>
-              <Link 
-                href="/privacy-policy" 
-                color="inherit"
-                display="flex"
-                alignItems="center"
+              <RouterLink 
+                to="/privacy-policy" 
+                onClick={handleLinkClick('/privacy-policy')}
+                style={{ 
+                  color: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: isMobile ? '8px' : '0',
+                  textDecoration: 'none'
+                }}
                 aria-label="プライバシーポリシーページへ"
-                sx={{ 
-                  mb: { xs: 1, sm: 0 },
-                  textDecoration: 'none',
-                  '&:hover': { textDecoration: 'underline' },
-                }}
               >
-                <SecurityIcon fontSize="small" sx={{ mr: 0.5, fontSize: '0.9rem' }} />
+                <SecurityIcon fontSize="small" style={{ marginRight: '4px', fontSize: '0.9rem' }} />
                 プライバシーポリシー
-              </Link>
-              <Link 
-                href="/terms" 
-                color="inherit"
-                display="flex"
-                alignItems="center"
+              </RouterLink>
+              
+              <RouterLink 
+                to="/terms" 
+                onClick={handleLinkClick('/terms')}
+                style={{ 
+                  color: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: isMobile ? '8px' : '0',
+                  textDecoration: 'none'
+                }}
                 aria-label="利用規約ページへ"
-                sx={{ 
-                  mb: { xs: 1, sm: 0 },
-                  textDecoration: 'none',
-                  '&:hover': { textDecoration: 'underline' },
-                }}
               >
-                <ArticleIcon fontSize="small" sx={{ mr: 0.5, fontSize: '0.9rem' }} />
+                <ArticleIcon fontSize="small" style={{ marginRight: '4px', fontSize: '0.9rem' }} />
                 利用規約
-              </Link>
-              <Link 
-                href="/sitemap" 
-                color="inherit"
-                display="flex"
-                alignItems="center"
-                aria-label="サイトマップページへ"
-                sx={{ 
-                  textDecoration: 'none',
-                  '&:hover': { textDecoration: 'underline' },
+              </RouterLink>
+              
+              <RouterLink 
+                to="/sitemap" 
+                onClick={handleLinkClick('/sitemap')}
+                style={{ 
+                  color: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  textDecoration: 'none'
                 }}
+                aria-label="サイトマップページへ"
               >
-                <MapIcon fontSize="small" sx={{ mr: 0.5, fontSize: '0.9rem' }} />
+                <MapIcon fontSize="small" style={{ marginRight: '4px', fontSize: '0.9rem' }} />
                 サイトマップ
-              </Link>
+              </RouterLink>
             </Box>
           </Box>
           

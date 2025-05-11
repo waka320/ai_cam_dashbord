@@ -7,6 +7,18 @@
     box-sizing: border-box;
     background-color: #f9f9f9;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* フレキシブルなページレイアウト */
+main {
+    flex: 1 0 auto;
+}
+
+/* フッターを下部に固定 */
+footer {
+    flex-shrink: 0;
 }
 
 /* モバイルファースト設計 */
