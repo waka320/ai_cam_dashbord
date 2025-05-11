@@ -48,21 +48,134 @@ const theme = createTheme({
       'Helvetica Neue',
       'Arial',
     ].join(','),
+    // 見出し
+    h1: {
+      fontSize: '2.5rem',
+      fontWeight: 700,
+      lineHeight: 1.3,
+      letterSpacing: '-0.01em',
+      marginBottom: '0.5em',
+    },
+    h2: {
+      fontSize: '2rem',
+      fontWeight: 700,
+      lineHeight: 1.3,
+      letterSpacing: '-0.005em',
+      marginBottom: '0.5em',
+    },
+    h3: {
+      fontSize: '1.75rem',
+      fontWeight: 600,
+      lineHeight: 1.4,
+      marginBottom: '0.5em',
+    },
+    h4: {
+      fontSize: '1.5rem',
+      fontWeight: 600,
+      lineHeight: 1.4,
+      marginBottom: '0.5em',
+    },
+    h5: {
+      fontSize: '1.25rem',
+      fontWeight: 600,
+      lineHeight: 1.4,
+      marginBottom: '0.5em',
+    },
     h6: {
       fontWeight: 700,
       fontSize: '1.1rem',
+      lineHeight: 1.4,
+      marginBottom: '0.5em',
     },
+    // 本文
+    body1: {
+      fontSize: '1rem',
+      fontWeight: 400,
+      lineHeight: 1.6,
+      letterSpacing: '0.00938em',
+    },
+    body2: {
+      fontSize: '0.875rem',
+      fontWeight: 400,
+      lineHeight: 1.6,
+      letterSpacing: '0.00938em',
+    },
+    // カスタムスタイル
     bodyL: {
       fontSize: '1rem',
       fontWeight: 500,
+      lineHeight: 1.6,
+      letterSpacing: '0.00938em',
     },
     bodyM: {
       fontSize: '0.95rem',
       fontWeight: 400,
+      lineHeight: 1.6,
+      letterSpacing: '0.00938em',
     },
+    bodyS: {
+      fontSize: '0.875rem',
+      fontWeight: 400,
+      lineHeight: 1.6,
+      letterSpacing: '0.01071em',
+    },
+    bodyXS: {
+      fontSize: '0.75rem',
+      fontWeight: 400,
+      lineHeight: 1.5,
+      letterSpacing: '0.01071em',
+    },
+    // ラベル
     labelL: {
       fontSize: '0.95rem',
       fontWeight: 500,
+      lineHeight: 1.5,
+      letterSpacing: '0.00938em',
+    },
+    labelM: {
+      fontSize: '0.875rem',
+      fontWeight: 500,
+      lineHeight: 1.5,
+      letterSpacing: '0.00938em',
+    },
+    labelS: {
+      fontSize: '0.75rem',
+      fontWeight: 500,
+      lineHeight: 1.5,
+      letterSpacing: '0.02857em',
+    },
+    // その他の機能的なテキストスタイル
+    button: {
+      fontSize: '0.875rem',
+      fontWeight: 600,
+      lineHeight: 1.75,
+      letterSpacing: '0.02857em',
+      textTransform: 'none',
+    },
+    caption: {
+      fontSize: '0.75rem',
+      fontWeight: 400,
+      lineHeight: 1.5,
+      letterSpacing: '0.03333em',
+    },
+    overline: {
+      fontSize: '0.75rem',
+      fontWeight: 500,
+      lineHeight: 1.5,
+      letterSpacing: '0.08333em',
+      textTransform: 'uppercase',
+    },
+    subtitle1: {
+      fontSize: '1.1rem',
+      fontWeight: 600,
+      lineHeight: 1.5,
+      letterSpacing: '0.00938em',
+    },
+    subtitle2: {
+      fontSize: '0.875rem',
+      fontWeight: 600,
+      lineHeight: 1.5,
+      letterSpacing: '0.00714em',
     },
   },
   shape: {
@@ -104,6 +217,20 @@ const theme = createTheme({
               backgroundColor: '#D5D5D5', // 選択+ホバー時の背景色
             },
           },
+        },
+      },
+    },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          // 日本語テキストのためのスタイル調整
+          wordBreak: 'break-word',
+        },
+        paragraph: {
+          marginBottom: '1em',
+        },
+        gutterBottom: {
+          marginBottom: '0.75em',
         },
       },
     },
