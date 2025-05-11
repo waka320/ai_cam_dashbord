@@ -1,13 +1,33 @@
 import React from 'react';
-import { Box, Typography, Link, Container, Grid, Divider, useMediaQuery } from '@mui/material';
+import { 
+  Box, 
+  Typography, 
+  Link, 
+  Container, 
+  Divider, 
+  useMediaQuery,
+  IconButton,
+  Tooltip
+} from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import ArticleIcon from '@mui/icons-material/Article';
+import SecurityIcon from '@mui/icons-material/Security';
+import MapIcon from '@mui/icons-material/Map';
 import theme from '../../theme/theme';
 
 const Footer = () => {
   const isMobile = useMediaQuery('(max-width:768px)');
   const isSmallMobile = useMediaQuery('(max-width:480px)');
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
 
   return (
     <Box 
@@ -17,9 +37,31 @@ const Footer = () => {
         borderTop: '1px solid #e0e0e0',
         mt: 4,
         pt: 3,
-        pb: 3
+        pb: 3,
+        position: 'relative'
       }}
     >
+      {/* ページ上部へ戻るボタン */}
+      <Tooltip title="ページの先頭へ" arrow placement="top">
+        <IconButton
+          aria-label="ページの先頭へ戻る"
+          onClick={scrollToTop}
+          sx={{
+            position: 'absolute',
+            top: -20,
+            right: 20,
+            backgroundColor: 'white',
+            boxShadow: 1,
+            '&:hover': {
+              backgroundColor: 'rgba(240, 242, 245, 0.9)',
+            },
+          }}
+          size={isMobile ? "small" : "medium"}
+        >
+          <KeyboardArrowUpIcon />
+        </IconButton>
+      </Tooltip>
+      
       <Container maxWidth="lg">
         {/* 責任表示セクション */}
         <Box 
@@ -56,6 +98,7 @@ const Footer = () => {
               href="https://www.city.takayama.lg.jp/shisei/1000062/1004915/1012977/index.html"
               target="_blank" 
               rel="noopener noreferrer"
+              aria-label="高山市のオープンデータ(まちなかにおける観光通行量調査データ)サイトを開く"
               sx={{ fontWeight: 500 }}
             >
               まちなかにおける観光通行量調査データ
@@ -72,9 +115,18 @@ const Footer = () => {
 
         <Divider sx={{ mb: 2 }} />
         
-        {/* リンクとクレジットセクション */}
-        <Grid container spacing={isMobile ? 2 : 4}>
-          <Grid item xs={12} sm={6}>
+        {/* リンクとクレジットセクション - Gridの代わりにBoxで実装 */}
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' }, 
+            gap: { xs: isMobile ? 2 : 3, sm: 4 }
+          }}
+        >
+          <Box sx={{ 
+            flex: '1 1 50%', 
+            mb: isMobile ? 2 : 0 
+          }}>
             <Box sx={{ mb: isMobile ? 2 : 0 }}>
               <Typography 
                 variant="subtitle2" 
@@ -93,6 +145,7 @@ const Footer = () => {
                     target="_blank" 
                     rel="noopener noreferrer"
                     color="inherit"
+                    aria-label="GitHubリポジトリを開く"
                     sx={{ 
                       textDecoration: 'none',
                       '&:hover': { textDecoration: 'underline' },
@@ -108,6 +161,7 @@ const Footer = () => {
                     target="_blank" 
                     rel="noopener noreferrer"
                     color="inherit"
+                    aria-label="開発者のGitHubプロフィールを開く"
                     sx={{ 
                       textDecoration: 'none',
                       '&:hover': { textDecoration: 'underline' },
@@ -122,9 +176,11 @@ const Footer = () => {
                 </Typography>
               </Box>
             </Box>
-          </Grid>
+          </Box>
           
-          <Grid item xs={12} sm={6}>
+          <Box sx={{ 
+            flex: '1 1 50%' 
+          }}>
             <Typography 
               variant="subtitle2" 
               fontWeight="bold" 
@@ -141,6 +197,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 display="block"
                 color="inherit"
+                aria-label="高山市公式ウェブサイトを開く"
                 sx={{ 
                   mb: 1,
                   textDecoration: 'none',
@@ -155,6 +212,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 display="block" 
                 color="inherit"
+                aria-label="名古屋大学 遠藤・浦田研究室のウェブサイトを開く"
                 sx={{ 
                   mb: 1, 
                   textDecoration: 'none',
@@ -169,6 +227,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 display="block"
                 color="inherit"
+                aria-label="飛騨高山DX推進官民連携プラットフォームのページを開く"
                 sx={{ 
                   textDecoration: 'none',
                   '&:hover': { textDecoration: 'underline' },
@@ -177,10 +236,83 @@ const Footer = () => {
                 飛騨高山DX推進官民連携プラットフォーム
               </Link>
             </Box>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         <Divider sx={{ my: 2 }} />
+        
+        {/* 法的情報と問い合わせ - Gridの代わりにBoxで実装 */}
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' }, 
+            gap: { xs: isMobile ? 2 : 3, sm: 4 },
+            mb: 2
+          }}
+        >
+          <Box sx={{ 
+            flex: '1 1 50%', 
+          }}>
+            <Box sx={{ 
+              ml: 1,
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: { xs: 0, sm: 3 },
+              alignItems: { xs: 'flex-start', sm: 'center' }
+            }}>
+              <Link 
+                href="/privacy-policy" 
+                color="inherit"
+                display="flex"
+                alignItems="center"
+                aria-label="プライバシーポリシーページへ"
+                sx={{ 
+                  mb: { xs: 1, sm: 0 },
+                  textDecoration: 'none',
+                  '&:hover': { textDecoration: 'underline' },
+                }}
+              >
+                <SecurityIcon fontSize="small" sx={{ mr: 0.5, fontSize: '0.9rem' }} />
+                プライバシーポリシー
+              </Link>
+              <Link 
+                href="/terms" 
+                color="inherit"
+                display="flex"
+                alignItems="center"
+                aria-label="利用規約ページへ"
+                sx={{ 
+                  mb: { xs: 1, sm: 0 },
+                  textDecoration: 'none',
+                  '&:hover': { textDecoration: 'underline' },
+                }}
+              >
+                <ArticleIcon fontSize="small" sx={{ mr: 0.5, fontSize: '0.9rem' }} />
+                利用規約
+              </Link>
+              <Link 
+                href="/sitemap" 
+                color="inherit"
+                display="flex"
+                alignItems="center"
+                aria-label="サイトマップページへ"
+                sx={{ 
+                  textDecoration: 'none',
+                  '&:hover': { textDecoration: 'underline' },
+                }}
+              >
+                <MapIcon fontSize="small" sx={{ mr: 0.5, fontSize: '0.9rem' }} />
+                サイトマップ
+              </Link>
+            </Box>
+          </Box>
+          
+          <Box sx={{ 
+            flex: '1 1 50%' 
+          }}>
+            {/* 右側セクションの内容がある場合はここに追加 */}
+          </Box>
+        </Box>
         
         {/* コピーライトセクション */}
         <Box sx={{ textAlign: 'center' }}>
