@@ -24,7 +24,6 @@ function Content() {
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center',
-                    p: 2,
                     backgroundColor: 'rgba(211, 47, 47, 0.05)',
                     borderRadius: '6px'
                 }}>
@@ -114,9 +113,10 @@ function Content() {
     return (
         <Box sx={{
             backgroundColor: 'rgba(249, 250, 251, 0.6)',
-            borderRadius: isMobile ? '0' : '0 0 8px 8px',
-            padding: isMobile ? '8px 8px 16px' : '16px 16px 24px',
-            boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)'
+            borderRadius: isMobile ? '0' : '8px',
+            padding: isMobile ? '8px 8px 16px' : '16px 24px 24px',
+            boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)',
+            flex: '1 0 auto'
         }}>
             <Inputs />
             
