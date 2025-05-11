@@ -4,230 +4,153 @@ import {
   Radio, 
   RadioGroup, 
   FormControlLabel, 
-  FormControl, 
-  FormLabel, 
-  Typography,
-  Paper,
   Tooltip,
   IconButton,
-  Collapse,
-  useMediaQuery
+  Popover,
+  Typography
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import PaletteIcon from '@mui/icons-material/Palette';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
-import theme from '../../theme/theme';
 
 const ColorPaletteSwitcher = () => {
   const { currentPalette, changePalette, availablePalettes } = useColorPalette();
-  const isMobile = useMediaQuery('(max-width:768px)');
+  const [anchorEl, setAnchorEl] = useState(null);
   
-  // 展開/折りたたみ状態を管理するステート
-  const [expanded, setExpanded] = useState(false);
-  
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   const handleChange = (event) => {
     changePalette(event.target.value);
   };
   
-  // 展開/折りたたみの切り替え
-  const toggleExpand = () => {
-    setExpanded(!expanded);
-  };
-  
+  // 現在選択中のパレットを取得
+  const selectedPalette = availablePalettes.find(palette => palette.id === currentPalette);
+  const open = Boolean(anchorEl);
+
   return (
-    <Paper 
-      elevation={1}
-      sx={{ 
-        p: isMobile ? 1.5 : 2,
-        mb: 2, 
-        borderRadius: '8px',
-        backgroundColor: 'rgba(255, 255, 255, 0.9)'
-      }}
-    >
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <PaletteIcon sx={{ mr: 1, color: theme.palette.primary.main }} />
-          <FormLabel 
-            component="legend"
-            sx={{ 
-              fontWeight: 'bold',
-              color: theme.palette.primary.main,
-              mb: 0
-            }}
-          >
-            カラーパレット選択
-          </FormLabel>
-        </Box>
-        
-        {/* 現在選択されているパレットのプレビュー（折りたたみ時も表示） */}
-        {!expanded && (
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            ml: 2,
-            flexGrow: 1,
-            overflow: 'hidden'
-          }}>
-            <Typography variant="body2" sx={{ mr: 1, whiteSpace: 'nowrap' }}>
-              現在: {availablePalettes.find(p => p.id === currentPalette)?.name}
-            </Typography>
+    <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+      <Tooltip title="カラーパレットを変更">
+        <IconButton 
+          onClick={handleClick}
+          size="small"
+          sx={{ 
+            border: '1px solid rgba(0,0,0,0.12)', 
+            borderRadius: '6px',
+            p: 0.7,
+            backgroundColor: 'rgba(255,255,255,0.8)',
+            '&:hover': {
+              backgroundColor: 'rgba(240, 240, 240, 0.95)'
+            }
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <PaletteIcon fontSize="small" sx={{ mr: 0.5 }} />
             <Box sx={{ 
               display: 'flex', 
-              height: '1.2rem',
-              borderRadius: '4px',
-              overflow: 'hidden',
-              flexShrink: 0
+              height: '18px',
+              ml: 0.5,
+              border: '1px solid rgba(0,0,0,0.12)',
+              borderRadius: '2px',
+              overflow: 'hidden'
             }}>
-              {availablePalettes.find(p => p.id === currentPalette)?.sample.map((color, index) => (
+              {selectedPalette && selectedPalette.sample.slice(0, 5).map((color, index) => (
                 <Box 
                   key={index}
                   sx={{ 
-                    width: isMobile ? '0.6rem' : '0.8rem', 
+                    width: '5px', 
                     height: '100%', 
-                    backgroundColor: color
+                    backgroundColor: color 
                   }}
                 />
               ))}
             </Box>
           </Box>
-        )}
-        
-        {/* 展開/折りたたみボタン */}
-        <IconButton 
-          onClick={toggleExpand}
-          size="small"
-          sx={{ color: theme.palette.primary.main }}
-        >
-          {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
         </IconButton>
-      </Box>
+      </Tooltip>
       
-      {/* 展開時のみ表示されるパレット選択オプション */}
-      <Collapse in={expanded} timeout="auto">
-        <Box sx={{ mt: 2 }}>
-          <FormControl component="fieldset">
-            <RadioGroup 
-              row={!isMobile} 
-              value={currentPalette} 
-              onChange={handleChange} 
-              name="color-palette-group"
-              sx={{
-                flexWrap: 'wrap',
-                gap: 1
-              }}
-            >
-              {availablePalettes.map(palette => (
-                <FormControlLabel 
-                  key={palette.id}
-                  value={palette.id}
-                  control={
-                    <Radio 
-                      sx={{
-                        color: theme.palette.primary.main,
-                        '&.Mui-checked': {
-                          color: theme.palette.primary.main,
-                        },
-                      }}
-                    />
-                  }
-                  label={
-                    <Box sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center',
-                      flexDirection: isMobile ? 'column' : 'row',
-                      gap: 1
-                    }}>
-                      <Typography 
-                        variant="body2" 
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        PaperProps={{
+          sx: {
+            p: 2,
+            mt: 0.5,
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+            borderRadius: '8px',
+            maxWidth: '90vw',
+            backgroundColor:'white'
+          }
+        }}
+      >
+        <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+          カラーパレット選択
+        </Typography>
+        
+        <RadioGroup 
+          value={currentPalette} 
+          onChange={handleChange}
+          name="color-palette-group"
+        >
+          {availablePalettes.map(palette => (
+            <FormControlLabel 
+              key={palette.id}
+              value={palette.id}
+              control={<Radio size="small" />}
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography variant="body2" sx={{ mr: 1, minWidth: '70px' }}>
+                    {palette.name}
+                  </Typography>
+                  <Box sx={{ display: 'flex', height: '24px' }}>
+                    {palette.sample.map((color, index) => (
+                      <Box 
+                        key={index}
                         sx={{ 
-                          mr: isMobile ? 0 : 1,
-                          fontSize: isMobile ? '0.8rem' : '0.9rem',
-                          fontWeight: currentPalette === palette.id ? 'bold' : 'normal'
+                          width: '16px', 
+                          height: '100%', 
+                          backgroundColor: color,
+                          border: '1px solid rgba(0,0,0,0.12)',
+                          '&:first-of-type': {
+                            borderTopLeftRadius: '4px',
+                            borderBottomLeftRadius: '4px'
+                          },
+                          '&:last-child': {
+                            borderTopRightRadius: '4px',
+                            borderBottomRightRadius: '4px'
+                          }
                         }}
-                      >
-                        {palette.name}
-                      </Typography>
-                      <Tooltip title="パレットサンプル">
-                        <Box sx={{ 
-                          display: 'flex', 
-                          height: '1.5rem',
-                          borderRadius: '4px',
-                          overflow: 'hidden',
-                          boxShadow: currentPalette === palette.id ? '0 0 0 2px rgba(25, 118, 210, 0.5)' : 'none'
-                        }}>
-                          {palette.sample.map((color, index) => {
-                            const congestionLevel = index + 1;
-                            
-                            // テキスト色の判定ロジック
-                            let textColor = 'black';
-
-                            // 範囲モードの場合
-                            if (palette.mode === 'range') {
-                              // 黒文字範囲が指定されている場合
-                              if (palette.blackRanges) {
-                                textColor = 'white'; // デフォルトは白文字
-                                // 指定された範囲内にあるかどうかをチェック
-                                for (const range of palette.blackRanges) {
-                                  if (congestionLevel >= range[0] && congestionLevel <= range[1]) {
-                                    textColor = 'black'; // 範囲内なら黒文字
-                                    break;
-                                  }
-                                }
-                              }
-                              // 白文字範囲が指定されている場合
-                              else if (palette.whiteRanges) {
-                                textColor = 'black'; // デフォルトは黒文字
-                                // 指定された範囲内にあるかどうかをチェック
-                                for (const range of palette.whiteRanges) {
-                                  if (congestionLevel >= range[0] && congestionLevel <= range[1]) {
-                                    textColor = 'white'; // 範囲内なら白文字
-                                    break;
-                                  }
-                                }
-                              }
-                            }
-                            // 従来の閾値モードの場合
-                            else if (palette.inverted) {
-                              // 反転パターン
-                              textColor = congestionLevel < palette.textThreshold ? 'white' : 'black';
-                            } else {
-                              // 通常パターン
-                              textColor = congestionLevel >= palette.textThreshold ? 'white' : 'black';
-                            }
-                            
-                            return (
-                              <Box 
-                                key={index}
-                                sx={{ 
-                                  width: isMobile ? '0.8rem' : '1rem', 
-                                  height: '100%', 
-                                  backgroundColor: color,
-                                  color: textColor,
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  fontSize: '0.5rem'
-                                }}
-                              >
-                                {congestionLevel}
-                              </Box>
-                            );
-                          })}
-                        </Box>
-                      </Tooltip>
-                    </Box>
-                  }
-                  sx={{
-                    margin: isMobile ? '4px 0' : '0 8px 0 0'
-                  }}
-                />
-              ))}
-            </RadioGroup>
-          </FormControl>
-        </Box>
-      </Collapse>
-    </Paper>
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              }
+              sx={{ 
+                mb: 0.5,
+                mr: 0,
+                '& .MuiFormControlLabel-label': { 
+                  display: 'flex', 
+                  alignItems: 'center' 
+                }
+              }}
+            />
+          ))}
+        </RadioGroup>
+      </Popover>
+    </Box>
   );
 };
 

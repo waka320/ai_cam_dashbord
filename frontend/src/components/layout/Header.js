@@ -5,7 +5,8 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import theme from '../../theme/theme';
 import logo from '../../assets/dashbord_logo.png';
 import { useCalendar } from '../../contexts/CalendarContext';
-import ShareButton from '../ui/ShareButton'; // インポート追加
+import ShareButton from '../ui/ShareButton';
+import ColorPaletteSwitcher from '../ui/ColorPaletteSwitcher'; // インポート追加
 
 function Header() {
     const {
@@ -557,7 +558,7 @@ function Header() {
                             </Box>
                         </Box>
 
-                        {/* 共有ボタン部分 */}
+                        {/* 共有ボタンとカラーパレットスイッチャーを横に並べる */}
                         <Box 
                             sx={{ 
                                 display: 'flex', 
@@ -571,6 +572,8 @@ function Header() {
                                 variant='button' 
                                 size={isMobile ? 'small' : 'medium'} 
                             />
+                            <ColorPaletteSwitcher /> {/* カラーパレットスイッチャーを追加 */}
+                            
                         </Box>
                     </Toolbar>
                 </Paper>
