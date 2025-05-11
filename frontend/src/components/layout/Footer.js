@@ -185,7 +185,7 @@ const Footer = () => {
         {/* コピーライトセクション */}
         <Box sx={{ textAlign: 'center' }}>
           <Typography variant={isSmallMobile ? "caption" : "body2"} sx={{ opacity: 0.7 }}>
-            © 2025 目的ベースダッシュボード - All rights reserved
+            © 2025 Media&Design Group - 遠藤・浦田研究室
           </Typography>
         </Box>
       </Container>

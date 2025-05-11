@@ -10,6 +10,7 @@ import {
   Typography
 } from '@mui/material';
 import PaletteIcon from '@mui/icons-material/Palette';
+import CloseIcon from '@mui/icons-material/Close'; // 閉じるアイコンをインポート
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
 
 const ColorPaletteSwitcher = () => {
@@ -96,9 +97,32 @@ const ColorPaletteSwitcher = () => {
           }
         }}
       >
-        <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
-          カラーパレット選択
-        </Typography>
+        {/* ヘッダー部分を修正して閉じるボタンを追加 */}
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mb: 1.5
+        }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+            カラーパレット選択
+          </Typography>
+          <Tooltip title="閉じる">
+            <IconButton 
+              onClick={handleClose} 
+              size="small" 
+              aria-label="閉じる"
+              sx={{
+                p: 0.5,
+                '&:hover': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                }
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
         
         <RadioGroup 
           value={currentPalette} 
