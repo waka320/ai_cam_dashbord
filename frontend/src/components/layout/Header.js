@@ -36,6 +36,22 @@ function Header() {
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth() + 1;
 
+    // 現在の年月を自動的に設定するためのuseEffect
+    useEffect(() => {
+        // 年月が未選択の場合のみ自動設定する
+        if (!selectedYear) {
+            setSelectedYear(currentYear.toString());
+        }
+
+        // 年が選択されていて月が未選択の場合、または
+        // 年を現在の年に自動設定した場合に月も自動設定する
+        if (selectedYear && !selectedMonth) {
+            // 選択された年が現在の年であれば現在の月を、それ以外は12月を設定
+            const monthToSet = selectedYear === currentYear.toString() ? currentMonth.toString() : "12";
+            setSelectedMonth(monthToSet);
+        }
+    }, [selectedYear, selectedMonth, currentYear, currentMonth, setSelectedYear, setSelectedMonth]);
+
     // モバイル表示用の短縮ラベルを追加
     const menuItems = [
         { value: "cal_holiday", label: "店舗の定休日を検討したい", shortLabel: "店舗の定休日" },

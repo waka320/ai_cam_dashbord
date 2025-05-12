@@ -31,11 +31,16 @@ const COOKIE_KEYS = {
 const CalendarContext = createContext();
 
 export function CalendarProvider({ children, searchParams, setSearchParams }) {
-  // URLパラメータから初期値を取得
+  // 現在の年月を取得
+  const today = new Date();
+  const currentYear = today.getFullYear().toString();
+  const currentMonth = (today.getMonth() + 1).toString();
+  
+  // URLパラメータから初期値を取得（URLパラメータがない場合は現在の年月をデフォルト値として使用）
   const initialLocation = searchParams.get('location') || '';
   const initialAction = searchParams.get('action') || '';
-  const initialYear = searchParams.get('year') || '';
-  const initialMonth = searchParams.get('month') || '';
+  const initialYear = searchParams.get('year') || currentYear;
+  const initialMonth = searchParams.get('month') || currentMonth;
   
   // Abort Controller のためのRef
   const abortControllerRef = useRef(null);
@@ -124,14 +129,21 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
         setSelectedActionInternal(actionFromCookie);
       }
       
+      // Cookieに値がない場合は現在の年月をデフォルト値として使用
       if (yearFromCookie && !yearRef.current.manuallyChanged) {
         yearRef.current.value = yearFromCookie;
         setSelectedYearInternal(yearFromCookie);
+      } else if (!yearRef.current.manuallyChanged) {
+        yearRef.current.value = currentYear;
+        setSelectedYearInternal(currentYear);
       }
       
       if (monthFromCookie && !monthRef.current.manuallyChanged) {
         monthRef.current.value = monthFromCookie;
         setSelectedMonthInternal(monthFromCookie);
+      } else if (!monthRef.current.manuallyChanged) {
+        monthRef.current.value = currentMonth;
+        setSelectedMonthInternal(currentMonth);
       }
 
       // 遅延して完了フラグを設定することで、状態更新を確実に反映
@@ -139,7 +151,7 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
         setCookiesLoaded(true);
       }, 100);
     }
-  }, [cookiesLoaded]);
+  }, [cookiesLoaded, currentYear, currentMonth]);
 
   // 選択値が変更されたらCookieに保存（cookiesLoadedがtrueになった後のみ）
   useEffect(() => {
