@@ -16,6 +16,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ArticleIcon from '@mui/icons-material/Article';
 import MapIcon from '@mui/icons-material/Map';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import theme from '../../theme/theme';
 
 const Footer = () => {
@@ -259,7 +260,7 @@ const Footer = () => {
           }}
         >
           <Box sx={{ 
-            flex: '1 1 50%', 
+            flex: '1 1 800%', 
           }}>
             <Box sx={{ 
               ml: 1,
@@ -268,6 +269,22 @@ const Footer = () => {
               gap: { xs: 0, sm: 3 },
               alignItems: { xs: 'flex-start', sm: 'center' }
             }}>
+              
+              <RouterLink 
+                to="/how-to-use" 
+                onClick={handleLinkClick('/how-to-use')}
+                style={{ 
+                  color: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: isMobile ? '8px' : '0',
+                  textDecoration: 'none'
+                }}
+                aria-label="使い方ガイドページへ"
+              >
+                <HelpOutlineIcon fontSize="small" style={{ marginRight: '4px', fontSize: '0.9rem' }} />
+                使い方ガイド
+              </RouterLink>
               
               <RouterLink 
                 to="/terms" 
