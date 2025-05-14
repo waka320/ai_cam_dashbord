@@ -161,7 +161,28 @@ const TermsAndPrivacy = () => {
             >
               {value === 1 && (
                 <>
-                  
+                  <Box sx={{ mb: 4 }}>
+                    <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
+                      1. 事業者情報
+                    </Typography>
+                    <Typography variant="body1">
+                      本サービス「目的ベースダッシュボード」は以下の事業者が提供・運営しています。
+                    </Typography>
+                    <List sx={{ pl: 2 }}>
+                      <ListItem sx={{ py: 0.5 }}>
+                        <ListItemText primary="事業者名：名古屋大学 遠藤・浦田研究室" />
+                      </ListItem>
+                      <ListItem sx={{ py: 0.5 }}>
+                        <ListItemText primary="所在地：愛知県名古屋市千種区不老町" />
+                      </ListItem>
+                      <ListItem sx={{ py: 0.5 }}>
+                        <ListItemText primary="連絡先：xxx@xxx.nagoya-u.ac.jp（仮）" />
+                      </ListItem>
+                      <ListItem sx={{ py: 0.5 }}>
+                        <ListItemText primary="研究責任者：遠藤 守" />
+                      </ListItem>
+                    </List>
+                  </Box>
 
                   <Box sx={{ mb: 4 }}>
                     <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
@@ -270,6 +291,26 @@ const TermsAndPrivacy = () => {
                     </Typography>
                   </Box>
 
+                  <Box sx={{ mb: 4 }}>
+                    <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
+                      8. ユーザーの権利
+                    </Typography>
+                    <Typography variant="body1" >
+                      個人情報保護法に基づき、ユーザーには以下の権利があります。
+                    </Typography>
+                    <List sx={{ pl: 2 }}>
+                      <ListItem sx={{ py: 0.5 }}>
+                        <ListItemText primary="権利１" />
+                      </ListItem>
+                      <ListItem sx={{ py: 0.5 }}>
+                        <ListItemText primary="権利２" />
+                      </ListItem>
+
+                    </List>
+                    <Typography variant="body1" sx={{ mt: 1 }}>
+                      これらの権利行使をご希望の場合は、「1. 事業者情報」に記載の連絡先までご連絡ください。ご本人確認の上、法令の定めに従い対応いたします。なお、本サービスで収集する情報は主に統計的な利用状況であり、特定の個人を識別できる情報は最小限に留めております。
+                    </Typography>
+                  </Box>
 
                   <Box sx={{ mb: 4 }}>
                     <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
@@ -279,8 +320,6 @@ const TermsAndPrivacy = () => {
                       本ポリシーの内容は、法令の変更や本サービスの仕様変更等に伴い、予告なく変更される場合があります。変更があった場合は、本ウェブサイト上に変更後のポリシーを掲載します。
                     </Typography>
                   </Box>
-
-                  
                 </>
               )}
             </Box>

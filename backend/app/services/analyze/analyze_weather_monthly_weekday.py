@@ -449,10 +449,18 @@ def aggregate_data_by_weekday_and_hour(input_dir, output_dir):
         # 曜日ごとにグループ化
         weekday_dates = group_dates_by_weekday(dates)
         
-        # 月曜から日曜まで順に処理
-        for weekday in range(7):  # 0:月曜〜6:日曜
-            weekday_name = get_weekday_name(weekday)
+        # 曜日ごとの処理の前に、その曜日の全日付に対応する天気データを事前取得
+        for weekday in range(7):
             dates_for_weekday = weekday_dates[weekday]
+            
+            # この曜日の全日付の天気データを一括取得
+            all_weather_data = {}
+            for date in dates_for_weekday:
+                cache_key = date.strftime("%Y-%m-%d")
+                all_weather_data[date] = fetch_weather_info(date)
+            
+            # 月曜から日曜まで順に処理
+            weekday_name = get_weekday_name(weekday)
             
             if not dates_for_weekday:
                 continue
@@ -479,7 +487,7 @@ def aggregate_data_by_weekday_and_hour(input_dir, output_dir):
                     date_strs.append(date.strftime("%d日"))
                     
                     # 天気情報取得
-                    weather, high_temp, low_temp = fetch_weather_info(date)
+                    weather, high_temp, low_temp = all_weather_data[date]
                     if weather:
                         weathers.append(weather)
                     
@@ -578,3 +586,4 @@ if __name__ == "__main__":
     aggregate_data_by_weekday_and_hour(input_dir, output_dir)
     
     print("すべての処理が完了しました！")
+
