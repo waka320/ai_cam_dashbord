@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AppBar, Toolbar, Typography, Select, MenuItem, Box, FormControl, Button, useMediaQuery, IconButton, Tooltip, Paper } from '@mui/material';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -80,6 +80,8 @@ function Header() {
 
     const yearItems = generateYearItems();
     const [availableMonths, setAvailableMonths] = useState([]);
+    const [isScrolled, setIsScrolled] = useState(false);
+    const headerRef = useRef(null);
 
     useEffect(() => {
         const generateMonthItemsInEffect = (year) => {
@@ -101,6 +103,22 @@ function Header() {
             setSelectedMonth("");
         }
     }, [selectedYear, currentYear, currentMonth, selectedMonth, setSelectedMonth]);
+
+    useEffect(() => {
+        if (isSpecialPage()) return; // 特定のページでは実行しない
+        
+        const handleScroll = () => {
+            if (headerRef.current) {
+                const headerBottom = headerRef.current.getBoundingClientRect().bottom;
+                setIsScrolled(headerBottom < 0);
+            }
+        };
+        
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [isSpecialPage]);
 
     const handleYearChange = (event) => {
         const newYear = event.target.value;
@@ -161,451 +179,480 @@ function Header() {
         updateMonthAndFetch(newYear, newMonth);
     };
 
-    return (
-        <AppBar position="static" color="primary" sx={{ 
-            padding: isMobile ? '8px 0' : '8px 0',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-            borderRadius: '0 0 8px 8px',
-        }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                {/* ロゴとタイトル部分 */}
-                <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center',
-                    borderBottom: isMobile || isSpecialPage() ? 'none' : '1px solid rgba(255,255,255,0.3)',
-                    py: 1
-                }}>
-                    <RouterLink to="/" aria-label="トップページへ戻る">
-                        <Box
-                            component="img"
-                            src={logo}
-                            alt="目的ベースダッシュボードのロゴ"
-                            sx={{ 
-                                height: isMobile ? '42px' : '54px', 
-                                objectFit: 'contain'
-                            }}
-                        />
-                    </RouterLink>
-                </Box>
-                
-                {/* コントロール部分 - 特定のページでは表示しない */}
-                {!isSpecialPage() && (
-                    <Paper elevation={0} sx={{
-                        backgroundColor: 'transparent',
-                        margin: isMobile ? '8px 12px' : '12px 16px',
+    const ActionSelectionContent = () => (
+        <Box 
+            sx={{ 
+                display: 'flex', 
+                flexDirection: isMobile ? 'column' : 'row',
+                alignItems: isMobile ? 'stretch' : 'center',
+                width: isMobile ? '100%' : isTablet || isSmallDesktop ? '100%' : 'auto',
+                gap: isMobile ? 1 : 1.5,
+                mb: (!isMobile && (isTablet || isSmallDesktop)) ? 1.5 : 0
+            }}
+        >
+            <Typography
+                variant={isMobile ? "bodyL" : "h6"}
+                sx={{
+                    marginRight: isMobile ? 0 : '10px',
+                    color: theme.palette.text.white,
+                    fontWeight: 'bold',
+                    textAlign: isMobile ? 'center' : 'left',
+                    fontSize: isMobile ? '1rem' : isTablet || isSmallDesktop ? '1.1rem' : undefined,
+                    whiteSpace: 'nowrap',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                }}
+            >
+                やりたいことは...
+            </Typography>
+
+            <FormControl variant="outlined" sx={{ 
+                minWidth: isMobile ? '100%' : isTablet ? '300px' : '350px',
+                maxWidth: isMobile ? 'none' : '400px',
+                flex: isMobile ? 'none' : 1,
+                '& .MuiOutlinedInput-root': {
+                    height: isMobile ? '40px' : '44px'
+                }
+            }}>
+                <Select
+                    value={selectedAction}
+                    onChange={handleChange}
+                    disabled={loading}
+                    displayEmpty
+                    renderValue={(value) => {
+                        if (value === "") return "未入力";
+                        const selectedItem = menuItems.find((item) => item.value === value);
+                        return selectedItem ? (isMobile ? selectedItem.shortLabel : selectedItem.label) : "";
+                    }}
+                    sx={{
+                        backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
                         borderRadius: '8px',
-                        padding: isMobile ? '8px' : '12px',
-                        border: '1px solid rgba(255,255,255,0.3)',
-                    }}>
-                        <Toolbar 
-                            sx={{ 
-                                display: 'flex', 
-                                flexDirection: isMobile ? 'column' : 'row',
-                                justifyContent: 'space-between', 
-                                alignItems: isMobile ? 'stretch' : 'center',
-                                gap: isMobile ? 2 : 2,
-                                padding: '0 !important',
-                                minHeight: 'auto !important',
-                                flexWrap: isMobile ? 'nowrap' : 'wrap'
+                        color:
+                            selectedAction === ""
+                                ? theme.palette.text.secondary
+                                : theme.palette.text.primary,
+                        padding: isMobile ? '4px 8px' : '4px 8px',
+                        '.MuiSelect-icon': { 
+                            color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
+                            right: isMobile ? '8px' : '10px'
+                        },
+                        fontSize: isMobile ? '0.9rem' : '0.95rem',
+                        '& .MuiSelect-select': {
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            fontWeight: 500
+                        },
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}
+                    MenuProps={{
+                        PaperProps: {
+                            style: {
+                                maxHeight: isMobile ? 240 : 320,
+                                width: 'auto',
+                                maxWidth: '85vw',
+                                borderRadius: '8px',
+                                marginTop: '8px'
+                            },
+                        },
+                    }}
+                >
+                    {menuItems.map((item) => (
+                        <MenuItem 
+                            key={item.value} 
+                            value={item.value}
+                            sx={{
+                                fontSize: isMobile ? '0.9rem' : '0.95rem',
+                                minHeight: isMobile ? '40px' : '48px',
+                                fontWeight: 400
                             }}
                         >
-                            {/* 目的選択部分 */}
-                            <Box 
+                            {item.label}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+        </Box>
+    );
+
+    return (
+        <>
+            {/* 固定表示される選択肢 - スクロール時のみ表示 */}
+            {!isSpecialPage() && isScrolled && (
+                <Paper
+                    elevation={3}
+                    sx={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        zIndex: 1100,
+                        backgroundColor: theme.palette.primary.main,
+                        padding: isMobile ? '8px 12px' : '12px 16px',
+                        borderRadius: '0 0 8px 8px',
+                        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
+                        transition: 'all 0.3s ease-in-out',
+                        transform: isScrolled ? 'translateY(0)' : 'translateY(-100%)',
+                    }}
+                >
+                    <ActionSelectionContent />
+                </Paper>
+            )}
+            
+            {/* 元のヘッダー */}
+            <AppBar position="static" color="primary" ref={headerRef} sx={{ 
+                padding: isMobile ? '8px 0' : '8px 0',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                borderRadius: '0 0 8px 8px',
+            }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                    {/* ロゴとタイトル部分 */}
+                    <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        alignItems: 'center',
+                        borderBottom: isMobile || isSpecialPage() ? 'none' : '1px solid rgba(255,255,255,0.3)',
+                        py: 1
+                    }}>
+                        <RouterLink to="/" aria-label="トップページへ戻る">
+                            <Box
+                                component="img"
+                                src={logo}
+                                alt="目的ベースダッシュボードのロゴ"
+                                sx={{ 
+                                    height: isMobile ? '42px' : '54px', 
+                                    objectFit: 'contain'
+                                }}
+                            />
+                        </RouterLink>
+                    </Box>
+                    
+                    {/* コントロール部分 - 特定のページでは表示しない */}
+                    {!isSpecialPage() && (
+                        <Paper elevation={0} sx={{
+                            backgroundColor: 'transparent',
+                            margin: isMobile ? '8px 12px' : '12px 16px',
+                            borderRadius: '8px',
+                            padding: isMobile ? '8px' : '12px',
+                            border: '1px solid rgba(255,255,255,0.3)',
+                        }}>
+                            <Toolbar 
                                 sx={{ 
                                     display: 'flex', 
                                     flexDirection: isMobile ? 'column' : 'row',
+                                    justifyContent: 'space-between', 
                                     alignItems: isMobile ? 'stretch' : 'center',
-                                    width: isMobile ? '100%' : isTablet || isSmallDesktop ? '100%' : 'auto',
-                                    gap: isMobile ? 1 : 1.5,
-                                    mb: (!isMobile && (isTablet || isSmallDesktop)) ? 1.5 : 0
+                                    gap: isMobile ? 2 : 2,
+                                    padding: '0 !important',
+                                    minHeight: 'auto !important',
+                                    flexWrap: isMobile ? 'nowrap' : 'wrap'
                                 }}
                             >
-                                <Typography
-                                    variant={isMobile ? "bodyL" : "h6"}
-                                    sx={{
-                                        marginRight: isMobile ? 0 : '10px',
-                                        color: theme.palette.text.white,
-                                        fontWeight: 'bold',
-                                        textAlign: isMobile ? 'center' : 'left',
-                                        fontSize: isMobile ? '1rem' : isTablet || isSmallDesktop ? '1.1rem' : undefined,
-                                        whiteSpace: 'nowrap',
-                                        textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                                {/* 目的選択部分 */}
+                                <ActionSelectionContent />
+                                
+                                {/* 年月選択部分 */}
+                                <Box 
+                                    sx={{ 
+                                        display: 'flex', 
+                                        flexDirection: isMobile ? 'column' : 'row',
+                                        alignItems: isMobile ? 'stretch' : 'center', 
+                                        gap: isMobile ? 1 : 1.5, 
+                                        marginLeft: isMobile ? 0 : '0',
+                                        marginTop: isMobile ? 0 : 0,
+                                        width: isMobile ? '100%' : 'auto',
+                                        justifyContent: 'flex-end',
+                                        flexWrap: 'nowrap'
                                     }}
                                 >
-                                    やりたいことは...
-                                </Typography>
-
-                                <FormControl variant="outlined" sx={{ 
-                                    minWidth: isMobile ? '100%' : isTablet ? '300px' : '350px',
-                                    maxWidth: isMobile ? 'none' : '400px',
-                                    flex: isMobile ? 'none' : 1,
-                                    '& .MuiOutlinedInput-root': {
-                                        height: isMobile ? '40px' : '44px'
-                                    }
-                                }}>
-                                    <Select
-                                        value={selectedAction}
-                                        onChange={handleChange}
-                                        disabled={loading}
-                                        displayEmpty
-                                        renderValue={(value) => {
-                                            if (value === "") return "未入力";
-                                            const selectedItem = menuItems.find((item) => item.value === value);
-                                            return selectedItem ? (isMobile ? selectedItem.shortLabel : selectedItem.label) : "";
-                                        }}
-                                        sx={{
-                                            backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
-                                            borderRadius: '8px',
-                                            color:
-                                                selectedAction === ""
-                                                    ? theme.palette.text.secondary
-                                                    : theme.palette.text.primary,
-                                            padding: isMobile ? '4px 8px' : '4px 8px',
-                                            '.MuiSelect-icon': { 
-                                                color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
-                                                right: isMobile ? '8px' : '10px'
-                                            },
+                                    <Typography 
+                                        variant="labelL" 
+                                        sx={{ 
+                                            color: theme.palette.text.white, 
+                                            fontWeight: 'bold',
+                                            textAlign: isMobile ? 'center' : 'left',
                                             fontSize: isMobile ? '0.9rem' : '0.95rem',
-                                            '& .MuiSelect-select': {
-                                                whiteSpace: 'nowrap',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                fontWeight: 500
-                                            },
-                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                        }}
-                                        MenuProps={{
-                                            PaperProps: {
-                                                style: {
-                                                    maxHeight: isMobile ? 240 : 320,
-                                                    width: 'auto',
-                                                    maxWidth: '85vw',
-                                                    borderRadius: '8px',
-                                                    marginTop: '8px'
-                                                },
-                                            },
+                                            whiteSpace: 'nowrap',
+                                            textShadow: '0 1px 2px rgba(0,0,0,0.2)'
                                         }}
                                     >
-                                        {menuItems.map((item) => (
-                                            <MenuItem 
-                                                key={item.value} 
-                                                value={item.value}
-                                                sx={{
-                                                    fontSize: isMobile ? '0.9rem' : '0.95rem',
-                                                    minHeight: isMobile ? '40px' : '48px',
-                                                    fontWeight: 400
-                                                }}
-                                            >
-                                                {item.label}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            </Box>
-                            
-                            {/* 年月選択部分 */}
-                            <Box 
-                                sx={{ 
-                                    display: 'flex', 
-                                    flexDirection: isMobile ? 'column' : 'row',
-                                    alignItems: isMobile ? 'stretch' : 'center', 
-                                    gap: isMobile ? 1 : 1.5, 
-                                    marginLeft: isMobile ? 0 : '0',
-                                    marginTop: isMobile ? 0 : 0,
-                                    width: isMobile ? '100%' : 'auto',
-                                    justifyContent: 'flex-end',
-                                    flexWrap: 'nowrap'
-                                }}
-                            >
-                                <Typography 
-                                    variant="labelL" 
-                                    sx={{ 
-                                        color: theme.palette.text.white, 
-                                        fontWeight: 'bold',
-                                        textAlign: isMobile ? 'center' : 'left',
-                                        fontSize: isMobile ? '0.9rem' : '0.95rem',
-                                        whiteSpace: 'nowrap',
-                                        textShadow: '0 1px 2px rgba(0,0,0,0.2)'
-                                    }}
-                                >
-                                    データの年・月
-                                </Typography>
-                                
+                                        データの年・月
+                                    </Typography>
+                                    
+                                    <Box 
+                                        sx={{ 
+                                            display: 'flex', 
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            width: isMobile ? '100%' : 'auto',
+                                            gap: isMobile ? 0.8 : 1.2,
+                                            flexWrap: 'nowrap'
+                                        }}
+                                    >
+                                        <Tooltip title="前の月">
+                                            <span>
+                                                {isMobile || isTablet ? (
+                                                    <IconButton 
+                                                        onClick={handlePreviousMonth}
+                                                        disabled={loading || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
+                                                        sx={{ 
+                                                            width: '40px',
+                                                            height: '40px',
+                                                            bgcolor: 'white', 
+                                                            color: theme.palette.primary.main,
+                                                            '&:hover': {
+                                                                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                                                            },
+                                                            '&:disabled': {
+                                                                bgcolor: 'rgba(255, 255, 255, 0.6)',
+                                                                color: 'rgba(0, 0, 0, 0.38)',
+                                                            },
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                            borderRadius: '8px'
+                                                        }}
+                                                    >
+                                                        <ArrowBackIosNewIcon fontSize="small" />
+                                                    </IconButton>
+                                                ) : (
+                                                    <Button 
+                                                        variant="contained"
+                                                        onClick={handlePreviousMonth}
+                                                        disabled={loading || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
+                                                        sx={{ 
+                                                            minWidth: '40px',
+                                                            maxWidth: isSmallDesktop ? '60px' : '80px',
+                                                            bgcolor: 'white', 
+                                                            color: theme.palette.primary.main,
+                                                            '&:hover': {
+                                                                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                                                            },
+                                                            '&:disabled': {
+                                                                bgcolor: 'rgba(255, 255, 255, 0.6)',
+                                                                color: 'rgba(0, 0, 0, 0.38)',
+                                                            },
+                                                            px: isSmallDesktop ? 1 : 2,
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                            borderRadius: '8px',
+                                                            height: '40px'
+                                                        }}
+                                                    >
+                                                        {isSmallDesktop ? <ArrowBackIosNewIcon fontSize="small" /> : "前の月"}
+                                                    </Button>
+                                                )}
+                                            </span>
+                                        </Tooltip>
+                                        
+                                        <Box sx={{ 
+                                            display: 'flex', 
+                                            flex: isMobile ? 2 : 'none',
+                                            gap: isMobile ? 0.8 : 1
+                                        }}>
+                                            <FormControl variant="outlined" sx={{ 
+                                                width: isMobile ? '50%' : isSmallDesktop ? 110 : 140,
+                                                '& .MuiOutlinedInput-root': {
+                                                    height: isMobile ? '40px' : '40px'
+                                                }
+                                            }}>
+                                                <Tooltip title="年を選択">
+                                                    <Select
+                                                        value={selectedYear}
+                                                        onChange={handleYearChange}
+                                                        disabled={loading}
+                                                        displayEmpty
+                                                        renderValue={(value) => {
+                                                            if (value === "") return "----年";
+                                                            const selectedYear = yearItems.find((item) => item.value === value);
+                                                            return selectedYear ? selectedYear.label + "年" : "";
+                                                        }}
+                                                        sx={{
+                                                            backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
+                                                            borderRadius: '8px',
+                                                            '.MuiSelect-icon': { 
+                                                                color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
+                                                                right: isMobile ? '4px' : '8px',
+                                                                fontSize: isMobile ? '1rem' : '1.25rem'
+                                                            },
+                                                            ...theme.typography.bodyM,
+                                                            padding: isMobile ? '4px 4px' : '4px 8px',
+                                                            '& .MuiOutlinedInput-input': {
+                                                                padding: isMobile ? '4px 4px 4px 8px' : isSmallDesktop ? '4px 4px' : '4px 8px',
+                                                            },
+                                                            color:
+                                                                selectedYear === ""
+                                                                    ? theme.palette.text.secondary
+                                                                    : theme.palette.text.primary,
+                                                            fontSize: isMobile ? '0.9rem' : '0.95rem',
+                                                            fontWeight: 500,
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                        }}
+                                                        MenuProps={{
+                                                            PaperProps: {
+                                                                style: {
+                                                                    borderRadius: '8px',
+                                                                    marginTop: '8px'
+                                                                }
+                                                            }
+                                                        }}
+                                                    >
+                                                        {yearItems.map((item) => (
+                                                            <MenuItem 
+                                                                key={item.value} 
+                                                                value={item.value} 
+                                                                sx={{
+                                                                    ...theme.typography.bodyM,
+                                                                    fontSize: isMobile ? '0.9rem' : '0.95rem',
+                                                                    minHeight: isMobile ? '40px' : '48px'
+                                                                }}
+                                                            >
+                                                                {item.label}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                </Tooltip>
+                                            </FormControl>
+                                            
+                                            <FormControl variant="outlined" sx={{ 
+                                                width: isMobile ? '50%' : isSmallDesktop ? 100 : 120,
+                                                '& .MuiOutlinedInput-root': {
+                                                    height: isMobile ? '40px' : '40px'
+                                                }
+                                            }}>
+                                                <Tooltip title="月を選択">
+                                                    <Select
+                                                        value={selectedMonth}
+                                                        onChange={handleMonthChange}
+                                                        disabled={loading || !selectedYear}
+                                                        displayEmpty
+                                                        renderValue={(value) => {
+                                                            if (value === "") return "--月";
+                                                            const selectedMonth = availableMonths.find((item) => item.value === value);
+                                                            return selectedMonth ? selectedMonth.label + "月" : "";
+                                                        }}
+                                                        sx={{
+                                                            backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
+                                                            borderRadius: '8px',
+                                                            '.MuiSelect-icon': { 
+                                                                color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
+                                                                right: isMobile ? '4px' : '8px',
+                                                                fontSize: isMobile ? '1rem' : '1.25rem'
+                                                            },
+                                                            ...theme.typography.bodyM,
+                                                            padding: isMobile ? '4px 4px' : '4px 8px',
+                                                            '& .MuiOutlinedInput-input': {
+                                                                padding: isMobile ? '4px 4px 4px 8px' : isSmallDesktop ? '4px 4px' : '4px 8px',
+                                                            },
+                                                            color:
+                                                                selectedMonth === ""
+                                                                    ? theme.palette.text.secondary
+                                                                    : theme.palette.text.primary,
+                                                            fontSize: isMobile ? '0.9rem' : '0.95rem',
+                                                            fontWeight: 500,
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                        }}
+                                                        MenuProps={{
+                                                            PaperProps: {
+                                                                style: {
+                                                                    borderRadius: '8px',
+                                                                    marginTop: '8px'
+                                                                }
+                                                            }
+                                                        }}
+                                                    >
+                                                        {availableMonths.map((item) => (
+                                                            <MenuItem 
+                                                                key={item.value} 
+                                                                value={item.value} 
+                                                                sx={{
+                                                                    ...theme.typography.bodyM,
+                                                                    fontSize: isMobile ? '0.9rem' : '0.95rem',
+                                                                    minHeight: isMobile ? '40px' : '48px'
+                                                                }}
+                                                            >
+                                                                {item.label}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                </Tooltip>
+                                            </FormControl>
+                                        </Box>
+                                        
+                                        <Tooltip title="次の月">
+                                            <span>
+                                                {isMobile || isTablet ? (
+                                                    <IconButton
+                                                        onClick={handleNextMonth}
+                                                        disabled={loading || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
+                                                        sx={{ 
+                                                            width: '40px',
+                                                            height: '40px',
+                                                            bgcolor: 'white', 
+                                                            color: theme.palette.primary.main,
+                                                            '&:hover': {
+                                                                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                                                            },
+                                                            '&:disabled': {
+                                                                bgcolor: 'rgba(255, 255, 255, 0.6)',
+                                                                color: 'rgba(0, 0, 0, 0.38)',
+                                                            },
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                            borderRadius: '8px'
+                                                        }}
+                                                    >
+                                                        <ArrowForwardIosIcon fontSize="small" />
+                                                    </IconButton>
+                                                ) : (
+                                                    <Button 
+                                                        variant="contained"
+                                                        onClick={handleNextMonth}
+                                                        disabled={loading || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
+                                                        sx={{ 
+                                                            minWidth: '40px',
+                                                            maxWidth: isSmallDesktop ? '60px' : '80px',
+                                                            bgcolor: 'white', 
+                                                            color: theme.palette.primary.main,
+                                                            '&:hover': {
+                                                                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                                                            },
+                                                            '&:disabled': {
+                                                                bgcolor: 'rgba(255, 255, 255, 0.6)',
+                                                                color: 'rgba(0, 0, 0, 0.38)',
+                                                            },
+                                                            px: isSmallDesktop ? 1 : 2,
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                            borderRadius: '8px',
+                                                            height: '40px'
+                                                        }}
+                                                    >
+                                                        {isSmallDesktop ? <ArrowForwardIosIcon fontSize="small" /> : "次の月"}
+                                                    </Button>
+                                                )}
+                                            </span>
+                                        </Tooltip>
+                                    </Box>
+                                </Box>
+
+                                {/* 共有ボタンとカラーパレットスイッチャー */}
                                 <Box 
                                     sx={{ 
                                         display: 'flex', 
                                         flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        width: isMobile ? '100%' : 'auto',
-                                        gap: isMobile ? 0.8 : 1.2,
-                                        flexWrap: 'nowrap'
+                                        alignItems: 'center', 
+                                        gap: 1.5, 
+                                        ml: isMobile ? 0 : 1
                                     }}
                                 >
-                                    <Tooltip title="前の月">
-                                        <span>
-                                            {isMobile || isTablet ? (
-                                                <IconButton 
-                                                    onClick={handlePreviousMonth}
-                                                    disabled={loading || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
-                                                    sx={{ 
-                                                        width: '40px',
-                                                        height: '40px',
-                                                        bgcolor: 'white', 
-                                                        color: theme.palette.primary.main,
-                                                        '&:hover': {
-                                                            bgcolor: 'rgba(255, 255, 255, 0.9)',
-                                                        },
-                                                        '&:disabled': {
-                                                            bgcolor: 'rgba(255, 255, 255, 0.6)',
-                                                            color: 'rgba(0, 0, 0, 0.38)',
-                                                        },
-                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                                                        borderRadius: '8px'
-                                                    }}
-                                                >
-                                                    <ArrowBackIosNewIcon fontSize="small" />
-                                                </IconButton>
-                                            ) : (
-                                                <Button 
-                                                    variant="contained"
-                                                    onClick={handlePreviousMonth}
-                                                    disabled={loading || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
-                                                    sx={{ 
-                                                        minWidth: '40px',
-                                                        maxWidth: isSmallDesktop ? '60px' : '80px',
-                                                        bgcolor: 'white', 
-                                                        color: theme.palette.primary.main,
-                                                        '&:hover': {
-                                                            bgcolor: 'rgba(255, 255, 255, 0.9)',
-                                                        },
-                                                        '&:disabled': {
-                                                            bgcolor: 'rgba(255, 255, 255, 0.6)',
-                                                            color: 'rgba(0, 0, 0, 0.38)',
-                                                        },
-                                                        px: isSmallDesktop ? 1 : 2,
-                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                                                        borderRadius: '8px',
-                                                        height: '40px'
-                                                    }}
-                                                >
-                                                    {isSmallDesktop ? <ArrowBackIosNewIcon fontSize="small" /> : "前の月"}
-                                                </Button>
-                                            )}
-                                        </span>
-                                    </Tooltip>
-                                    
-                                    <Box sx={{ 
-                                        display: 'flex', 
-                                        flex: isMobile ? 2 : 'none',
-                                        gap: isMobile ? 0.8 : 1
-                                    }}>
-                                        <FormControl variant="outlined" sx={{ 
-                                            width: isMobile ? '50%' : isSmallDesktop ? 110 : 140,
-                                            '& .MuiOutlinedInput-root': {
-                                                height: isMobile ? '40px' : '40px'
-                                            }
-                                        }}>
-                                            <Tooltip title="年を選択">
-                                                <Select
-                                                    value={selectedYear}
-                                                    onChange={handleYearChange}
-                                                    disabled={loading}
-                                                    displayEmpty
-                                                    renderValue={(value) => {
-                                                        if (value === "") return "----年";
-                                                        const selectedYear = yearItems.find((item) => item.value === value);
-                                                        return selectedYear ? selectedYear.label + "年" : "";
-                                                    }}
-                                                    sx={{
-                                                        backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
-                                                        borderRadius: '8px',
-                                                        '.MuiSelect-icon': { 
-                                                            color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
-                                                            right: isMobile ? '4px' : '8px',
-                                                            fontSize: isMobile ? '1rem' : '1.25rem'
-                                                        },
-                                                        ...theme.typography.bodyM,
-                                                        padding: isMobile ? '4px 4px' : '4px 8px',
-                                                        '& .MuiOutlinedInput-input': {
-                                                            padding: isMobile ? '4px 4px 4px 8px' : isSmallDesktop ? '4px 4px' : '4px 8px',
-                                                        },
-                                                        color:
-                                                            selectedYear === ""
-                                                                ? theme.palette.text.secondary
-                                                                : theme.palette.text.primary,
-                                                        fontSize: isMobile ? '0.9rem' : '0.95rem',
-                                                        fontWeight: 500,
-                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                                    }}
-                                                    MenuProps={{
-                                                        PaperProps: {
-                                                            style: {
-                                                                borderRadius: '8px',
-                                                                marginTop: '8px'
-                                                            }
-                                                        }
-                                                    }}
-                                                >
-                                                    {yearItems.map((item) => (
-                                                        <MenuItem 
-                                                            key={item.value} 
-                                                            value={item.value} 
-                                                            sx={{
-                                                                ...theme.typography.bodyM,
-                                                                fontSize: isMobile ? '0.9rem' : '0.95rem',
-                                                                minHeight: isMobile ? '40px' : '48px'
-                                                            }}
-                                                        >
-                                                            {item.label}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </Tooltip>
-                                        </FormControl>
-                                        
-                                        <FormControl variant="outlined" sx={{ 
-                                            width: isMobile ? '50%' : isSmallDesktop ? 100 : 120,
-                                            '& .MuiOutlinedInput-root': {
-                                                height: isMobile ? '40px' : '40px'
-                                            }
-                                        }}>
-                                            <Tooltip title="月を選択">
-                                                <Select
-                                                    value={selectedMonth}
-                                                    onChange={handleMonthChange}
-                                                    disabled={loading || !selectedYear}
-                                                    displayEmpty
-                                                    renderValue={(value) => {
-                                                        if (value === "") return "--月";
-                                                        const selectedMonth = availableMonths.find((item) => item.value === value);
-                                                        return selectedMonth ? selectedMonth.label + "月" : "";
-                                                    }}
-                                                    sx={{
-                                                        backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
-                                                        borderRadius: '8px',
-                                                        '.MuiSelect-icon': { 
-                                                            color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
-                                                            right: isMobile ? '4px' : '8px',
-                                                            fontSize: isMobile ? '1rem' : '1.25rem'
-                                                        },
-                                                        ...theme.typography.bodyM,
-                                                        padding: isMobile ? '4px 4px' : '4px 8px',
-                                                        '& .MuiOutlinedInput-input': {
-                                                            padding: isMobile ? '4px 4px 4px 8px' : isSmallDesktop ? '4px 4px' : '4px 8px',
-                                                        },
-                                                        color:
-                                                            selectedMonth === ""
-                                                                ? theme.palette.text.secondary
-                                                                : theme.palette.text.primary,
-                                                        fontSize: isMobile ? '0.9rem' : '0.95rem',
-                                                        fontWeight: 500,
-                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                                    }}
-                                                    MenuProps={{
-                                                        PaperProps: {
-                                                            style: {
-                                                                borderRadius: '8px',
-                                                                marginTop: '8px'
-                                                            }
-                                                        }
-                                                    }}
-                                                >
-                                                    {availableMonths.map((item) => (
-                                                        <MenuItem 
-                                                            key={item.value} 
-                                                            value={item.value} 
-                                                            sx={{
-                                                                ...theme.typography.bodyM,
-                                                                fontSize: isMobile ? '0.9rem' : '0.95rem',
-                                                                minHeight: isMobile ? '40px' : '48px'
-                                                            }}
-                                                        >
-                                                            {item.label}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </Tooltip>
-                                        </FormControl>
-                                    </Box>
-                                    
-                                    <Tooltip title="次の月">
-                                        <span>
-                                            {isMobile || isTablet ? (
-                                                <IconButton
-                                                    onClick={handleNextMonth}
-                                                    disabled={loading || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
-                                                    sx={{ 
-                                                        width: '40px',
-                                                        height: '40px',
-                                                        bgcolor: 'white', 
-                                                        color: theme.palette.primary.main,
-                                                        '&:hover': {
-                                                            bgcolor: 'rgba(255, 255, 255, 0.9)',
-                                                        },
-                                                        '&:disabled': {
-                                                            bgcolor: 'rgba(255, 255, 255, 0.6)',
-                                                            color: 'rgba(0, 0, 0, 0.38)',
-                                                        },
-                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                                                        borderRadius: '8px'
-                                                    }}
-                                                >
-                                                    <ArrowForwardIosIcon fontSize="small" />
-                                                </IconButton>
-                                            ) : (
-                                                <Button 
-                                                    variant="contained"
-                                                    onClick={handleNextMonth}
-                                                    disabled={loading || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
-                                                    sx={{ 
-                                                        minWidth: '40px',
-                                                        maxWidth: isSmallDesktop ? '60px' : '80px',
-                                                        bgcolor: 'white', 
-                                                        color: theme.palette.primary.main,
-                                                        '&:hover': {
-                                                            bgcolor: 'rgba(255, 255, 255, 0.9)',
-                                                        },
-                                                        '&:disabled': {
-                                                            bgcolor: 'rgba(255, 255, 255, 0.6)',
-                                                            color: 'rgba(0, 0, 0, 0.38)',
-                                                        },
-                                                        px: isSmallDesktop ? 1 : 2,
-                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                                                        borderRadius: '8px',
-                                                        height: '40px'
-                                                    }}
-                                                >
-                                                    {isSmallDesktop ? <ArrowForwardIosIcon fontSize="small" /> : "次の月"}
-                                                </Button>
-                                            )}
-                                        </span>
-                                    </Tooltip>
+                                    <ShareButton 
+                                        variant='button' 
+                                        size={isMobile ? 'small' : 'medium'} 
+                                    />
+                                    <ColorPaletteSwitcher />
                                 </Box>
-                            </Box>
-
-                            {/* 共有ボタンとカラーパレットスイッチャー */}
-                            <Box 
-                                sx={{ 
-                                    display: 'flex', 
-                                    flexDirection: 'row',
-                                    alignItems: 'center', 
-                                    gap: 1.5, 
-                                    ml: isMobile ? 0 : 1
-                                }}
-                            >
-                                <ShareButton 
-                                    variant='button' 
-                                    size={isMobile ? 'small' : 'medium'} 
-                                />
-                                <ColorPaletteSwitcher />
-                            </Box>
-                        </Toolbar>
-                    </Paper>
-                )}
-            </Box>
-        </AppBar>
+                            </Toolbar>
+                        </Paper>
+                    )}
+                </Box>
+            </AppBar>
+        </>
     );
 }
 
