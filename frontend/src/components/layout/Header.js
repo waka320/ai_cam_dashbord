@@ -29,7 +29,7 @@ function Header() {
 
     // 特定のページかどうかをチェック
     const isSpecialPage = () => {
-        return ['/terms', '/privacy-policy', '/sitemap'].includes(location.pathname);
+        return ['/terms', '/how-to-use', '/sitemap'].includes(location.pathname);
     };
 
     const today = new Date();
