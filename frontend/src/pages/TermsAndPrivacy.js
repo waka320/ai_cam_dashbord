@@ -163,7 +163,7 @@ const TermsAndPrivacy = () => {
                 <>
                   <Box sx={{ mb: 4 }}>
                     <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>
-                      1. 事業者情報
+                      1. 管理者
                     </Typography>
                     <Typography variant="body1">
                       本サービス「目的ベースダッシュボード」は以下の事業者が提供・運営しています。
@@ -179,7 +179,7 @@ const TermsAndPrivacy = () => {
                         <ListItemText primary="連絡先：xxx@xxx.nagoya-u.ac.jp（仮）" />
                       </ListItem>
                       <ListItem sx={{ py: 0.5 }}>
-                        <ListItemText primary="研究責任者：遠藤 守" />
+                        <ListItemText primary="管理者：若松ゆうき" />
                       </ListItem>
                     </List>
                   </Box>

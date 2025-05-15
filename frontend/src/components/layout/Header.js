@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { AppBar, Toolbar, Typography, Select, MenuItem, Box, FormControl, Button, useMediaQuery, IconButton, Tooltip, Paper } from '@mui/material';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -28,9 +28,9 @@ function Header() {
     const location = useLocation();
 
     // 特定のページかどうかをチェック
-    const isSpecialPage = () => {
+    const isSpecialPage = useCallback(() => {
         return ['/terms', '/how-to-use', '/sitemap'].includes(location.pathname);
-    };
+    }, [location.pathname]);
 
     const today = new Date();
     const currentYear = today.getFullYear();
