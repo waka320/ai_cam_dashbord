@@ -179,7 +179,7 @@ const TermsAndPrivacy = () => {
                         <ListItemText primary="連絡先：xxx@xxx.nagoya-u.ac.jp（仮）" />
                       </ListItem>
                       <ListItem sx={{ py: 0.5 }}>
-                        <ListItemText primary="管理者：若松ゆうき" />
+                        <ListItemText primary="管理者：若松勇希" />
                       </ListItem>
                     </List>
                   </Box>

@@ -2,12 +2,14 @@
 
 // パレット名の定義
 export const COLOR_PALETTE_NAMES = {
-    GREEN_YELLOW_RED_ONE: '緑→黄→赤①',
-    GREEN_YELLOW_RED: '緑→黄→赤②',
-    GREEN_YELLOW_RED_ALT: '緑→黄→赤③',
+    GREEN_YELLOW_RED_ONE: '緑→黄→赤',
+    GREEN_YELLOW_RED: '白→黄→赤',
+    WHITE_RED: '白→赤',
+    PASTELE_ONE: 'パステル①',
+    PASTELE_TWO: 'パステル②',
+    PASTELE_THREE: 'パステル③',
     BLUE_TO_RED: '青→赤',
-    VIRIDIS: 'Viridis',
-    VIRIDIS_REVERSE: 'Viridis（反転）',
+    VIRIDIS_REVERSE: 'Viridis',
     WHITE_TO_BLUE: '白→青→黒',
     RDYLBU_R: 'RdYlBu（反転）',
     JET: 'jet',
@@ -27,8 +29,8 @@ export const TEXT_COLOR_SETTINGS = {
     threshold: 7,      
     inverted: false
   },
-  GREEN_YELLOW_RED_ALT: { 
-    threshold: 7,      
+  WHITE_RED: { 
+    threshold: 6,      
     inverted: false
   },
   BLUE_TO_RED: { 
@@ -66,6 +68,18 @@ export const TEXT_COLOR_SETTINGS = {
   CMTHERMAL: {
     threshold: 6,       // 3以上で白文字（暗い部分）
     inverted: true      // 反転パターン（高い混雑度で黒文字）
+  },
+  PASTELE_ONE: {
+    mode: 'range',
+    blackRanges: [[3, 8]]      // 通常パターン
+  },
+  PASTELE_TWO: {
+    mode: 'range',
+    blackRanges: [[3, 8]]      // 通常パターン
+  },
+  PASTELE_THREE: {
+    mode: 'range',
+    blackRanges: [[3, 8]]      // 通常パターン
   },
 
 };
@@ -153,29 +167,68 @@ export const colorPalettes = {
     }
   },
   [COLOR_PALETTE_NAMES.GREEN_YELLOW_RED]: (congestion) => {
-    if (congestion === 1) return '#e8f5e9'; // 非常に薄い緑
-    if (congestion === 2) return '#c8e6c9'; // 薄い緑
-    if (congestion === 3) return '#a5d6a7'; // 明るい緑
-    if (congestion === 4) return '#fff59d'; // 黄色
-    if (congestion === 5) return '#ffe082'; // 薄いオレンジ
-    if (congestion === 6) return '#ffcc80'; // オレンジ
-    if (congestion === 7) return '#ffab91'; // 薄い赤オレンジ
-    if (congestion === 8) return '#ef9a9a'; // 薄い赤
-    if (congestion === 9) return '#e57373'; // 中間の赤
-    if (congestion === 10) return '#ef5350'; // 濃い赤
+    if (congestion === 1) return '#f9f1dc'; 
+    if (congestion === 2) return '#e1ed8a'; 
+    if (congestion === 3) return '#ffee90'; 
+    if (congestion === 4) return '#ffdd50'; 
+    if (congestion === 5) return '#ffd069'; 
+    if (congestion === 6) return '#f6ac0c'; 
+    if (congestion === 7) return '#f28b06'; 
+    if (congestion === 8) return '#e35911'; 
+    if (congestion === 9) return '#d84b35'; 
+    if (congestion === 10) return '#c61a1a';
     return '#FFF';
   },
-  [COLOR_PALETTE_NAMES.GREEN_YELLOW_RED_ALT]: (congestion) => {
-    if (congestion === 1) return '#f1f8e9'; // 非常に明るい緑
-    if (congestion === 2) return '#dcedc8'; // 明るい緑
-    if (congestion === 3) return '#c5e1a5'; // 中程度の緑
-    if (congestion === 4) return '#aed581'; // やや暗い緑
-    if (congestion === 5) return '#fff176'; // 明るい黄色
-    if (congestion === 6) return '#ffd54f'; // 暗い黄色
-    if (congestion === 7) return '#ffb74d'; // オレンジ
-    if (congestion === 8) return '#ff8a65'; // 明るい赤
-    if (congestion === 9) return '#e57373'; // 中程度の赤
-    if (congestion === 10) return '#d32f2f'; // 暗い赤
+  [COLOR_PALETTE_NAMES.PASTELE_ONE]: (congestion) => {
+    if (congestion === 1) return '#f8fcff'; 
+    if (congestion === 2) return '#ddf2fd'; 
+    if (congestion === 3) return '#aed6f4'; 
+    if (congestion === 4) return '#c8eabb'; 
+    if (congestion === 5) return '#ffeb88'; 
+    if (congestion === 6) return '#ffdf57'; 
+    if (congestion === 7) return '#ffc271'; 
+    if (congestion === 8) return '#f49758'; 
+    if (congestion === 9) return '#f48678'; 
+    if (congestion === 10) return '#d85645';
+    return '#FFF';
+  },
+  [COLOR_PALETTE_NAMES.PASTELE_TWO]: (congestion) => {
+    if (congestion === 1) return '#a3cbef'; 
+    if (congestion === 2) return '#a9dbeb'; 
+    if (congestion === 3) return '#b0dd9f'; 
+    if (congestion === 4) return '#e1ed8a'; 
+    if (congestion === 5) return '#ffeb88'; 
+    if (congestion === 6) return '#fcd170'; 
+    if (congestion === 7) return '#ffc271'; 
+    if (congestion === 8) return '#f49758'; 
+    if (congestion === 9) return '#f48678'; 
+    if (congestion === 10) return '#d85645';
+    return '#FFF';
+  },
+  [COLOR_PALETTE_NAMES.PASTELE_THREE]: (congestion) => {
+    if (congestion === 1) return '#4457a5'; 
+    if (congestion === 2) return '#77beed'; 
+    if (congestion === 3) return '#b0e5ff'; 
+    if (congestion === 4) return '#a3e09b'; 
+    if (congestion === 5) return '#d9f0a3'; 
+    if (congestion === 6) return '#fee08b'; 
+    if (congestion === 7) return '#ffb061'; 
+    if (congestion === 8) return '#ff704a'; 
+    if (congestion === 9) return '#ea3f28'; 
+    if (congestion === 10) return '#c61a1a';
+    return '#FFF';
+  },
+  [COLOR_PALETTE_NAMES.WHITE_RED]: (congestion) => {
+    if (congestion === 1) return '#fcf7eb'; 
+    if (congestion === 2) return '#fff1b6'; 
+    if (congestion === 3) return '#fee666'; 
+    if (congestion === 4) return '#ffd110'; 
+    if (congestion === 5) return '#ffbc00'; 
+    if (congestion === 6) return '#ff9d00'; 
+    if (congestion === 7) return '#f27111'; 
+    if (congestion === 8) return '#d3542d'; 
+    if (congestion === 9) return '#c61a1a'; 
+    if (congestion === 10) return '#9e2e2e';
     return '#FFF';
   },
   [COLOR_PALETTE_NAMES.RDYLBU_R]: (congestion) => {
