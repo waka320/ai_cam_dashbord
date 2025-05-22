@@ -69,7 +69,7 @@ function Header() {
         { value: "wti_cog", label: "曜日と時間帯ごとの混雑度が見たい", shortLabel: "曜日・時間帯別混雑度を見る" },
     ];
 
-    const generateYearItems = () => {s
+    const generateYearItems = () => {
         const years = [];
         const startYear = 2021;
         for (let year = startYear; year <= currentYear; year++) {
