@@ -22,7 +22,7 @@ export const COLOR_PALETTE_NAMES = {
 // テキスト色の設定：閾値とパターン（通常または反転）
 export const TEXT_COLOR_SETTINGS = {
   GREEN_YELLOW_RED_ONE: { 
-    threshold: 7,      // 6以上で白文字
+    threshold: 11,      // 6以上で白文字
     inverted: false    // 通常パターン（閾値未満が黒、以上が白）
   },
   GREEN_YELLOW_RED: { 
