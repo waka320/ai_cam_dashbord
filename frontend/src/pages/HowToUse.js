@@ -518,7 +518,7 @@ const HowToUse = () => {
             }}
           >
             <FeedbackIcon sx={{ mr: 1 }} />
-            ご意見はこちらから
+            ご意見を聞かせてください
           </Link>
         </Box>
           
