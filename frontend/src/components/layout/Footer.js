@@ -15,6 +15,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ArticleIcon from '@mui/icons-material/Article';
 import MapIcon from '@mui/icons-material/Map';
+import EmailIcon from '@mui/icons-material/Email';
 // import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import theme from '../../theme/theme';
 
@@ -150,24 +151,39 @@ const Footer = () => {
                   最終更新: 2025年5月
                 </Typography>
               </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <Typography variant="body2" sx={{ mt: 2, mb: 1 }}>
-                  <MuiLink 
-                    href="mailto:nagoya.mdg.info@gmail.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    color="inherit"
-                    aria-label="お問い合わせメールを開く"
-                    sx={{ 
-                      textDecoration: 'none',
-                      '&:hover': { textDecoration: 'underline' },
-                      fontWeight: 500
-                    }}
-                  >
-                    お問い合わせは nagoya.mdg.info@gmail.com まで
-                  </MuiLink>
-                </Typography>
-                </Box>
+
+              <Typography 
+                variant="subtitle2" 
+                fontWeight="bold" 
+                gutterBottom
+                sx={{ display: 'flex', alignItems: 'center', mt: 2 }}
+              >
+                <EmailIcon sx={{ mr: 1, fontSize: '1rem' }} />
+                お問い合わせ
+              </Typography>
+              <Box sx={{ ml: 1 }}>
+                <MuiLink 
+                  href="mailto:nagoya.mdg.info@gmail.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  aria-label="お問い合わせメールを開く"
+                  sx={{ 
+                    color: theme.palette.text.primary,
+                    textDecoration: 'none',
+                    '&:hover': { 
+                      textDecoration: 'underline',
+                      color: theme.palette.primary.main 
+                    },
+                    fontWeight: 500,
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Typography variant="body2">
+                    nagoya.mdg.info@gmail.com
+                  </Typography>
+                </MuiLink>
+              </Box>
             </Box>
           </Box>
           
