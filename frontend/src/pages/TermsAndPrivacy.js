@@ -265,7 +265,7 @@ const TermsAndPrivacy = () => {
               </AccordionSummary>
               <AccordionDetails sx={{ bgcolor: 'white', color: 'text.primary' }}>
                 <Typography variant="body1" paragraph>
-                  本サービスを利用するものとします。したがって、本サービスを利用してなされた行為やその結果生じた損害（第三者に対するものを含みます。以下同じ。）について、利用者が一切の責任を負うことに同意するものとします。
+                  本サービスを利用してなされた行為やその結果生じた損害（第三者に対するものを含みます。以下同じ。）について、利用者が一切の責任を負うことに同意するものとします。
                 </Typography>
                 <Box component="ul" sx={{ pl: 4 }}>
                   <li>
@@ -275,7 +275,7 @@ const TermsAndPrivacy = () => {
                   </li>
                   <li>
                     <Typography variant="body1">
-                      本サービスの情報は、高山市のオープンデータを元に作成していますが、その正確性を保証するものではありません。元データの責任は当研究室では負えません。
+                      本サービスの情報は、高山市のオープンデータを元に作成していますが、その正確性を保証するものではありません。
                     </Typography>
                   </li>
                   <li>
@@ -315,7 +315,7 @@ const TermsAndPrivacy = () => {
               </AccordionSummary>
               <AccordionDetails sx={{ bgcolor: 'white', color: 'text.primary' }}>
                 <Typography variant="body1" paragraph>
-                  利用者は、次に掲げる行為を行ってはならないものとします。利用者の違反行為により生じた損害は、その全てに関して賠償責任を負うものとします。
+                  利用者は、次に掲げる行為を行ってはならないものとします。利用者の違反行為により生じた損害は、その全てに関して賠償責任を本サービスの利用者が負うものとします。
                 </Typography>
                 <Box component="ul" sx={{ pl: 4 }}>
                   <li>
@@ -325,7 +325,7 @@ const TermsAndPrivacy = () => {
                   </li>
                   <li>
                     <Typography variant="body1">
-                      本サービスを商業・営利目的で利用する行為（当研究室の許可を得た場合を除く）
+                      本サービスを複製して商業・営利目的で利用する行為
                     </Typography>
                   </li>
                   <li>
@@ -402,29 +402,6 @@ const TermsAndPrivacy = () => {
             </Accordion>
 
             <Accordion 
-              expanded={expanded === 'terms-8'} 
-              onChange={handleAccordionChange('terms-8')}
-              id="terms-8"
-            >
-              <AccordionSummary 
-                expandIcon={<ExpandMoreIcon />}
-                sx={{ 
-                  bgcolor: '#f5f5f5', // 明るいグレーの背景色
-                  '&:hover': { bgcolor: '#e3f2fd' }, // ホバー時はさらに色を変えて操作性向上
-                  '&.Mui-expanded': { bgcolor: '#e3f2fd' }, // 展開時の背景色
-                  borderRadius: '4px 4px 0 0', // 上部の角を丸くする
-                }}
-              >
-                <Typography variant="h6">8. 研究倫理とデータの信頼性</Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ bgcolor: 'white', color: 'text.primary' }}>
-                <Typography variant="body1">
-                  本サービスは、名古屋大学の研究インテグリティ確保の取り組みに準拠し、データの収集・分析・公開において透明性と公正性を確保します。利用者に提供される分析結果やAIアドバイスについても、その信頼性と限界を明示することに努めます。
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
-
-            <Accordion 
               expanded={expanded === 'terms-9'} 
               onChange={handleAccordionChange('terms-9')}
               id="terms-9"
@@ -438,74 +415,16 @@ const TermsAndPrivacy = () => {
                   borderRadius: '4px 4px 0 0', // 上部の角を丸くする
                 }}
               >
-                <Typography variant="h6">9. 地域DX推進プロジェクトとしての位置づけ</Typography>
+                <Typography variant="h6">8. 地域DX推進プロジェクトとしての位置づけ</Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ bgcolor: 'white', color: 'text.primary' }}>
                 <Typography variant="body1">
-                  本サービスは、浦田研究室が推進する「ICTを活用した産学官民協働による観光まちづくり」の一環として開発されたものであり、名古屋大学が推進する地域DX化の取り組みの実践例です。本サービスの開発・運用を通じて得られた知見は、地域社会のデジタル化推進に活用されます。
+                  本サービスは、遠藤・浦田研究室が推進する「ICTを活用した産学官民協働による観光まちづくり」の一環として開発されたものであり、名古屋大学が推進する地域DX化の取り組みの実践例です。本サービスの開発・運用を通じて得られた知見は、地域社会のデジタル化推進に活用されます。
                 </Typography>
               </AccordionDetails>
             </Accordion>
 
-            <Accordion 
-              expanded={expanded === 'terms-10'} 
-              onChange={handleAccordionChange('terms-10')}
-              id="terms-10"
-            >
-              <AccordionSummary 
-                expandIcon={<ExpandMoreIcon />}
-                sx={{ 
-                  bgcolor: '#f5f5f5', // 明るいグレーの背景色
-                  '&:hover': { bgcolor: '#e3f2fd' }, // ホバー時はさらに色を変えて操作性向上
-                  '&.Mui-expanded': { bgcolor: '#e3f2fd' }, // 展開時の背景色
-                  borderRadius: '4px 4px 0 0', // 上部の角を丸くする
-                }}
-              >
-                <Typography variant="h6">10. 参考文献・リンク</Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ bgcolor: 'white', color: 'text.primary' }}>
-                <Typography variant="body1" paragraph>
-                  本サービスの運営および本規約の作成にあたり、以下の文献・ウェブサイトを参照しています。
-                </Typography>
-                <Box component="ul" sx={{ pl: 4 }}>
-                  <li>
-                    <Typography variant="body1">
-                      高山市「まちなかにおける観光通行量調査データ」: <Link href="https://www.city.takayama.lg.jp/shisei/1000062/1004915/1012977/index.html" target="_blank" rel="noopener noreferrer">
-                        https://www.city.takayama.lg.jp/shisei/1000062/1004915/1012977/index.html
-                      </Link>
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      高山市「オープンデータの利用について」: <Link href="https://www.city.takayama.lg.jp/shisei/1005252/1010628.html" target="_blank" rel="noopener noreferrer">
-                        https://www.city.takayama.lg.jp/shisei/1005252/1010628.html
-                      </Link>
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      名古屋大学「学術データポリシー」: <Link href="https://icts.nagoya-u.ac.jp/ja/datapolicy/" target="_blank" rel="noopener noreferrer">
-                        https://icts.nagoya-u.ac.jp/ja/datapolicy/
-                      </Link>
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      名古屋大学「学術データポリシー解説」: <Link href="https://icts.nagoya-u.ac.jp/ja/datapolicy/commentary/" target="_blank" rel="noopener noreferrer">
-                        https://icts.nagoya-u.ac.jp/ja/datapolicy/commentary/
-                      </Link>
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      名古屋大学「学術データ管理・公開・利活用」: <Link href="https://rdm.nagoya-u.ac.jp" target="_blank" rel="noopener noreferrer">
-                        https://rdm.nagoya-u.ac.jp
-                      </Link>
-                    </Typography>
-                  </li>
-                </Box>
-              </AccordionDetails>
-            </Accordion>
+            
           </Box>
 
           <Divider sx={{ my: 4 }} />
@@ -807,9 +726,7 @@ function getTermsSectionTitle(num) {
     5: '禁止事項',
     6: 'ご利用環境について',
     7: '名古屋大学学術データポリシー',
-    8: '研究倫理とデータの信頼性',
-    9: '地域DX推進プロジェクト',
-    10: '参考文献・リンク'
+    8: '地域DX推進プロジェクト',
   };
   return titles[num] || `セクション${num}`;
 }
