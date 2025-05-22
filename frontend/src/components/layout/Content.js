@@ -92,6 +92,7 @@ function Content() {
                     <Link
                         href="https://docs.google.com/forms/d/e/1FAIpQLSeEalJjup-hR6BN6M8MfETrPn3is0i-5Rskxz_rkEZvI7mvFw/viewform?usp=header"
                         color="inherit"
+                        target="_blank" 
                         sx={{
                             textDecoration: 'none',
                             fontWeight: 500,
