@@ -11,7 +11,7 @@ PURPOSE_MAPPING = {
     "cal_event": "イベントの開催日程を検討したい",
     "cal_training": "研修のタイミングを検討したい",
     "wti_event_effect": "イベントの効果を確認したい",
-    "wti_event_time": "イベントの開催時間を検討したい",
+    "dti_event_time": "イベントの開催時間を検討したい",
     "wti_shift": "アルバイトのシフトを検討したい",
     "dti_open_hour": "お店の営業時間を検討したい",
     "dti_shoping_open_hour": "商店街の営業時間を検討したい",

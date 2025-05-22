@@ -21,7 +21,7 @@ HIGHLIGHT_CONDITIONS = {
 
     # 日時形式のハイライト条件
     "wti_event_effect": {"condition": "highest", "count": 3, "metric": "congestion"},
-    "wti_event_time": {"condition": "highest", "count": 5, "metric": "congestion"},
+    "dti_event_time": {"condition": "highest", "count": 5, "metric": "congestion"},
     "wti_shift": {"condition": "extremes", "count": 3, "metric": "congestion"},
     "wti_cog": {"condition": "extremes", "count": 3, "metric": "congestion"},
     "wti_count": {"condition": "extremes", "count": 3, "metric": "count"},  # 実際の値ベースでハイライト

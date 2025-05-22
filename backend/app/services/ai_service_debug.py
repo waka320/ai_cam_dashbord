@@ -10,7 +10,7 @@ PURPOSE_MAPPING = {
     "cal_event": "イベントの開催日程を検討したい",
     "cal_training": "研修のタイミングを検討したい",
     "wti_event_effect": "イベントの効果を確認したい",
-    "wti_event_time": "イベントの開催時間を検討したい",
+    "dti_event_time": "イベントの開催時間を検討したい",
     "wti_shift": "アルバイトのシフトを検討したい",
     "dti_open_hour": "お店の営業時間を検討したい",
     "dti_shoping_open_hour": "商店街の営業時間を検討したい",
@@ -49,7 +49,7 @@ HIGHLIGHT_CONDITIONS = {
     
     # 日時形式のハイライト条件
     "wti_event_effect": {"condition": "highest", "count": 3, "metric": "congestion"},
-    "wti_event_time": {"condition": "highest", "count": 5, "metric": "congestion"},
+    "dti_event_time": {"condition": "highest", "count": 5, "metric": "congestion"},
     "wti_shift": {"condition": "extremes", "count": 3, "metric": "congestion"},
     "wti_cog": {"condition": "extremes", "count": 3, "metric": "congestion"},
     "wti_count": {"condition": "extremes", "count": 3, "metric": "count"}, # 実際の値ベースでハイライト
@@ -88,7 +88,7 @@ PURPOSE_ANALYSIS_APPROACHES = {
     "cal_event": "イベント日は、人通りが多い日を見つけ、時間帯ごとの人の流れを確認します。滞在時間や曜日による参加しやすさも大切です。",
     "cal_training": "研修には、人通りが少なく静かな環境が確保できる時間帯を探します。午前中や特定の曜日のパターンを見つけます。",
     "wti_event_effect": "イベント効果は、開催日と通常日を比較し、時間帯別の効果や翌日以降への影響も分析します。曜日や天気の影響も確認します。",
-    "wti_event_time": "イベント時間は、人通りが最も多い時間帯を探し、曜日ごとの違いや天気の影響も考慮して最適な時間を提案します。",
+    "dti_event_time": "イベント時間は、人通りが最も多い時間帯を探し、曜日ごとの違いや天気の影響も考慮して最適な時間を提案します。",
     "wti_shift": "アルバイトシフトは、混雑する時間帯を特定し、曜日による傾向や時間帯のピークを分析して、効率的な人員配置を提案します。",
     "dti_open_hour": "お店の営業時間は、人通りのピーク時間と曜日による違いを確認し、平日・休日別の需要を分析して最適な時間を提案します。",
     "dti_shoping_open_hour": "商店街の営業時間は、時間帯ごとの人の流れと客層の違いを考慮し、飲食・物販の需要も分析して統一時間を提案します。",
