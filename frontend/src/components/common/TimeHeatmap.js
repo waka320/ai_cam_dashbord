@@ -119,8 +119,8 @@ const TimeHeatmap = () => {
     );
   }
 
-  // 時間の範囲を定義（0-23時）
-  const hours = Array.from({ length: 24 }, (_, i) => i);
+  // 時間の範囲を定義（7-22時）に修正
+  const hours = Array.from({ length: 16 }, (_, i) => i + 7); // 7時から22時まで
 
   // 曜日の並び順を調整（日曜始まり）
   const orderedDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
