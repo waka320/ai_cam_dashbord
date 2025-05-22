@@ -151,7 +151,7 @@ const Footer = () => {
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <Typography variant="body2" sx={{ mb: 1 }}>
+                <Typography variant="body2" sx={{ mt: 2, mb: 1 }}>
                   <MuiLink 
                     href="mailto:nagoya.mdg.info@gmail.com" 
                     target="_blank" 
