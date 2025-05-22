@@ -150,6 +150,22 @@ const Footer = () => {
                   最終更新: 2025年5月
                 </Typography>
               </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <MuiLink 
+                    href="mailto:nagoya.mdg.info@gmail.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    color="inherit"
+                    aria-label="お問い合わせメールを開く"
+                    sx={{ 
+                      textDecoration: 'none',
+                      '&:hover': { textDecoration: 'underline' },
+                      fontWeight: 500
+                    }}
+                  >
+                    お問い合わせは nagoya.mdg.info@gmail.com まで
+                  </MuiLink>
+                </Box>
             </Box>
           </Box>
           

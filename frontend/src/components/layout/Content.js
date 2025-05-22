@@ -103,7 +103,7 @@ function Content() {
                             },
                         }}
                     >
-                        ご意見・お問い合わせはこちらから
+                        ご意見はこちらから
                     </Link>
                 </Box>
             </Paper>
