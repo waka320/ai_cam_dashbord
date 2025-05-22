@@ -464,17 +464,12 @@ const TermsAndPrivacy = () => {
                 <Box component="ul" sx={{ pl: 4 }}>
                   <li>
                     <Typography variant="body1">
-                      管理者：若松勇希
+                      運営：名古屋大学 遠藤・浦田研究室
                     </Typography>
                   </li>
                   <li>
                     <Typography variant="body1">
-                      所属：名古屋大学 遠藤・浦田研究室 学生 （<Link href="https://mdg.si.i.nagoya-u.ac.jp/" target="_blank" rel="noopener noreferrer">研究室ホームページ</Link>）
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      お問い合わせ：<Link href="https://docs.google.com/forms/d/e/1FAIpQLSeEalJjup-hR6BN6M8MfETrPn3is0i-5Rskxz_rkEZvI7mvFw/viewform?usp=header" target="_blank" rel="noopener noreferrer">お問い合わせフォーム</Link>よりご連絡ください
+                      お問い合わせ：<Link href="mailto:nagoya.mdg.info@gmail.com" target="_blank" rel="noopener noreferrer">nagoya.mdg.info@gmail.com</Link>よりご連絡ください
                     </Typography>
                   </li>
                 </Box>
