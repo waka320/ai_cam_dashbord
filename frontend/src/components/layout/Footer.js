@@ -180,7 +180,7 @@ const Footer = () => {
                   '&:hover': { textDecoration: 'underline' },
                 }}
               >
-                高山市公式ウェブサイト
+                高山市
               </MuiLink>
               <MuiLink 
                 href="https://mdg.si.i.nagoya-u.ac.jp/" 
@@ -237,7 +237,7 @@ const Footer = () => {
               alignItems: { xs: 'flex-start', sm: 'center' }
             }}>
               
-              <RouterLink 
+              {/* <RouterLink 
                 to="/how-to-use" 
                 onClick={handleLinkClick('/how-to-use')}
                 style={{ 
@@ -251,7 +251,7 @@ const Footer = () => {
               >
                 <HelpOutlineIcon fontSize="small" style={{ marginRight: '4px', fontSize: '0.9rem' }} />
                 使い方ガイド
-              </RouterLink>
+              </RouterLink> */}
               
               <RouterLink 
                 to="/terms" 
