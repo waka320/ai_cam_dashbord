@@ -82,7 +82,7 @@ const TermsAndPrivacy = () => {
             </Box>
             
             <Typography variant="subtitle2" gutterBottom color="text.primary">
-              利用規約の主なセクション:
+              利用規約
             </Typography>
             <Box sx={{ 
               display: 'grid', 
@@ -113,7 +113,7 @@ const TermsAndPrivacy = () => {
             </Box>
             
             <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }} color="text.primary">
-              プライバシーポリシーの主なセクション:
+              プライバシーポリシー
             </Typography>
             <Box sx={{ 
               display: 'grid', 
@@ -121,7 +121,7 @@ const TermsAndPrivacy = () => {
               gap: 1,
               bgcolor: '#f8f9fa' // 背景色をセクション全体に適用
             }}>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+              {[1, 2, 3, 4, 5, 6, 7].map((num) => (
                 <Button 
                   key={`privacy-${num}`}
                   size="small" 
@@ -537,37 +537,32 @@ const TermsAndPrivacy = () => {
               <AccordionSummary 
                 expandIcon={<ExpandMoreIcon />}
                 sx={{ 
-                  bgcolor: '#f5f5f5', // 明るいグレーの背景色
-                  '&:hover': { bgcolor: '#e3f2fd' }, // ホバー時はさらに色を変えて操作性向上
-                  '&.Mui-expanded': { bgcolor: '#e3f2fd' }, // 展開時の背景色
-                  borderRadius: '4px 4px 0 0', // 上部の角を丸くする
+                  bgcolor: '#f5f5f5',
+                  '&:hover': { bgcolor: '#e3f2fd' },
+                  '&.Mui-expanded': { bgcolor: '#e3f2fd' },
+                  borderRadius: '4px 4px 0 0',
                 }}
               >
                 <Typography variant="h6">1. 管理者</Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ bgcolor: 'white', color: 'text.primary' }}>
                 <Typography variant="body1" paragraph>
-                  本サービス「目的ベースダッシュボード」は以下の事業者が提供・運営しています。
+                  本サービス「目的ベースダッシュボード」は以下の管理者が提供・運営しています。
                 </Typography>
                 <Box component="ul" sx={{ pl: 4 }}>
                   <li>
                     <Typography variant="body1">
-                      事業者名：名古屋大学 遠藤・浦田研究室
+                      管理者：若松勇希
                     </Typography>
                   </li>
                   <li>
                     <Typography variant="body1">
-                      所在地：愛知県名古屋市千種区不老町
+                      所属：名古屋大学 遠藤・浦田研究室 学生 （<Link href="https://mdg.si.i.nagoya-u.ac.jp/" target="_blank" rel="noopener noreferrer">研究室ホームページ</Link>）
                     </Typography>
                   </li>
                   <li>
                     <Typography variant="body1">
-                      連絡先：xxx@xxx.nagoya-u.ac.jp（仮）
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      管理者：若松勇希（名古屋大学 遠藤・浦田研究室 学生）
+                      お問い合わせ：<Link href="https://docs.google.com/forms/d/e/1FAIpQLSeEalJjup-hR6BN6M8MfETrPn3is0i-5Rskxz_rkEZvI7mvFw/viewform?usp=header" target="_blank" rel="noopener noreferrer">お問い合わせフォーム</Link>よりご連絡ください
                     </Typography>
                   </li>
                 </Box>
@@ -717,46 +712,17 @@ const TermsAndPrivacy = () => {
               <AccordionSummary 
                 expandIcon={<ExpandMoreIcon />}
                 sx={{ 
-                  bgcolor: '#f5f5f5', // 明るいグレーの背景色
-                  '&:hover': { bgcolor: '#e3f2fd' }, // ホバー時はさらに色を変えて操作性向上
-                  '&.Mui-expanded': { bgcolor: '#e3f2fd' }, // 展開時の背景色
-                  borderRadius: '4px 4px 0 0', // 上部の角を丸くする
+                  bgcolor: '#f5f5f5',
+                  '&:hover': { bgcolor: '#e3f2fd' },
+                  '&.Mui-expanded': { bgcolor: '#e3f2fd' },
+                  borderRadius: '4px 4px 0 0',
                 }}
               >
-                <Typography variant="h6">5. データの管理方法</Typography>
+                <Typography variant="h6">5. Cookieの利用について</Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ bgcolor: 'white', color: 'text.primary' }}>
-                <Typography variant="body1" paragraph>
-                  当研究室は、取得した情報の管理において、以下の対策を講じています。
-                </Typography>
-                <Box component="ul" sx={{ pl: 4 }}>
-                  <li>
-                    <Typography variant="body1">
-                      アクセス権限の制限・管理
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      セキュリティソフトウェアの導入
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      定期的なセキュリティ教育の実施
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      データの保管期間は研究目的の達成に必要な期間に限定
-                    </Typography>
-                  </li>
-                </Box>
-                <Typography variant="body1" sx={{ mt: 2 }}>
-                  これらのデータ管理方法は、名古屋大学の「学術データ管理・公開・利活用ガイドライン」（
-                  <Link href="https://rdm.nagoya-u.ac.jp" target="_blank" rel="noopener noreferrer">
-                    https://rdm.nagoya-u.ac.jp
-                  </Link>
-                  ）に基づいています。
+                <Typography variant="body1">
+                  本サービスでは、サービス向上や利用状態の保持のためにCookieを使用しています。ブラウザの設定により、Cookieの受け入れを拒否することも可能ですが、一部のサービス機能が利用できなくなる場合があります。
                 </Typography>
               </AccordionDetails>
             </Accordion>
@@ -769,40 +735,18 @@ const TermsAndPrivacy = () => {
               <AccordionSummary 
                 expandIcon={<ExpandMoreIcon />}
                 sx={{ 
-                  bgcolor: '#f5f5f5', // 明るいグレーの背景色
-                  '&:hover': { bgcolor: '#e3f2fd' }, // ホバー時はさらに色を変えて操作性向上
-                  '&.Mui-expanded': { bgcolor: '#e3f2fd' }, // 展開時の背景色
-                  borderRadius: '4px 4px 0 0', // 上部の角を丸くする
+                  bgcolor: '#f5f5f5',
+                  '&:hover': { bgcolor: '#e3f2fd' },
+                  '&.Mui-expanded': { bgcolor: '#e3f2fd' },
+                  borderRadius: '4px 4px 0 0',
                 }}
               >
-                <Typography variant="h6">6. 第三者提供について</Typography>
+                <Typography variant="h6">6. プライバシーポリシーの変更</Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ bgcolor: 'white', color: 'text.primary' }}>
-                <Typography variant="body1" paragraph>
-                  当研究室は、以下の場合を除き、取得した情報を第三者に提供することはありません。
+                <Typography variant="body1">
+                  本ポリシーの内容は、法令の変更や本サービスの仕様変更等に伴い、予告なく変更される場合があります。変更があった場合は、本ウェブサイト上に変更後のポリシーを掲載します。
                 </Typography>
-                <Box component="ul" sx={{ pl: 4 }}>
-                  <li>
-                    <Typography variant="body1">
-                      法令に基づく場合
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      人の生命、身体または財産の保護のために必要がある場合
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      公衆衛生の向上のために特に必要がある場合
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      研究協力機関（高山市など）と情報共有が必要な場合（個人を特定できない形式に加工した上で）
-                    </Typography>
-                  </li>
-                </Box>
               </AccordionDetails>
             </Accordion>
 
@@ -814,107 +758,13 @@ const TermsAndPrivacy = () => {
               <AccordionSummary 
                 expandIcon={<ExpandMoreIcon />}
                 sx={{ 
-                  bgcolor: '#f5f5f5', // 明るいグレーの背景色
-                  '&:hover': { bgcolor: '#e3f2fd' }, // ホバー時はさらに色を変えて操作性向上
-                  '&.Mui-expanded': { bgcolor: '#e3f2fd' }, // 展開時の背景色
-                  borderRadius: '4px 4px 0 0', // 上部の角を丸くする
+                  bgcolor: '#f5f5f5',
+                  '&:hover': { bgcolor: '#e3f2fd' },
+                  '&.Mui-expanded': { bgcolor: '#e3f2fd' },
+                  borderRadius: '4px 4px 0 0',
                 }}
               >
-                <Typography variant="h6">7. Cookieの利用について</Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ bgcolor: 'white', color: 'text.primary' }}>
-                <Typography variant="body1">
-                  本サービスでは、サービス向上や利用状態の保持のためにCookieを使用しています。ブラウザの設定により、Cookieの受け入れを拒否することも可能ですが、一部のサービス機能が利用できなくなる場合があります。
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
-
-            <Accordion 
-              expanded={expanded === 'privacy-8'} 
-              onChange={handleAccordionChange('privacy-8')}
-              id="privacy-8"
-            >
-              <AccordionSummary 
-                expandIcon={<ExpandMoreIcon />}
-                sx={{ 
-                  bgcolor: '#f5f5f5', // 明るいグレーの背景色
-                  '&:hover': { bgcolor: '#e3f2fd' }, // ホバー時はさらに色を変えて操作性向上
-                  '&.Mui-expanded': { bgcolor: '#e3f2fd' }, // 展開時の背景色
-                  borderRadius: '4px 4px 0 0', // 上部の角を丸くする
-                }}
-              >
-                <Typography variant="h6">8. ユーザーの権利</Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ bgcolor: 'white', color: 'text.primary' }}>
-                <Typography variant="body1" paragraph>
-                  個人情報保護法に基づき、ユーザーには以下の権利があります。
-                </Typography>
-                <Box component="ul" sx={{ pl: 4 }}>
-                  <li>
-                    <Typography variant="body1">
-                      個人情報の開示請求権
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      個人情報の訂正・追加・削除請求権
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      個人情報の利用停止・消去請求権
-                    </Typography>
-                  </li>
-                  <li>
-                    <Typography variant="body1">
-                      個人情報の第三者提供の停止請求権
-                    </Typography>
-                  </li>
-                </Box>
-                <Typography variant="body1" sx={{ mt: 2 }}>
-                  これらの権利行使をご希望の場合は、「1. 事業者情報」に記載の連絡先までご連絡ください。ご本人確認の上、法令の定めに従い対応いたします。なお、本サービスで収集する情報は主に統計的な利用状況であり、特定の個人を識別できる情報は最小限に留めております。
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
-
-            <Accordion 
-              expanded={expanded === 'privacy-9'} 
-              onChange={handleAccordionChange('privacy-9')}
-              id="privacy-9"
-            >
-              <AccordionSummary 
-                expandIcon={<ExpandMoreIcon />}
-                sx={{ 
-                  bgcolor: '#f5f5f5', // 明るいグレーの背景色
-                  '&:hover': { bgcolor: '#e3f2fd' }, // ホバー時はさらに色を変えて操作性向上
-                  '&.Mui-expanded': { bgcolor: '#e3f2fd' }, // 展開時の背景色
-                  borderRadius: '4px 4px 0 0', // 上部の角を丸くする
-                }}
-              >
-                <Typography variant="h6">9. プライバシーポリシーの変更</Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ bgcolor: 'white', color: 'text.primary' }}>
-                <Typography variant="body1">
-                  本ポリシーの内容は、法令の変更や本サービスの仕様変更等に伴い、予告なく変更される場合があります。変更があった場合は、本ウェブサイト上に変更後のポリシーを掲載します。
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
-
-            <Accordion 
-              expanded={expanded === 'privacy-10'} 
-              onChange={handleAccordionChange('privacy-10')}
-              id="privacy-10"
-            >
-              <AccordionSummary 
-                expandIcon={<ExpandMoreIcon />}
-                sx={{ 
-                  bgcolor: '#f5f5f5', // 明るいグレーの背景色
-                  '&:hover': { bgcolor: '#e3f2fd' }, // ホバー時はさらに色を変えて操作性向上
-                  '&.Mui-expanded': { bgcolor: '#e3f2fd' }, // 展開時の背景色
-                  borderRadius: '4px 4px 0 0', // 上部の角を丸くする
-                }}
-              >
-                <Typography variant="h6">10. 研究データとしての利用</Typography>
+                <Typography variant="h6">7. 研究データとしての利用</Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ bgcolor: 'white', color: 'text.primary' }}>
                 <Typography variant="body1">
@@ -944,7 +794,7 @@ const TermsAndPrivacy = () => {
 
           <Box sx={{ mt: 3, textAlign: 'right' }}>
             <Typography variant="body2" color="text.secondary">
-              制定日: 2025年5月11日<br />
+              制定日: 2025年5月22日<br />
               最終更新日: 2025年5月22日
             </Typography>
           </Box>
@@ -977,12 +827,9 @@ function getPrivacySectionTitle(num) {
     2: '個人情報の定義',
     3: '取得する情報',
     4: '情報の利用目的',
-    5: 'データの管理方法',
-    6: '第三者提供について',
-    7: 'Cookieの利用について',
-    8: 'ユーザーの権利',
-    9: 'プライバシーポリシーの変更',
-    10: '研究データとしての利用'
+    5: 'Cookieの利用について',
+    6: 'プライバシーポリシーの変更',
+    7: '研究データとしての利用'
   };
   return titles[num] || `セクション${num}`;
 }
