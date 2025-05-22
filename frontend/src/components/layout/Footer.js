@@ -10,13 +10,12 @@ import {
   Tooltip
 } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import GitHubIcon from '@mui/icons-material/GitHub';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import ArticleIcon from '@mui/icons-material/Article';
 import MapIcon from '@mui/icons-material/Map';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+// import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import theme from '../../theme/theme';
 
 const Footer = () => {
