@@ -147,39 +147,6 @@ const Footer = () => {
                 開発情報
               </Typography>
               <Box sx={{ ml: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <GitHubIcon sx={{ mr: 1, fontSize: '1rem' }} />
-                  <MuiLink 
-                    href="https://github.com/waka320/ai_cam_dashbord" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    color="inherit"
-                    aria-label="GitHubリポジトリを開く"
-                    sx={{ 
-                      textDecoration: 'none',
-                      '&:hover': { textDecoration: 'underline' },
-                      fontWeight: 500
-                    }}
-                  >
-                    GitHubリポジトリ
-                  </MuiLink>
-                </Box>
-                <Typography variant="body2" sx={{ mb: 1 }}>
-                  作成: <MuiLink 
-                    href="https://github.com/waka320" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    color="inherit"
-                    aria-label="開発者のGitHubプロフィールを開く"
-                    sx={{ 
-                      textDecoration: 'none',
-                      '&:hover': { textDecoration: 'underline' },
-                      fontWeight: 500
-                    }}
-                  >
-                    @waka320
-                  </MuiLink>
-                </Typography>
                 <Typography variant="body2">
                   最終更新: 2025年5月
                 </Typography>
