@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 import os
 import pandas as pd
 from app.services.analyze import get_data_for_calendar250414 as calendar_service
-from app.services.analyze import get_data_for_week_time
+from app.services.analyze import get_data_for_week_time250522
 from app.services.analyze import get_data_for_date_time250504
 from app.services.ai_service_debug import analyze_csv_data_debug
 from app.services.highlighter_service import highlight_calendar_data, highlight_week_time_data, highlight_date_time_data
@@ -70,7 +70,7 @@ async def get_graph(request: GraphRequest):
             data = highlight_calendar_data(data, action)
         elif action[:3] == "wti":
             # 曜日×時間帯データの作成
-            data = get_data_for_week_time.get_data_for_week_time(csv_file_path, year, month)
+            data = get_data_for_week_time250522.get_data_for_week_time(csv_file_path, year, month)
             # ハイライト処理
             data = highlight_week_time_data(data, action)
         elif action[:3] == "dti":
