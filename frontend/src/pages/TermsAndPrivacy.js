@@ -547,11 +547,6 @@ const TermsAndPrivacy = () => {
                       Cookie（サービス利用状態の保持など）
                     </Typography>
                   </li>
-                  <li>
-                    <Typography variant="body1">
-                      AIアドバイス機能使用時のクエリ情報
-                    </Typography>
-                  </li>
                 </Box>
               </AccordionDetails>
             </Accordion>
@@ -657,32 +652,7 @@ const TermsAndPrivacy = () => {
               </AccordionDetails>
             </Accordion>
 
-            <Accordion 
-              expanded={expanded === 'privacy-7'} 
-              onChange={handleAccordionChange('privacy-7')}
-              id="privacy-7"
-            >
-              <AccordionSummary 
-                expandIcon={<ExpandMoreIcon />}
-                sx={{ 
-                  bgcolor: '#f5f5f5',
-                  '&:hover': { bgcolor: '#e3f2fd' },
-                  '&.Mui-expanded': { bgcolor: '#e3f2fd' },
-                  borderRadius: '4px 4px 0 0',
-                }}
-              >
-                <Typography variant="h6">7. 研究データとしての利用</Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ bgcolor: 'white', color: 'text.primary' }}>
-                <Typography variant="body1">
-                  本サービスの利用状況データは、名古屋大学の研究データ管理・公開・利活用ガイドライン（
-                  <Link href="https://rdm.nagoya-u.ac.jp" target="_blank" rel="noopener noreferrer">
-                    https://rdm.nagoya-u.ac.jp
-                  </Link>
-                  ）に従い、地域DX推進に関する研究目的で利用される場合があります。その際、個人を特定できる情報は適切に匿名化され、研究成果は学術的な形で公開されることがあります。
-                </Typography>
-              </AccordionDetails>
-            </Accordion>
+            
           </Box>
 
           <Divider sx={{ my: 3 }} />
@@ -734,7 +704,6 @@ function getPrivacySectionTitle(num) {
     4: '情報の利用目的',
     5: 'Cookieの利用について',
     6: 'プライバシーポリシーの変更',
-    7: '研究データとしての利用'
   };
   return titles[num] || `セクション${num}`;
 }
