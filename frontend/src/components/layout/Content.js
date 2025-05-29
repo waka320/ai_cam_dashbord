@@ -4,7 +4,7 @@ import Calendar from '../common/Calendar';
 import TimeHeatmap from '../common/TimeHeatmap';
 import DateTimeHeatmap from '../common/DateTimeHeatmap';
 import { Box, Typography, Link, useMediaQuery, Fade, CircularProgress, Paper } from '@mui/material';
-import AISection from './AISection';
+import AdviceSection from './AdviceSection';
 import theme from '../../theme/theme';
 import { useCalendar } from '../../contexts/CalendarContext';
 import SectionContainer from '../ui/SectionContainer';
@@ -147,7 +147,7 @@ function Content() {
                         flexDirection: 'column',
                     }}
                 >
-                    <AISection />
+                    <AdviceSection />
                     {renderCredits()}
                 </Box>
             </Box>
