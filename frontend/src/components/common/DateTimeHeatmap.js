@@ -3,7 +3,7 @@ import { Box, Typography, Paper, CircularProgress, useMediaQuery, Popper, ClickA
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
 import { useColorPalette } from '../../contexts/ColorPaletteContext'; 
-import InfoIcon from '@mui/icons-material/Info';
+// import InfoIcon from '@mui/icons-material/Info';
 
 // 日付を整形する関数（例: "2024-07-01" -> "7/1"）
 const formatDate = (dateStr) => {
@@ -328,22 +328,22 @@ const DateTimeHeatmap = () => {
                                                         cursor: highlighted ? 'pointer' : 'default',
                                                         flexShrink: 0,
                                                         // ハイライトエフェクト
-                                                        ...(highlighted && {
-                                                            '&::before': {
-                                                                content: '""',
-                                                                position: 'absolute',
-                                                                top: isMobile ? '2px' : '3px',
-                                                                left: isMobile ? '2px' : '3px',
-                                                                right: isMobile ? '2px' : '3px',
-                                                                bottom: isMobile ? '2px' : '3px',
-                                                                borderRadius: '2px',
-                                                                border: isMobile ? '1.5px solid rgba(255, 215, 0, 0.8)' : '2px solid rgba(255, 215, 0, 0.8)',
-                                                                boxShadow: '0 0 3px rgba(255, 215, 0, 0.8)',
-                                                                pointerEvents: 'none',
-                                                                zIndex: 1,
-                                                                backgroundColor: 'transparent',
-                                                            }
-                                                        }),
+                                                        // ...(highlighted && {
+                                                        //     '&::before': {
+                                                        //         content: '""',
+                                                        //         position: 'absolute',
+                                                        //         top: isMobile ? '2px' : '3px',
+                                                        //         left: isMobile ? '2px' : '3px',
+                                                        //         right: isMobile ? '2px' : '3px',
+                                                        //         bottom: isMobile ? '2px' : '3px',
+                                                        //         borderRadius: '2px',
+                                                        //         border: isMobile ? '1.5px solid rgba(255, 215, 0, 0.8)' : '2px solid rgba(255, 215, 0, 0.8)',
+                                                        //         boxShadow: '0 0 3px rgba(255, 215, 0, 0.8)',
+                                                        //         pointerEvents: 'none',
+                                                        //         zIndex: 1,
+                                                        //         backgroundColor: 'transparent',
+                                                        //     }
+                                                        // }),
                                                     }}
                                                     title={`${formatDate(dateData.date)} ${hour}時 ${congestion === 0 ? '(データなし)' : `(人数: ${count})`}`}
                                                 >
@@ -370,7 +370,7 @@ const DateTimeHeatmap = () => {
                                                         </Typography>
                                                         
                                                         {/* ハイライトされたセルにインフォアイコンを表示 */}
-                                                        {highlighted && highlightReason && (
+                                                        {/* {highlighted && highlightReason && (
                                                             <InfoIcon 
                                                                 sx={{ 
                                                                     position: 'absolute',
@@ -380,7 +380,7 @@ const DateTimeHeatmap = () => {
                                                                     opacity: 0.8
                                                                 }}
                                                             />
-                                                        )}
+                                                        )} */}
                                                     </Box>
                                                 </Box>
                                             );

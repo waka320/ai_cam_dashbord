@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Box, Typography, CircularProgress, Popper, Paper, ClickAwayListener, useMediaQuery } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
-import InfoIcon from '@mui/icons-material/Info';
+// import InfoIcon from '@mui/icons-material/Info';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
 
 // カレンダーコンポーネント
@@ -135,22 +135,22 @@ const CalendarHeatmap = () => {
                                             height: isMobile ? (isSmallMobile ? '45px' : '55px') : 'auto',
                                             minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : 'auto',
                                             // ハイライトエフェクト
-                                            ...(cell && cell.highlighted && {
-                                                '&::before': {
-                                                    content: '""',
-                                                    position: 'absolute',
-                                                    top: isMobile ? '2px' : '3px',
-                                                    left: isMobile ? '2px' : '3px',
-                                                    right: isMobile ? '2px' : '3px',
-                                                    bottom: isMobile ? '2px' : '3px',
-                                                    borderRadius: '2px',
-                                                    border: isMobile ? '1.5px solid rgba(255, 215, 0, 0.8)' : '2px solid rgba(255, 215, 0, 0.8)',
-                                                    boxShadow: '0 0 3px rgba(255, 215, 0, 0.8)',
-                                                    pointerEvents: 'none',
-                                                    zIndex: 1,
-                                                    backgroundColor: 'transparent',
-                                                }
-                                            }),
+                                            // ...(cell && cell.highlighted && {
+                                            //     '&::before': {
+                                            //         content: '""',
+                                            //         position: 'absolute',
+                                            //         top: isMobile ? '2px' : '3px',
+                                            //         left: isMobile ? '2px' : '3px',
+                                            //         right: isMobile ? '2px' : '3px',
+                                            //         bottom: isMobile ? '2px' : '3px',
+                                            //         borderRadius: '2px',
+                                            //         border: isMobile ? '1.5px solid rgba(255, 215, 0, 0.8)' : '2px solid rgba(255, 215, 0, 0.8)',
+                                            //         boxShadow: '0 0 3px rgba(255, 215, 0, 0.8)',
+                                            //         pointerEvents: 'none',
+                                            //         zIndex: 1,
+                                            //         backgroundColor: 'transparent',
+                                            //     }
+                                            // }),
                                         }}
                                     >
                                         {cell && (
@@ -193,7 +193,7 @@ const CalendarHeatmap = () => {
                                                 </Typography>
                                                 
                                                 {/* ハイライトされたセルにインフォアイコンを表示 */}
-                                                {cell.highlighted && cell.highlight_reason && cell.congestion > 0 && (
+                                                {/* {cell.highlighted && cell.highlight_reason && cell.congestion > 0 && (
                                                     <InfoIcon 
                                                         sx={{ 
                                                             position: 'absolute',
@@ -205,7 +205,7 @@ const CalendarHeatmap = () => {
                                                             color: getTextColor(cell.congestion)
                                                         }}
                                                     />
-                                                )}
+                                                )} */}
                                             </Box>
                                         )}
                                     </Box>
