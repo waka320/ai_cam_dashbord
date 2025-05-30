@@ -148,7 +148,7 @@ def get_data_for_week_time(csv_file_path: str, year: int, month: int) -> List[Da
             
             # DayWithHoursオブジェクトとして結果に追加
             result.append(DayWithHours(
-                day=WEEKDAY_NAMES[weekday]["en"],
+                day=WEEKDAY_NAMES[weekday]["jp"],
                 hours=hours_data
             ))
         
