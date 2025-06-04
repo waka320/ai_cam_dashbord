@@ -6,7 +6,7 @@ from typing import List
 class Settings(BaseSettings):
     ALLOWED_ORIGINS: List[str] = [
         "https://ai-cam-dashbord.vercel.app",
-        "https://ai-cmaera.lab.mdg-meidai.com",
+        "https://ai-camera.lab.mdg-meidai.com",
         "http://localhost:3000"
     ]
     CORS_ORIGINS: List[str] = ALLOWED_ORIGINS
