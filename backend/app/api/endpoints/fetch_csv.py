@@ -66,7 +66,7 @@ def filter_person_only(csv_data):
     return output_file.getvalue()
 
 
-@router.get("/api/fetch-csv")
+@router.post("/api/fetch-csv")
 async def fetch_csv(credentials: HTTPAuthorizationCredentials = Depends(security)):
     if credentials.credentials != settings.CRON_SECRET:
         raise HTTPException(status_code=401, detail="Unauthorized")
