@@ -7,14 +7,15 @@ from app.core.config import settings
 import logging
 import io
 from datetime import datetime
+import pandas as pd
 
 router = APIRouter()
 security = HTTPBearer()
 
-# 元のデータ保存先
-base_output_dir = os.path.join("app", "data", "exmeidai")
-# 新しいフラットなデータ保存先
-flat_output_dir = os.path.join("app", "data", "exmeidai_flat")
+# 出力ディレクトリを他のCSVファイルと同じmeidaiに変更
+data_dir = os.path.join("app", "data", "meidai")
+# 一時的にデータを保存するディレクトリ（処理途中で使用）
+temp_dir = os.path.join("app", "data", "temp_exmeidai")
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -25,46 +26,42 @@ s3 = boto3.client('s3',
                   region_name='ap-northeast-1'
                   )
 
+# カメラ番号と出力ファイル名のマッピング
+CAMERA_NAME_MAPPING = {
+    1: "old-town",
+    2: "station",
+    3: "gyouzinbashi"
+}
+
 # ディレクトリ作成
-os.makedirs(base_output_dir, exist_ok=True)
-os.makedirs(flat_output_dir, exist_ok=True)
+os.makedirs(data_dir, exist_ok=True)
+os.makedirs(temp_dir, exist_ok=True)
 
 def dat_to_csv(dat_content, year, month, day, camera_num):
     """
     datファイルを名古屋大学フォーマットのCSVに変換する
     """
-    # 元の処理用のCSV出力
-    original_csv_content = io.StringIO()
-    original_csv_writer = csv.writer(original_csv_content, quoting=csv.QUOTE_MINIMAL)
-    
     # 名大フォーマット用のCSV出力
-    flat_csv_content = io.StringIO()
-    flat_csv_writer = csv.writer(flat_csv_content)
-    
-    # 名大フォーマットのヘッダー
-    flat_csv_writer.writerow(["datetime_jst", "date_jst", "time_jst", "dayofweek", 
-                             "name", "countingDirection", "count_1_hour"])
-    
-    lines = dat_content.splitlines()
-    if len(lines) > 1:
-        lines = lines[1:]  # ヘッダー行削除
+    csv_content = io.StringIO()
+    csv_writer = csv.writer(csv_content)
     
     # 日付情報を準備
     date_obj = datetime.strptime(f"{year}-{month}-{day}", "%Y-%m-%d")
     dayofweek = date_obj.strftime("%A")
     date_str = date_obj.strftime("%Y-%m-%d")
     
+    lines = dat_content.splitlines()
+    if len(lines) > 1:
+        lines = lines[1:]  # ヘッダー行削除
+    
+    rows = []
     for line in lines:
         if line.strip():
-            # 元の処理: ダブルクォート除去 & フィールド分割
-            fields = [field.strip('"').strip() for field in line.split(',')]
-            # 空文字列をNoneに変換（任意）
-            cleaned_fields = [f if f != '' else None for f in fields]
-            original_csv_writer.writerow(cleaned_fields)
-            
-            # 名大フォーマット用に変換
             try:
-                # データ行から時刻と人数を抽出（ファイル形式に合わせて調整）
+                # ダブルクォート除去 & フィールド分割
+                fields = [field.strip('"').strip() for field in line.split(',')]
+                
+                # データ行から時刻と人数を抽出
                 time_str = fields[0] if len(fields) > 0 else "00:00"
                 count = fields[1] if len(fields) > 1 else "0"
                 
@@ -76,7 +73,7 @@ def dat_to_csv(dat_content, year, month, day, camera_num):
                 datetime_str = f"{date_str} {time_str}:00"
                 
                 # 名大フォーマットの行を作成
-                flat_csv_writer.writerow([
+                rows.append([
                     datetime_str,                 # datetime_jst
                     date_str,                     # date_jst
                     hour,                         # time_jst
@@ -87,25 +84,43 @@ def dat_to_csv(dat_content, year, month, day, camera_num):
                 ])
             except Exception as e:
                 logger.error(f"データ変換エラー: {e}, 行: {line}")
-                continue
     
-    # 最終的な改行コード統一（CRLF → LF）
-    return original_csv_content.getvalue().replace('\r\n', '\n'), flat_csv_content.getvalue().replace('\r\n', '\n')
+    # 行を書き込み
+    for row in rows:
+        csv_writer.writerow(row)
+    
+    return csv_content.getvalue()
 
-
-def fetch_and_save_c_data(camera_num: int):
+def fetch_and_process_camera_data(camera_num: int):
+    """
+    カメラデータを取得し、一時ファイルに保存する
+    """
     try:
+        camera_name = CAMERA_NAME_MAPPING.get(camera_num, f"fa-cam{camera_num}")
+        temp_file = os.path.join(temp_dir, f"{camera_name}_temp.csv")
+        
+        # 一時ファイルが存在する場合は削除
+        if os.path.exists(temp_file):
+            os.remove(temp_file)
+        
+        # ヘッダー行を書き込み
+        with open(temp_file, "w", encoding="utf-8", newline='') as file:
+            file.write("datetime_jst,date_jst,time_jst,dayofweek,name,countingDirection,count_1_hour\n")
+        
         bucket = 'datakiban-data-prd-takayama'
         prefix = f'for-work/city-takayama/fa-cam{camera_num}/'
 
+        logger.info(f"カメラ{camera_num}({camera_name})のデータ取得を開始します")
+        
         paginator = s3.get_paginator('list_objects_v2')
         pages = paginator.paginate(Bucket=bucket, Prefix=prefix)
 
+        processed_files = 0
+        
         for page in pages:
             for obj in page.get('Contents', []):
                 key = obj['Key']
                 if key.endswith('.dat') and os.path.basename(key).startswith('C'):
-                    year = key.split('/')[-2]
                     file_name = os.path.basename(key)
                     # ファイル名から日付情報を抽出 (例: C20200501.dat)
                     date_str = file_name.replace('C', '').replace('.dat', '')
@@ -114,40 +129,110 @@ def fetch_and_save_c_data(camera_num: int):
                         year = date_str[:4]
                         month = date_str[4:6]
                         day = date_str[6:8]
+                        
+                        logger.debug(f"処理中: {file_name}, 日付: {year}-{month}-{day}")
+                        
+                        try:
+                            data = s3.get_object(Bucket=bucket, Key=key)['Body'].read().decode('utf-8')
+                            
+                            # CSVに変換
+                            csv_data = dat_to_csv(data, year, month, day, camera_num)
+                            
+                            # 一時ファイルに追記
+                            with open(temp_file, "a", encoding="utf-8", newline='') as file:
+                                file.write(csv_data)
+                            
+                            processed_files += 1
+                            if processed_files % 100 == 0:
+                                logger.info(f"カメラ{camera_num}({camera_name}): {processed_files}ファイル処理済み")
+                                
+                        except Exception as e:
+                            logger.error(f"ファイル{file_name}の処理中にエラー発生: {str(e)}")
                     else:
-                        # 日付情報が取得できない場合はスキップ
                         logger.warning(f"日付情報の抽出に失敗: {file_name}")
-                        continue
-
-                    # 階層構造用の出力ディレクトリ
-                    output_dir = os.path.join(
-                        base_output_dir, f'fa-cam{camera_num}', year)
-                    os.makedirs(output_dir, exist_ok=True)
-
-                    data = s3.get_object(Bucket=bucket, Key=key)[
-                        'Body'].read().decode('utf-8')
-
-                    # 両方のフォーマットに変換
-                    original_csv_data, flat_csv_data = dat_to_csv(data, year, month, day, camera_num)
-
-                    # 元の階層構造にCSVを保存
-                    original_file_name = os.path.basename(key).replace('.dat', '.csv')
-                    original_file_path = os.path.join(output_dir, original_file_name)
-                    with open(original_file_path, "w", encoding="utf-8", newline='') as file:
-                        file.write(original_csv_data)
-                    
-                    # フラットな構造に名大フォーマットのCSVを保存
-                    flat_file_name = f"fa-cam{camera_num}_{date_str}.csv"
-                    flat_file_path = os.path.join(flat_output_dir, flat_file_name)
-                    with open(flat_file_path, "w", encoding="utf-8", newline='') as file:
-                        file.write(flat_csv_data)
-
-                    logger.info(f"保存完了: 元形式 {original_file_path}, 名大形式 {flat_file_path}")
-        return True
+        
+        logger.info(f"カメラ{camera_num}({camera_name})の処理完了: {processed_files}ファイル処理")
+        return True, processed_files
+    
     except Exception as e:
-        logger.error(f"カメラ{camera_num}の処理エラー: {str(e)}")
-        return False
+        logger.error(f"カメラ{camera_num}の全体処理でエラー発生: {str(e)}")
+        return False, 0
 
+def aggregate_by_hour(df):
+    """
+    15分単位のデータを1時間単位に集計する
+    """
+    # 日時データを確実に日時型に変換
+    df['datetime_jst'] = pd.to_datetime(df['datetime_jst'])
+    
+    # 日付と時間でグループ化するための列を作成
+    df['date_hour'] = df['datetime_jst'].dt.floor('H')
+    
+    # 必要な列を抽出してグループ化し、countを合計
+    aggregated = df.groupby([
+        'date_hour',
+        'date_jst',
+        'time_jst',
+        'dayofweek',
+        'name',
+        'countingDirection'
+    ])['count_1_hour'].apply(lambda x: pd.to_numeric(x, errors='coerce').sum()).reset_index()
+    
+    # データ型整理と書式設定
+    aggregated['datetime_jst'] = aggregated['date_hour'].dt.strftime('%Y-%m-%d %H:00:00')
+    aggregated.drop('date_hour', axis=1, inplace=True)
+    
+    # count_1_hourを整数に変換
+    aggregated['count_1_hour'] = aggregated['count_1_hour'].round().astype(int)
+    
+    # 列の順序を整理
+    return aggregated[[
+        'datetime_jst',
+        'date_jst',
+        'time_jst',
+        'dayofweek',
+        'name',
+        'countingDirection',
+        'count_1_hour'
+    ]]
+
+def sort_and_finalize_csv(camera_num: int):
+    """
+    一時的なCSVファイルを日時でソートして、1時間単位に集約後、最終的なファイルを作成
+    """
+    try:
+        camera_name = CAMERA_NAME_MAPPING.get(camera_num, f"fa-cam{camera_num}")
+        temp_file = os.path.join(temp_dir, f"{camera_name}_temp.csv")
+        final_file = os.path.join(data_dir, f"{camera_name}.csv")
+        
+        # CSVを読み込み
+        df = pd.read_csv(temp_file)
+        
+        # 空のデータフレームならエラー
+        if df.empty:
+            logger.error(f"カメラ{camera_num}({camera_name})のデータが空です")
+            return False
+        
+        logger.info(f"カメラ{camera_num}({camera_name})のデータを1時間単位に集計します")
+        
+        # 1時間単位に集約
+        aggregated_df = aggregate_by_hour(df)
+        
+        # 日時でソート
+        aggregated_df = aggregated_df.sort_values('datetime_jst')
+        
+        # 結果を保存
+        aggregated_df.to_csv(final_file, index=False)
+        logger.info(f"カメラ{camera_num}({camera_name})の最終ファイルを作成しました: {final_file}")
+        
+        # 一時ファイルを削除
+        os.remove(temp_file)
+        
+        return True
+    
+    except Exception as e:
+        logger.error(f"カメラ{camera_num}のデータのソートと最終化中にエラー発生: {str(e)}")
+        return False
 
 @router.get("/api/fetch-csv-exmeidai")
 async def fetch_all_exmeidai_cams(credentials: HTTPAuthorizationCredentials = Depends(security)):
@@ -155,13 +240,30 @@ async def fetch_all_exmeidai_cams(credentials: HTTPAuthorizationCredentials = De
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     results = {}
+    total_processed = 0
+    
     for cam_num in [1, 2, 3]:
-        success = fetch_and_save_c_data(cam_num)
-        results[f'fa-cam{cam_num}'] = "success" if success else "failed"
+        camera_name = CAMERA_NAME_MAPPING.get(cam_num, f"fa-cam{cam_num}")
+        
+        # データ取得と一時ファイル作成
+        success, processed = fetch_and_process_camera_data(cam_num)
+        if success:
+            # 1時間単位に集約・ソートして最終ファイル作成
+            final_success = sort_and_finalize_csv(cam_num)
+            results[camera_name] = {
+                "status": "success" if final_success else "partial_success",
+                "files_processed": processed
+            }
+            total_processed += processed
+        else:
+            results[camera_name] = {
+                "status": "failed",
+                "files_processed": processed
+            }
 
     return {
-        "message": "C データの収集とCSV変換が完了しました",
+        "message": "カメラデータの収集と集約が完了しました",
+        "total_processed": total_processed,
         "results": results,
-        "original_directory": base_output_dir,
-        "flat_directory": flat_output_dir
+        "output_directory": data_dir
     }
