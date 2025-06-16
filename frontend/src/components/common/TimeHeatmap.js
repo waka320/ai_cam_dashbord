@@ -3,7 +3,7 @@ import { Box, Typography, Paper, CircularProgress, useMediaQuery, Popper, ClickA
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
-// import InfoIcon from '@mui/icons-material/Info';
+import AnalysisInfoButton from '../ui/AnalysisInfoButton'; // 追加
 
 // 日本語の曜日名に変換する関数
 const getDayNameJa = (dayName) => {
@@ -21,7 +21,7 @@ const getDayNameJa = (dayName) => {
 
 // 時間帯別ヒートマップコンポーネント
 const TimeHeatmap = () => {
-  const { calendarData, selectedAction, loading } = useCalendar();
+  const { calendarData, selectedAction, loading, selectedLocation } = useCalendar();
   const { getCellColor, getTextColor } = useColorPalette();
   
   // レスポンシブ対応のためのメディアクエリ
@@ -134,6 +134,14 @@ const TimeHeatmap = () => {
     sortedData = calendarData;
   }
 
+  // 場所名の取得（ファイル名部分のみ）
+  const getPlaceName = () => {
+    if (!selectedLocation) return 'default';
+    const parts = selectedLocation.split('/');
+    const filename = parts[parts.length - 1];
+    return filename.replace('.csv', '');
+  };
+
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
       <Box sx={{ 
@@ -142,13 +150,20 @@ const TimeHeatmap = () => {
         mt: 2, 
         px: isMobile ? 1 : 2
       }}>
-        <Typography 
-          variant={isMobile ? "subtitle1" : "h6"} 
-          gutterBottom
-          sx={{ textAlign: isMobile ? 'center' : 'left' }}
-        >
-          時間帯別混雑度
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Typography 
+            variant={isMobile ? "subtitle1" : "h6"} 
+            sx={{ textAlign: isMobile ? 'center' : 'left' }}
+          >
+            曜日×時間帯の混雑度
+          </Typography>
+          
+          {/* 分析情報ボタンを追加 */}
+          <AnalysisInfoButton 
+            analysisType="weekTime"
+            place={getPlaceName()}
+          />
+        </Box>
         
         {/* ヘッダーとセルを分離したコンテナ */}
         <Box sx={{ 

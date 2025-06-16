@@ -3,7 +3,7 @@ import { Box, Typography, Paper, CircularProgress, useMediaQuery, Popper, ClickA
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
 import { useColorPalette } from '../../contexts/ColorPaletteContext'; 
-// import InfoIcon from '@mui/icons-material/Info';
+import AnalysisInfoButton from '../ui/AnalysisInfoButton'; // 追加
 
 // 日付を整形する関数（例: "2024-07-01" -> "7/1"）
 const formatDate = (dateStr) => {
@@ -20,7 +20,7 @@ const getDayOfWeek = (dateStr) => {
 
 // 日付×時間ヒートマップコンポーネント
 const DateTimeHeatmap = () => {
-    const { calendarData, selectedAction, loading } = useCalendar();
+    const { calendarData, selectedAction, loading, selectedLocation } = useCalendar();
     const { getCellColor, getTextColor } = useColorPalette();
     // レスポンシブ対応のためのメディアクエリ
     const isMobile = useMediaQuery('(max-width:768px)');
@@ -139,6 +139,14 @@ const DateTimeHeatmap = () => {
         sortedData = calendarData;
     }
 
+    // 場所名の取得（ファイル名部分のみ）
+    const getPlaceName = () => {
+        if (!selectedLocation) return 'default';
+        const parts = selectedLocation.split('/');
+        const filename = parts[parts.length - 1];
+        return filename.replace('.csv', '');
+    };
+
     return (
         <ClickAwayListener onClickAway={handleClickAway}>
             <Box sx={{ 
@@ -147,13 +155,20 @@ const DateTimeHeatmap = () => {
                 mt: 2, 
                 px: isMobile ? 1 : 2
             }}>
-                <Typography 
-                    variant={isMobile ? "subtitle1" : "h6"} 
-                    gutterBottom
-                    sx={{ textAlign: isMobile ? 'center' : 'left' }}
-                >
-                    日付×時間帯の混雑度
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography 
+                        variant={isMobile ? "subtitle1" : "h6"} 
+                        sx={{ textAlign: isMobile ? 'center' : 'left' }}
+                    >
+                        日付×時間帯の混雑度
+                    </Typography>
+                    
+                    {/* 分析情報ボタンを追加 */}
+                    <AnalysisInfoButton 
+                        analysisType="dateTime"
+                        place={getPlaceName()}
+                    />
+                </Box>
                 
                 {/* ヘッダーとセルを分離したコンテナ */}
                 <Box sx={{ 

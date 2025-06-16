@@ -2,45 +2,49 @@ import React, { useState, useRef } from 'react';
 import { Box, Typography, CircularProgress, Popper, Paper, ClickAwayListener, useMediaQuery } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
-// import InfoIcon from '@mui/icons-material/Info';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
+import AnalysisInfoButton from '../ui/AnalysisInfoButton'; // 追加
 
 // カレンダーコンポーネント
 const CalendarHeatmap = () => {
-    const { calendarData, selectedAction, loading } = useCalendar();
-    const { getCellColor, getTextColor } = useColorPalette(); // getTextColorを追加
+    const { calendarData, selectedAction, loading, selectedLocation } = useCalendar();
+    const { getCellColor, getTextColor } = useColorPalette();
     const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
     
     // レスポンシブ対応のためのメディアクエリ
     const isMobile = useMediaQuery('(max-width:768px)');
     const isSmallMobile = useMediaQuery('(max-width:480px)');
     
-    // クリックしたセルの参照とポップオーバーの状態管理
+    // ポップオーバーの状態
     const [anchorEl, setAnchorEl] = useState(null);
-    const [popperText, setPopperText] = useState('');
+    const [popperCell, setPopperCell] = useState(null);
     const [open, setOpen] = useState(false);
     const cellRefs = useRef({});
 
-    // セルをタップした時の処理
-    const handleCellClick = (rowIndex, colIndex, highlightReason) => {
-        const cellKey = `${rowIndex}-${colIndex}`;
-        const cellElement = cellRefs.current[cellKey];
-        
-        if (anchorEl === cellElement) {
-            // 同じセルをクリックした場合はポップオーバーを閉じる
-            setOpen(false);
-            setAnchorEl(null);
-        } else {
-            // 新しいセルをクリックした場合はポップオーバーを開く
-            setAnchorEl(cellElement);
-            setPopperText(highlightReason);
-            setOpen(true);
+    // クリックしたセルの情報を表示
+    const handleCellClick = (cell, event) => {
+        if (cell && cell.highlighted) {
+            const cellElement = event.currentTarget;
+            
+            if (anchorEl === cellElement) {
+                // 同じセルをクリックした場合はクローズ
+                setOpen(false);
+                setAnchorEl(null);
+            } else {
+                // 別のセルをクリックした場合は表示を更新
+                setAnchorEl(cellElement);
+                setPopperCell(cell);
+                setOpen(true);
+            }
         }
     };
 
-    // ポップオーバー以外の場所をクリックした時に閉じる
-    const handleClickAway = () => {
-        setOpen(false);
+    // 場所名の取得（ファイル名部分のみ）
+    const getPlaceName = () => {
+        if (!selectedLocation) return 'default';
+        const parts = selectedLocation.split('/');
+        const filename = parts[parts.length - 1];
+        return filename.replace('.csv', '');
     };
 
     // ローディング中の表示
@@ -75,8 +79,29 @@ const CalendarHeatmap = () => {
     }
 
     return (
-        <ClickAwayListener onClickAway={handleClickAway}>
+        <ClickAwayListener onClickAway={() => setOpen(false)}>
             <Box>
+                {/* 分析情報ボタンとタイトルの追加 */}
+                <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    mb: 1,
+                    px: 1
+                }}>
+                    <Typography 
+                        variant={isMobile ? "subtitle1" : "h6"} 
+                        sx={{ textAlign: isMobile ? 'center' : 'left' }}
+                    >
+                        混雑度カレンダー
+                    </Typography>
+                    
+                    <AnalysisInfoButton 
+                        analysisType="calendar"
+                        place={getPlaceName()}
+                    />
+                </Box>
+
                 <Box sx={{ 
                     maxWidth: '800px', 
                     margin: '0 auto', 
@@ -116,8 +141,8 @@ const CalendarHeatmap = () => {
                                     <Box
                                         key={colIndex}
                                         ref={(el) => cellRefs.current[cellKey] = el}
-                                        onClick={() => cell && cell.highlighted && cell.highlight_reason ? 
-                                            handleCellClick(rowIndex, colIndex, cell.highlight_reason) : null}
+                                        onClick={(event) => cell && cell.highlighted ? 
+                                            handleCellClick(cell, event) : null}
                                         sx={{
                                             flex: 1,
                                             display: 'flex',
@@ -251,7 +276,7 @@ const CalendarHeatmap = () => {
                         }}
                     >
                         <Typography variant={isMobile ? "bodyS" : "bodyM"} fontWeight="bold">
-                            {popperText}
+                            {popperCell?.highlight_reason}
                         </Typography>
                     </Paper>
                 </Popper>
