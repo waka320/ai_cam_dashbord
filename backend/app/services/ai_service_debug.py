@@ -148,8 +148,5 @@ async def analyze_csv_data_debug(csv_path: str, year: int, month: int, purpose: 
     # ハイライト基準と分析アプローチの説明のみを返す（簡潔なフォーマット）
     return f"""【{location_name}】{purpose_label}
 
-■ ハイライト方法
-{highlight_explanation}
-
 ■ 分析のポイント
 {analysis_approach}"""
