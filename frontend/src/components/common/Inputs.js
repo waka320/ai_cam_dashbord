@@ -9,6 +9,7 @@ function Inputs() {
     const { selectedLocation, setSelectedLocation, fetchCalendarData, loading } = useCalendar();
 
     const locationItems = [
+        // 既存のデータ
         { value: "omotesando", label: "表参道" },
         { value: "yottekan", label: "よって館しもちょう" },
         { value: "honmachi4", label: "本町4丁目商店街" },
@@ -18,6 +19,10 @@ function Inputs() {
         { value: "yasukawadori", label: "やすかわ通り商店街" },
         { value: "jinnya", label: "高山陣屋前交差点" },
         { value: "nakabashi", label: "中橋" },
+        // 観光案内所データを先頭に追加
+        { value: "old-town", label: "古い町並" },
+        { value: "station", label: "駅前" },
+        { value: "gyouzinbashi", label: "行神橋" },
     ];
 
     const handleLocationChange = (event) => {

@@ -59,7 +59,6 @@ function Header() {
         { value: "cal_long_holiday", label: "長期休暇のタイミングを検討したい", shortLabel: "長期休暇のタイミングを検討" },
         { value: "cal_event", label: "イベントの開催日程を検討したい", shortLabel: "イベントの開催日程を検討" },
         { value: "cal_training", label: "研修のタイミングを検討したい", shortLabel: "研修のタイミングを検討" },
-        { value: "wti_event_effect", label: "イベントの効果を確認したい", shortLabel: "イベントの効果" },
         { value: "dti_event_time", label: "イベントの開催時間を検討したい", shortLabel: "イベントの開催時間を検討" },
         { value: "wti_shift", label: "アルバイトのシフトを検討したい", shortLabel: "アルバイトのシフトを検討" },
         { value: "dti_open_hour", label: "お店の営業時間を検討したい", shortLabel: "お店の営業時間を検討" },
