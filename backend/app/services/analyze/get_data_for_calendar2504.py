@@ -17,6 +17,9 @@ CONGESTION_THRESHOLDS = {
     'omotesando': (700, 7000),
     'yasukawadori': (7000, 26000),
     'yottekan': (300, 3500),
+    'gyouzinbashi': (500, 5000),  # 行神橋の閾値
+    'old-town': (900, 20000),     # 古い町並の閾値
+    'station': (300, 7000),   
     # デフォルト値
     'default': (2300, 9500)
 }
