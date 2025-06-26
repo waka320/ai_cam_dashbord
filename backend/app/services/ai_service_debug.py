@@ -80,26 +80,120 @@ METRIC_EXPLANATIONS = {
     "both": "混雑度と人通り数の両方"
 }
 
-# 目的別の分析アプローチ説明
-PURPOSE_ANALYSIS_APPROACHES = {
-    "cal_holiday": "お店のお休みを考える際は、どの曜日が空いているかを調べ、特に客足が少ない日を見つけます。平日の比較や週ごとのパターンも参考にします。",
-    "cal_shoping_holiday": "商店街全体のお休みは、人通りが少ない曜日・時間を探し、他のお店の定休日も参考にします。地元の方と観光客の動きも大切です。",
-    "cal_long_holiday": "長期のお休みには、連続して空いている日を探し、月の平均や前後の週末との比較、観光シーズンやイベント情報も考慮します。",
-    "cal_event": "イベント日は、人通りが多い日を見つけ、時間帯ごとの人の流れを確認します。滞在時間や曜日による参加しやすさも大切です。",
-    "cal_training": "研修には、人通りが少なく静かな環境が確保できる時間帯を探します。午前中や特定の曜日のパターンを見つけます。",
-    "wti_event_effect": "イベント効果は、開催日と通常日を比較し、時間帯別の効果や翌日以降への影響も分析します。曜日や天気の影響も確認します。",
-    "dti_event_time": "イベント時間は、人通りが最も多い時間帯を探し、曜日ごとの違いや天気の影響も考慮して最適な時間を提案します。",
-    "wti_shift": "アルバイトシフトは、混雑する時間帯を特定し、曜日による傾向や時間帯のピークを分析して、効率的な人員配置を提案します。",
-    "dti_open_hour": "お店の営業時間は、人通りのピーク時間と曜日による違いを確認し、平日・休日別の需要を分析して最適な時間を提案します。",
-    "dti_shoping_open_hour": "商店街の営業時間は、時間帯ごとの人の流れと客層の違いを考慮し、飲食・物販の需要も分析して統一時間を提案します。",
-    "cal_cog": "カレンダー形式では、日ごとの混雑度を見やすく表示し、曜日パターンや週による変動、天候の影響なども分析します。",
-    "wti_cog": "日時形式では、曜日・時間帯ごとの混雑パターンを探し、特に混む時間や空いている時間帯を見つけます。平日と休日の違いも確認します。",
-    "dti_cog": "曜日×時間帯では、曜日と時間の表で混雑パターンを表示し、特に混む・空く時間帯を見つけ、平日・休日別の傾向を分析します。"
+# 目的別のアドバイス内容（CSVベース）
+PURPOSE_ADVICE_CONTENT = {
+    "cal_holiday": {
+        "action": "混雑度が低い曜日を探してください。",
+        "notes": [
+            "前の月や前年も見て、他の月も同じような傾向なのか確認しましょう。"
+        ],
+        "advice": []
+    },
+    "cal_shoping_holiday": {
+        "action": "混雑度が低い曜日を探してください。",
+        "notes": [
+            "前の月や前年も見て、他の月も同じような傾向なのか確認しましょう。"
+        ],
+        "advice": []
+
+    },
+    "cal_long_holiday": {
+        "action": "連続して混雑度が低い日を探してください。",
+        "notes": [
+            "前の月や前年も見て、他の月も同じような傾向なのか確認しましょう。",
+            "長期休暇が、高山祭のようなイベントと日付が重なっていないのか検討しましょう。"
+        ],
+        "advice": []
+    },
+    "cal_event": {
+        "action": "人が多い時にイベントを開催するなら、混雑度が高い日を探してください。\nイベントで商店街を盛り上げたいなら、混雑度が低い日を探してください。",
+        "notes": [
+            "前の月や前年も見て、他の月も同じような傾向なのか確認しましょう。",
+            "イベントが、高山祭のようなイベントと日付が重なっていないのか検討しましょう。"
+        ],
+        "advice": []
+    },
+    "cal_training": {
+        "action": "混雑度が特別に低い日を探してください。",
+        "notes": [
+            "前の月や前年も見て、他の月も同じような傾向なのか確認しましょう。",
+            "研修日が、高山祭のようなイベントと日付が重なっていないのか検討しましょう。"
+        ],
+        "advice": []
+    },
+    "wti_event_effect": {
+        "action": "目的に合わせて、それに合う混雑度の日時を探してください。",
+        "notes": [
+            "前の月や前年も見て、他の月も同じような傾向なのか確認しましょう。",
+            "イベントが、高山祭のようなイベントと日付が重なっていないのか検討しましょう。"
+        ],
+        "advice": []
+    },
+    "dti_event_time": {
+        "action": "人が多い時にイベントを開催するなら、混雑度が高い日時を探してください。\nイベントで商店街をより盛り上げたいなら、混雑度が低い日時を探してください。",
+        "notes": [
+            "前の月や前年も見て、他の月も同じような傾向なのか確認しましょう。",
+            "イベントが高山祭のようなイベントと日付が重なっていないのか検討しましょう。"
+        ],
+        "advice": []
+    },
+    "wti_shift": {
+        "action": "混雑度が高い時刻に人数を多めに、低い時刻に人数を少なめにしましょう。",
+        "notes": [
+            "前の月や前年も見て、他の月も同じような傾向なのか確認しましょう。",
+            "高山祭のようなイベントと時間が重なっていないのか検討しましょう。"
+        ],
+        "advice": []
+    },
+    "dti_open_hour": {
+        "action": "混雑度が十分に高い時刻を探して営業時刻を設定しましょう。",
+        "notes": [
+            "前の月や前年も見て、他の月も同じような傾向なのか確認しましょう。",
+            "平日・土日祝に分けて傾向を考えてみましょう。"
+        ],
+        "advice": [
+            "今の営業時刻が長過ぎる・短過ぎるか振り返りましょう。"
+        ]
+    },
+    "dti_shoping_open_hour": {
+        "action": "混雑度が十分に高い時刻を探して営業時刻を設定しましょう。",
+        "notes": [
+            "前の月や前年も見て、他の月も同じような傾向なのか確認しましょう。",
+            "平日・土日祝に分けて傾向を考えてみましょう。"
+        ],
+        "advice": [
+            "今の営業時刻が長過ぎる・短過ぎるか振り返りましょう。"
+        ]
+    },
+    "cal_cog": {
+        "action": "目的に合わせて、それに合う混雑度の日を探してください。",
+        "notes": [
+            "前の月や前年も見て、他の月も同じような傾向なのか確認しましょう。",
+            "高山祭のようなイベントと日付が重なっていないのか検討しましょう。"
+        ],
+        "advice": []
+    },
+    "wti_cog": {
+        "action": "目的に合わせて、それに合う混雑度の日時を探してください。",
+        "notes": [
+            "前の月や前年も見て、他の月も同じような傾向なのか確認しましょう。",
+            "高山祭のようなイベントと日時が重なっていないのか検討しましょう。"
+        ],
+        "advice": []
+    },
+    "dti_cog": {
+        "action": "目的に合わせて、それに合う混雑度の曜日/時刻を探してください。",
+        "notes": [
+            "前の月や前年も見て、他の月も同じような傾向なのか確認しましょう。",
+            "高山祭のようなイベントと時間が重なっていないのか検討しましょう。"
+        ],
+        "advice": []
+    }
 }
 
 async def analyze_csv_data_debug(csv_path: str, year: int, month: int, purpose: str):
     """
-    デバッグ用：ハイライト基準と分析アプローチの説明のみを返す簡潔バージョン
+    デバッグ用：新しい構造でアドバイスを生成（やること・注意点・アドバイスに分割）
     """
     # purpose値をラベルに変換
     purpose_label = PURPOSE_MAPPING.get(purpose, purpose)
@@ -110,34 +204,6 @@ async def analyze_csv_data_debug(csv_path: str, year: int, month: int, purpose: 
     # 場所コードを日本語名に変換
     location_name = LOCATION_MAPPING.get(location_code, location_code)
 
-    # ハイライト基準の情報を取得
-    highlight_info = HIGHLIGHT_CONDITIONS.get(purpose, {})
-    condition_type = highlight_info.get("condition", "未設定")
-    threshold = highlight_info.get("threshold", None)
-    count = highlight_info.get("count", None)
-    metric = highlight_info.get("metric", "congestion")
-    
-    # ハイライト基準の説明を作成（より簡潔に）
-    if condition_type in CONDITION_EXPLANATIONS:
-        highlight_explanation = CONDITION_EXPLANATIONS[condition_type]
-        
-        params = []
-        if threshold is not None:
-            params.append(f"閾値: {threshold}")
-        if count is not None:
-            params.append(f"表示数: {count}")
-        
-        if params:
-            highlight_explanation += f"（{', '.join(params)}）"
-            
-        if metric in METRIC_EXPLANATIONS:
-            highlight_explanation += f" / {METRIC_EXPLANATIONS[metric]}"
-    else:
-        highlight_explanation = "未設定"
-    
-    # 分析アプローチの説明を取得
-    analysis_approach = PURPOSE_ANALYSIS_APPROACHES.get(purpose, "この目的の分析方法は定義されていません")
-    
     # CSVファイルが実際に存在するか確認
     try:
         with open(csv_path, 'r') as file:
@@ -145,8 +211,29 @@ async def analyze_csv_data_debug(csv_path: str, year: int, month: int, purpose: 
     except FileNotFoundError:
         return f"【エラー】{location_name}のデータファイルが見つかりません。パス: {csv_path}"
 
-    # ハイライト基準と分析アプローチの説明のみを返す（簡潔なフォーマット）
-    return f"""【{location_name}】{purpose_label}
-
-■ 分析のポイント
-{analysis_approach}"""
+    # 目的別のアドバイス内容を取得
+    advice_content = PURPOSE_ADVICE_CONTENT.get(purpose, {})
+    action = advice_content.get("action", "目的に応じた分析を実施してください。")
+    notes = advice_content.get("notes", [])
+    advice_list = advice_content.get("advice", [])
+    
+    # アドバイステキストを構造化して生成
+    result = f"【{location_name}】{purpose_label}\n\n"
+    
+    # やること
+    result += f"■ やること\n{action}\n\n"
+    
+    # 注意点
+    if notes:
+        result += "■ 注意点\n"
+        for note in notes:
+            result += f"・{note}\n"
+        result += "\n"
+    
+    # アドバイス（ある場合のみ表示）
+    if advice_list:
+        result += "■ アドバイス\n"
+        for advice_item in advice_list:
+            result += f"・{advice_item}\n"
+    
+    return result.strip()

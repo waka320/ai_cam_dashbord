@@ -98,7 +98,7 @@ function AdviceSection() {
                 }}>
                     <InfoOutlinedIcon sx={{ fontSize: 40, color: theme.palette.primary.main, mb: 2, opacity: 0.7 }} />
                     <Typography variant="body1" align="center" color="textSecondary" sx={{ maxWidth: '80%' }}>
-                        場所、目的、年月を選択すると、AIからのアドバイスが表示されます
+                        場所、目的、年月を選択すると、活用方法ガイドが表示されます
                     </Typography>
                 </Box>
             );
@@ -138,53 +138,109 @@ function AdviceSection() {
         // タイトル行（【場所】目的）を抽出
         const titleLine = text.split('\n')[0] || '';
         
+        // セクション別のアイコンとスタイルを定義
+        const getSectionStyle = (title) => {
+            switch (title) {
+                case 'やること':
+                    return {
+                        icon: '📋',
+                        color: theme.palette.primary.main,
+                        bgColor: 'rgba(25, 118, 210, 0.05)'
+                    };
+                case '注意点':
+                    return {
+                        icon: '⚠️',
+                        color: theme.palette.warning.main,
+                        bgColor: 'rgba(237, 108, 2, 0.05)'
+                    };
+                case 'アドバイス':
+                    return {
+                        icon: '💡',
+                        color: theme.palette.success.main,
+                        bgColor: 'rgba(46, 125, 50, 0.05)'
+                    };
+                default:
+                    return {
+                        icon: '📌',
+                        color: theme.palette.text.primary,
+                        bgColor: 'rgba(0, 0, 0, 0.02)'
+                    };
+            }
+        };
+        
         return (
             <Box>
                 {/* タイトル行 */}
                 <Typography 
                     variant="h6" 
                     sx={{ 
-                        mb: 2,
-                        fontSize: '1rem',
+                        mb: 3,
+                        fontSize: '1.1rem',
                         fontWeight: 600,
-                        color: theme.palette.text.primary
+                        color: theme.palette.text.primary,
+                        pb: 1,
+                        borderBottom: `2px solid ${theme.palette.primary.main}`
                     }}
                 >
                     {titleLine}
                 </Typography>
                 
                 {/* セクション */}
-                {sections.map((section, idx) => (
-                    <Box key={idx} sx={{ mb: 3 }}>
-                        <Typography 
-                            variant="subtitle1"
+                {sections.map((section, idx) => {
+                    const sectionStyle = getSectionStyle(section.title);
+                    
+                    return (
+                        <Box 
+                            key={idx} 
                             sx={{ 
-                                mb: 1, 
-                                fontWeight: 600,
-                                color: theme.palette.primary.main,
-                                fontSize: '0.9rem'
+                                mb: 3,
+                                p: 2.5,
+                                borderRadius: '8px',
+                                backgroundColor: sectionStyle.bgColor,
+                                border: `1px solid ${sectionStyle.color}15`
                             }}
                         >
-                            {section.title}
-                        </Typography>
-                        
-                        <Box sx={{ pl: 1 }}>
-                            {section.content.map((paragraph, pIdx) => (
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
                                 <Typography 
-                                    key={pIdx}
-                                    variant="body2"
                                     sx={{ 
-                                        mb: 1,
-                                        lineHeight: 1.6,
-                                        color: theme.palette.text.secondary
+                                        fontSize: '1.2rem',
+                                        mr: 1
                                     }}
                                 >
-                                    {paragraph}
+                                    {sectionStyle.icon}
                                 </Typography>
-                            ))}
+                                <Typography 
+                                    variant="subtitle1"
+                                    sx={{ 
+                                        fontWeight: 600,
+                                        color: sectionStyle.color,
+                                        fontSize: '1rem'
+                                    }}
+                                >
+                                    {section.title}
+                                </Typography>
+                            </Box>
+                            
+                            <Box sx={{ pl: 0.5 }}>
+                                {section.content.map((paragraph, pIdx) => (
+                                    <Typography 
+                                        key={pIdx}
+                                        variant="body2"
+                                        sx={{ 
+                                            mb: paragraph.startsWith('・') ? 1 : 1.5,
+                                            lineHeight: 1.7,
+                                            color: theme.palette.text.secondary,
+                                            fontSize: '0.9rem',
+                                            whiteSpace: 'pre-line' // 改行を保持
+                                        }}
+                                    >
+                                        {paragraph}
+                                    </Typography>
+                                ))}
+                            </Box>
                         </Box>
-                    </Box>
-                ))}
+                    );
+                })}
             </Box>
         );
     };
@@ -218,7 +274,7 @@ function AdviceSection() {
                         fontSize: isMobile ? '1.1rem' : '1.2rem'
                     }}
                 >
-                    分析のアドバイス
+                    分析の手引き
                 </Typography>
             </Box>
             
