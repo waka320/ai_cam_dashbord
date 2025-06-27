@@ -98,7 +98,7 @@ function AdviceSection() {
                 }}>
                     <InfoOutlinedIcon sx={{ fontSize: 40, color: theme.palette.primary.main, mb: 2, opacity: 0.7 }} />
                     <Typography variant="body1" align="center" color="textSecondary" sx={{ maxWidth: '80%' }}>
-                        場所、目的、年月を選択すると、活用方法ガイドが表示されます
+                        場所、目的、年月を選択すると、グラフと分析の手引きが表示されます
                     </Typography>
                 </Box>
             );
