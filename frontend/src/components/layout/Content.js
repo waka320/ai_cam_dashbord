@@ -1,5 +1,4 @@
 import React from 'react';
-import Inputs from '../common/Inputs';
 import Calendar from '../common/Calendar';
 import TimeHeatmap from '../common/TimeHeatmap';
 import DateTimeHeatmap from '../common/DateTimeHeatmap';
@@ -119,8 +118,6 @@ function Content() {
             boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)',
             flex: '1 0 auto'
         }}>
-            <Inputs />
-            
             {renderError()}
             {renderLoading()}
             

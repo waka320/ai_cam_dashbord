@@ -18,6 +18,7 @@ import MapIcon from '@mui/icons-material/Map';
 import EmailIcon from '@mui/icons-material/Email';
 // import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import theme from '../../theme/theme';
+import ColorPaletteSwitcher from '../ui/ColorPaletteSwitcher';
 
 const Footer = () => {
   const isMobile = useMediaQuery('(max-width:768px)');
@@ -322,7 +323,17 @@ const Footer = () => {
           <Box sx={{ 
             flex: '1 1 50%' 
           }}>
-            {/* 右側セクションの内容がある場合はここに追加 */}
+            {/* デバッグ用：カラーパレット切り替え */}
+            <Box sx={{ 
+              display: 'flex', 
+              justifyContent: isMobile ? 'center' : 'flex-end',
+              alignItems: 'flex-start'
+            }}>
+
+
+                <ColorPaletteSwitcher />
+
+            </Box>
           </Box>
         </Box>
         
