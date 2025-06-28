@@ -174,8 +174,8 @@ function AdviceSection() {
                 <Typography 
                     variant="h6" 
                     sx={{ 
-                        mb: 3,
-                        fontSize: '1.1rem',
+                        mb: isMobile ? 2 : 2.5,
+                        fontSize: isMobile ? '1rem' : '1.1rem',
                         fontWeight: 600,
                         color: theme.palette.text.primary,
                         pb: 1,
@@ -193,18 +193,18 @@ function AdviceSection() {
                         <Box 
                             key={idx} 
                             sx={{ 
-                                mb: 3,
-                                p: 2.5,
+                                mb: isMobile ? 2 : 2.5,
+                                p: isMobile ? 1.5 : 2,
                                 borderRadius: '8px',
                                 backgroundColor: sectionStyle.bgColor,
                                 border: `1px solid ${sectionStyle.color}15`
                             }}
                         >
-                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: isMobile ? 1 : 1.2 }}>
                                 <Typography 
                                     sx={{ 
-                                        fontSize: '1.2rem',
-                                        mr: 1
+                                        fontSize: isMobile ? '1rem' : '1.1rem',
+                                        mr: 0.8
                                     }}
                                 >
                                     {sectionStyle.icon}
@@ -214,23 +214,23 @@ function AdviceSection() {
                                     sx={{ 
                                         fontWeight: 600,
                                         color: sectionStyle.color,
-                                        fontSize: '1rem'
+                                        fontSize: isMobile ? '0.9rem' : '1rem'
                                     }}
                                 >
                                     {section.title}
                                 </Typography>
                             </Box>
                             
-                            <Box sx={{ pl: 0.5 }}>
+                            <Box sx={{ pl: 0.3 }}>
                                 {section.content.map((paragraph, pIdx) => (
                                     <Typography 
                                         key={pIdx}
                                         variant="body2"
                                         sx={{ 
-                                            mb: paragraph.startsWith('・') ? 1 : 1.5,
-                                            lineHeight: 1.7,
+                                            mb: paragraph.startsWith('・') ? (isMobile ? 0.7 : 0.8) : (isMobile ? 1 : 1.2),
+                                            lineHeight: isMobile ? 1.5 : 1.6,
                                             color: theme.palette.text.secondary,
-                                            fontSize: '0.9rem',
+                                            fontSize: isMobile ? '0.8rem' : '0.85rem',
                                             whiteSpace: 'pre-line' // 改行を保持
                                         }}
                                     >
@@ -280,21 +280,9 @@ function AdviceSection() {
             
             {/* アドバイス表示エリア */}
             <Box sx={{ 
-                p: 2.5,
+                p: isMobile ? 1.5 : 2.5,
                 backgroundColor: 'white',
                 minHeight: '200px',
-                maxHeight: '350px',
-                overflowY: 'auto',
-                '&::-webkit-scrollbar': {
-                    width: '8px',
-                },
-                '&::-webkit-scrollbar-track': {
-                    background: '#f1f1f1',
-                },
-                '&::-webkit-scrollbar-thumb': {
-                    background: '#bbb',
-                    borderRadius: '4px',
-                },
             }}>
                 {!aiAdvice ? renderEmptyState() : renderAIAdvice(aiAdvice)}
             </Box>
