@@ -463,7 +463,7 @@ function Header() {
                     }}>
                         <FormControl variant="outlined" sx={{ 
                             flex: 1,
-                            minWidth: '60px',
+                            minWidth:'100px',
                             '& .MuiOutlinedInput-root': {
                                 height: '32px'
                             }
@@ -513,7 +513,7 @@ function Header() {
 
                         <FormControl variant="outlined" sx={{ 
                             flex: 1,
-                            minWidth: '50px',
+                            minWidth: isMobile ? '50px' : '60px',
                             '& .MuiOutlinedInput-root': {
                                 height: '32px'
                             }
