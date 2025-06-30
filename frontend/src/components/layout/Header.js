@@ -299,6 +299,299 @@ function Header() {
         </Box>
     );
 
+    // 固定表示用のコンテンツ（やりたいこと + 年・月）
+    const StickyHeaderContent = () => (
+        <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            alignItems: 'stretch',
+            width: '100%',
+            gap: 1.5
+        }}>
+            {/* やりたいこと部分 */}
+            <Box sx={{ 
+                display: 'flex', 
+                flexDirection: isMobile ? 'column' : 'row',
+                alignItems: isMobile ? 'stretch' : 'center',
+                gap: isMobile ? 1 : 1.5
+            }}>
+                <Typography
+                    variant={isMobile ? "bodyL" : "h6"}
+                    sx={{
+                        marginRight: isMobile ? 0 : '10px',
+                        color: theme.palette.text.white,
+                        fontWeight: 'bold',
+                        textAlign: isMobile ? 'center' : 'left',
+                        fontSize: isMobile ? '0.9rem' : '1rem',
+                        whiteSpace: 'nowrap',
+                        textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                    }}
+                >
+                    やりたいことは...
+                </Typography>
+
+                <FormControl variant="outlined" sx={{ 
+                    minWidth: isMobile ? '100%' : '300px',
+                    maxWidth: isMobile ? 'none' : '400px',
+                    flex: isMobile ? 'none' : 1,
+                    '& .MuiOutlinedInput-root': {
+                        height: '32px'
+                    }
+                }}>
+                    <Select
+                        value={selectedAction}
+                        onChange={handleChange}
+                        disabled={loading}
+                        displayEmpty
+                        renderValue={(value) => {
+                            if (value === "") return "未入力";
+                            const selectedItem = menuItems.find((item) => item.value === value);
+                            return selectedItem ? (isMobile ? selectedItem.shortLabel : selectedItem.label) : "";
+                        }}
+                        sx={{
+                            backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
+                            borderRadius: '6px',
+                            color:
+                                selectedAction === ""
+                                    ? theme.palette.text.secondary
+                                    : theme.palette.text.primary,
+                            padding: '4px 8px',
+                            '.MuiSelect-icon': { 
+                                color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
+                                right: '4px',
+                                fontSize: '1rem'
+                            },
+                            fontSize: isMobile ? '0.8rem' : '0.85rem',
+                            '& .MuiSelect-select': {
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontWeight: 500,
+                                padding: '4px 8px !important'
+                            },
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                        }}
+                        MenuProps={{
+                            PaperProps: {
+                                style: {
+                                    maxHeight: isMobile ? 240 : 320,
+                                    width: 'auto',
+                                    maxWidth: '85vw',
+                                    borderRadius: '6px',
+                                    marginTop: '4px'
+                                },
+                            },
+                        }}
+                    >
+                        {menuItems.map((item) => (
+                            <MenuItem 
+                                key={item.value} 
+                                value={item.value}
+                                sx={{
+                                    fontSize: isMobile ? '0.8rem' : '0.85rem',
+                                    minHeight: isMobile ? '40px' : '48px',
+                                    fontWeight: 400
+                                }}
+                            >
+                                {item.label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </Box>
+            
+            {/* 年・月部分 */}
+            <Box sx={{ 
+                display: 'flex', 
+                flexDirection: isMobile ? 'column' : 'row',
+                alignItems: isMobile ? 'stretch' : 'center',
+                gap: isMobile ? 1 : 1.5
+            }}>
+                <Typography 
+                    variant={isMobile ? "bodyL" : "h6"}
+                    sx={{ 
+                        color: theme.palette.text.white, 
+                        fontWeight: 'bold',
+                        textAlign: isMobile ? 'center' : 'left',
+                        fontSize: isMobile ? '0.9rem' : '1rem',
+                        whiteSpace: 'nowrap',
+                        textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                        marginRight: isMobile ? 0 : '10px'
+                    }}
+                >
+                    データの年・月
+                </Typography>
+                
+                <Box sx={{ 
+                    display: 'flex', 
+                    gap: isMobile ? 0.8 : 0.8,
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    width: isMobile ? '100%' : 'auto',
+                    flexWrap: 'nowrap'
+                }}>
+                    <Tooltip title="前の月">
+                        <span>
+                            <IconButton 
+                                onClick={handlePreviousMonth}
+                                disabled={loading || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
+                                sx={{ 
+                                    width: '32px',
+                                    height: '32px',
+                                    bgcolor: 'white', 
+                                    color: theme.palette.primary.main,
+                                    '&:hover': {
+                                        bgcolor: 'rgba(255, 255, 255, 0.9)',
+                                    },
+                                    '&:disabled': {
+                                        bgcolor: 'rgba(255, 255, 255, 0.6)',
+                                        color: 'rgba(0, 0, 0, 0.38)',
+                                    },
+                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                    borderRadius: '6px'
+                                }}
+                            >
+                                <ArrowBackIosNewIcon sx={{ fontSize: '16px' }} />
+                            </IconButton>
+                        </span>
+                    </Tooltip>
+
+                    <Box sx={{ 
+                        display: 'flex', 
+                        gap: isMobile ? 1 : 1,
+                        flex: isMobile ? 1 : 'none'
+                    }}>
+                        <FormControl variant="outlined" sx={{ 
+                            flex: 1,
+                            minWidth: isMobile ? '60px' : '120px',
+                            '& .MuiOutlinedInput-root': {
+                                height: '32px'
+                            }
+                        }}>
+                            <Select
+                                value={selectedYear}
+                                onChange={handleYearChange}
+                                disabled={loading}
+                                displayEmpty
+                                renderValue={(value) => {
+                                    if (value === "") return "----年";
+                                    return value + "年";
+                                }}
+                                sx={{
+                                    backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
+                                    borderRadius: '6px',
+                                    fontSize: isMobile ? '0.85rem' : '0.85rem',
+                                    fontWeight: 500,
+                                    '.MuiSelect-icon': { 
+                                        color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
+                                        right: '4px',
+                                        fontSize: '1rem'
+                                    },
+                                    '& .MuiOutlinedInput-input': {
+                                        padding: '4px 8px',
+                                    },
+                                    color: selectedYear === "" ? theme.palette.text.secondary : theme.palette.text.primary,
+                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                                }}
+                                MenuProps={{
+                                    PaperProps: {
+                                        style: {
+                                            maxHeight: 200,
+                                            borderRadius: '6px',
+                                            marginTop: '4px'
+                                        }
+                                    }
+                                }}
+                            >
+                                {yearItems.map((item) => (
+                                    <MenuItem key={item.value} value={item.value} sx={{ fontSize: '0.85rem' }}>
+                                        {item.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        <FormControl variant="outlined" sx={{ 
+                            flex: 1,
+                            minWidth: isMobile ? '50px' : '90px',
+                            '& .MuiOutlinedInput-root': {
+                                height: '32px'
+                            }
+                        }}>
+                            <Select
+                                value={selectedMonth}
+                                onChange={handleMonthChange}
+                                disabled={loading || !selectedYear}
+                                displayEmpty
+                                renderValue={(value) => {
+                                    if (value === "") return "--月";
+                                    return value + "月";
+                                }}
+                                sx={{
+                                    backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
+                                    borderRadius: '6px',
+                                    fontSize: isMobile ? '0.85rem' : '0.85rem',
+                                    fontWeight: 500,
+                                    '.MuiSelect-icon': { 
+                                        color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
+                                        right: '4px',
+                                        fontSize: '1rem'
+                                    },
+                                    '& .MuiOutlinedInput-input': {
+                                        padding: '4px 8px',
+                                    },
+                                    color: selectedMonth === "" ? theme.palette.text.secondary : theme.palette.text.primary,
+                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                                }}
+                                MenuProps={{
+                                    PaperProps: {
+                                        style: {
+                                            maxHeight: 200,
+                                            borderRadius: '6px',
+                                            marginTop: '4px'
+                                        }
+                                    }
+                                }}
+                            >
+                                {availableMonths.map((item) => (
+                                    <MenuItem key={item.value} value={item.value} sx={{ fontSize: '0.85rem' }}>
+                                        {item.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
+
+                    <Tooltip title="次の月">
+                        <span>
+                            <IconButton
+                                onClick={handleNextMonth}
+                                disabled={loading || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
+                                sx={{ 
+                                    width: '32px',
+                                    height: '32px',
+                                    bgcolor: 'white', 
+                                    color: theme.palette.primary.main,
+                                    '&:hover': {
+                                        bgcolor: 'rgba(255, 255, 255, 0.9)',
+                                    },
+                                    '&:disabled': {
+                                        bgcolor: 'rgba(255, 255, 255, 0.6)',
+                                        color: 'rgba(0, 0, 0, 0.38)',
+                                    },
+                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                    borderRadius: '6px'
+                                }}
+                            >
+                                <ArrowForwardIosIcon sx={{ fontSize: '16px' }} />
+                            </IconButton>
+                        </span>
+                    </Tooltip>
+                </Box>
+            </Box>
+        </Box>
+    );
+
     return (
         <>
             {/* 固定表示される選択肢 - スクロール時のみ表示 */}
@@ -319,7 +612,7 @@ function Header() {
                         transform: isScrolled ? 'translateY(0)' : 'translateY(-100%)',
                     }}
                 >
-                    <ActionSelectionContent />
+                    <StickyHeaderContent />
                 </Paper>
             )}
             
@@ -475,7 +768,7 @@ function Header() {
                                             gap: isMobile ? 0.8 : 1
                                         }}>
                                             <FormControl variant="outlined" sx={{ 
-                                                width: isMobile ? '50%' : isSmallDesktop ? 110 : 140,
+                                                width: isMobile ? '50%' : isSmallDesktop ? 130 : 160,
                                                 '& .MuiOutlinedInput-root': {
                                                     height: isMobile ? '40px' : '40px'
                                                 }
@@ -539,7 +832,7 @@ function Header() {
                                             </FormControl>
                                             
                                             <FormControl variant="outlined" sx={{ 
-                                                width: isMobile ? '50%' : isSmallDesktop ? 100 : 120,
+                                                width: isMobile ? '50%' : isSmallDesktop ? 110 : 130,
                                                 '& .MuiOutlinedInput-root': {
                                                     height: isMobile ? '40px' : '40px'
                                                 }
