@@ -117,9 +117,32 @@ const Footer = () => {
           </Typography>
           <Typography 
             variant={isMobile ? "body2" : "body1"} 
+            sx={{ opacity: 0.85, mb: 1.5 }}
+          >
+            データは自動的にカメラで取得したものであるので、実際の状況と異なる場合があります。最新かつ正確な情報は、各公式サイトや施設にて直接ご確認ください。
+          </Typography>
+          <Typography 
+            variant={isMobile ? "body2" : "body1"} 
             sx={{ opacity: 0.85 }}
           >
-            データは自動的にカメラで取得したものなので、実際の状況と異なる場合があります。最新かつ正確な情報は、各公式サイトや施設にて直接ご確認ください。
+            詳細は
+            <RouterLink 
+              to="/terms"
+              onClick={handleLinkClick('/terms')}
+              style={{ 
+                color: theme.palette.primary.main,
+                textDecoration: 'underline',
+                fontWeight: 500,
+                marginLeft: '4px',
+                marginRight: '4px'
+              }}
+              onMouseEnter={(e) => e.target.style.textDecoration = 'underline'}
+              onMouseLeave={(e) => e.target.style.textDecoration = 'none'}
+              aria-label="利用規約・プライバシーポリシーページへ"
+            >
+              利用規約・プライバシーポリシー
+            </RouterLink>
+            をご覧ください。
           </Typography>
         </Box>
 

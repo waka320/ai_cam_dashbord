@@ -463,7 +463,7 @@ function Header() {
                     }}>
                         <FormControl variant="outlined" sx={{ 
                             flex: 1,
-                            minWidth: isMobile ? '60px' : '120px',
+                            minWidth: '60px',
                             '& .MuiOutlinedInput-root': {
                                 height: '32px'
                             }
@@ -513,7 +513,7 @@ function Header() {
 
                         <FormControl variant="outlined" sx={{ 
                             flex: 1,
-                            minWidth: isMobile ? '50px' : '90px',
+                            minWidth: '50px',
                             '& .MuiOutlinedInput-root': {
                                 height: '32px'
                             }
@@ -768,7 +768,7 @@ function Header() {
                                             gap: isMobile ? 0.8 : 1
                                         }}>
                                             <FormControl variant="outlined" sx={{ 
-                                                width: isMobile ? '50%' : isSmallDesktop ? 130 : 160,
+                                                width: isMobile ? '50%' : isSmallDesktop ? 110 : 140,
                                                 '& .MuiOutlinedInput-root': {
                                                     height: isMobile ? '40px' : '40px'
                                                 }
@@ -832,7 +832,7 @@ function Header() {
                                             </FormControl>
                                             
                                             <FormControl variant="outlined" sx={{ 
-                                                width: isMobile ? '50%' : isSmallDesktop ? 110 : 130,
+                                                width: isMobile ? '50%' : isSmallDesktop ? 100 : 120,
                                                 '& .MuiOutlinedInput-root': {
                                                     height: isMobile ? '40px' : '40px'
                                                 }

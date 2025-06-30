@@ -2,9 +2,8 @@ import React from 'react';
 import Calendar from '../common/Calendar';
 import TimeHeatmap from '../common/TimeHeatmap';
 import DateTimeHeatmap from '../common/DateTimeHeatmap';
-import { Box, Typography, Link, useMediaQuery, Fade, CircularProgress, Paper } from '@mui/material';
+import { Box, Typography, Button, useMediaQuery, Fade, CircularProgress } from '@mui/material';
 import AdviceSection from './AdviceSection';
-import theme from '../../theme/theme';
 import { useCalendar } from '../../contexts/CalendarContext';
 import SectionContainer from '../ui/SectionContainer';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
@@ -73,40 +72,34 @@ function Content() {
         );
     };
 
-    // クレジットフッターの表示
-    const renderCredits = () => {
+    // フィードバックボタンの表示
+    const renderFeedbackButton = () => {
         return (
-            <Paper elevation={0} sx={{
-                backgroundColor: theme.palette.primary.light,
-                color: theme.palette.common.white,
-                borderRadius: '8px',
-                overflow: 'hidden',
-                mb: 2
-            }}>      
-                <Box sx={{ 
-                    p: 2, 
-                    textAlign: 'center', 
-                    backgroundColor: 'rgba(0,0,0,0.1)'
-                }}>
-                    <Link
-                        href="https://docs.google.com/forms/d/e/1FAIpQLSeEalJjup-hR6BN6M8MfETrPn3is0i-5Rskxz_rkEZvI7mvFw/viewform?usp=header"
-                        color="inherit"
-                        target="_blank" 
-                        sx={{
-                            textDecoration: 'none',
-                            fontWeight: 500,
-                            fontSize: '0.9rem',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            '&:hover': {
-                                textDecoration: 'underline',
-                            },
-                        }}
-                    >
-                        ご意見を聞かせてください
-                    </Link>
-                </Box>
-            </Paper>
+            <Box sx={{ mb: 2 }}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    href="https://docs.google.com/forms/d/e/1FAIpQLSeEalJjup-hR6BN6M8MfETrPn3is0i-5Rskxz_rkEZvI7mvFw/viewform?usp=header"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                        py: 1.5,
+                        borderRadius: '8px',
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        fontSize: '0.9rem',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                        '&:hover': {
+                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+                            transform: 'translateY(-1px)',
+                        },
+                        transition: 'all 0.2s ease-in-out',
+                    }}
+                >
+                    ここをタップしてご意見をお聞かせください
+                </Button>
+            </Box>
         );
     };
 
@@ -145,7 +138,7 @@ function Content() {
                     }}
                 >
                     <AdviceSection />
-                    {renderCredits()}
+                    {renderFeedbackButton()}
                 </Box>
             </Box>
         </Box>
