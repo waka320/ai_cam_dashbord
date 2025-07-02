@@ -30,6 +30,9 @@ LOCATION_MAPPING = {
     "yasukawadori": "やすかわ通り商店街",
     "jinnya": "高山陣屋前交差点",
     "nakabashi": "中橋",
+    "station": "駅前",
+    "gyouzinbashi": "行人ばし",
+    "old-town": "古い町並",
 }
 
 # ハイライト条件の設定（highlighter_service.pyから統合）
