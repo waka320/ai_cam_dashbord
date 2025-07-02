@@ -7,7 +7,7 @@ import AnalysisInfoButton from '../ui/AnalysisInfoButton'; // 追加
 
 // カレンダーコンポーネント
 const CalendarHeatmap = () => {
-    const { calendarData, selectedAction, loading, selectedLocation } = useCalendar();
+    const { calendarData, selectedAction, selectedMonth, loading, selectedLocation } = useCalendar();
     const { getCellColor, getTextColor } = useColorPalette();
     const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
     
@@ -190,31 +190,32 @@ const CalendarHeatmap = () => {
                                                 alignItems: 'center',
                                                 justifyContent: 'center'
                                             }}>
+                                                {/* 混雑度を大きく表示 */}
                                                 <Typography 
-                                                    variant={isMobile ? (isSmallMobile ? "bodyL" : "h4") : "h4"} 
+                                                    variant={isMobile ? (isSmallMobile ? "h6" : "h4") : "h3"} 
                                                     sx={{ 
                                                         margin: '0px',
-                                                        fontSize: isMobile ? (isSmallMobile ? '14px' : '16px') : undefined,
-                                                        lineHeight: isMobile ? '1.2' : undefined,
+                                                        fontSize: isMobile ? (isSmallMobile ? '16px' : '24px') : '28px',
+                                                        lineHeight: '1',
+                                                        fontWeight: 'bold',
                                                         color: cell.congestion === 0 ? '#666' : 'inherit'
                                                     }}
                                                 >
-                                                    {cell.date}
+                                                    {cell.congestion === 0 ? '-' : cell.congestion}
                                                 </Typography>
                                                 
+                                                {/* 日付を小さく表示（月/日形式） */}
                                                 <Typography 
                                                     variant={isMobile ? "bodyS" : "bodyM"} 
                                                     sx={{
-                                                        fontSize: isSmallMobile ? '10px' : undefined,
-                                                        lineHeight: isSmallMobile ? '1' : undefined,
-                                                        marginTop: isSmallMobile ? '2px' : undefined,
-                                                        // セルのメイン文字色と同じにする
+                                                        fontSize: isSmallMobile ? '10px' : '12px',
+                                                        lineHeight: '1',
+                                                        marginTop: '2px',
+                                                        opacity: 0.8,
                                                         color: cell.congestion === 0 ? '#666' : getTextColor(cell.congestion)
                                                     }}
                                                 >
-                                                    {cell.congestion === 0 ? 
-                                                        (isSmallMobile ? "" : "") : 
-                                                        (isSmallMobile ? `混:${cell.congestion}` : `混雑度: ${cell.congestion}`)}
+                                                    {`${selectedMonth}/${cell.date}`}
                                                 </Typography>
                                                 
                                                 {/* ハイライトされたセルにインフォアイコンを表示 */}

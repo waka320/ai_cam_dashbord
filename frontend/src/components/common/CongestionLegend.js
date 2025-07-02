@@ -23,7 +23,7 @@ const CongestionLegend = () => {
           fontSize: isMobile ? '0.9rem' : '1rem'
         }}
       >
-        混雑度の凡例:
+        混雑度の凡例（上：混雑度、下：日付）:
       </Typography>
       <Box sx={{ 
         display: 'flex', 
@@ -32,29 +32,47 @@ const CongestionLegend = () => {
         justifyContent: isMobile ? 'center' : 'flex-start',
         mb: 1.5
       }}>
-        
-        
         {[...Array(10)].map((_, i) => {
           const level = i + 1;
           return (
             <Box
               key={level}
               sx={{
-                width: isSmallMobile ? '28px' : isMobile ? '30px' : '35px',
-                height: isSmallMobile ? '28px' : isMobile ? '30px' : '35px',
+                width: isSmallMobile ? '40px' : isMobile ? '45px' : '55px',
+                height: isSmallMobile ? '40px' : isMobile ? '45px' : '55px',
                 backgroundColor: getCellColor(level),
-                color: getTextColor(level), // カラーパレットに応じた文字色を使用
+                color: getTextColor(level),
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: isSmallMobile ? '0.75rem' : isMobile ? '0.85rem' : '0.95rem',
-                fontWeight: 'bold',
                 border: '1px solid rgba(0,0,0,0.1)',
                 borderRadius: '4px',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                position: 'relative'
               }}
             >
-              {level}
+              {/* 混雑度を大きく表示 */}
+              <Box
+                sx={{
+                  fontSize: isSmallMobile ? '14px' : isMobile ? '16px' : '20px',
+                  fontWeight: 'bold',
+                  lineHeight: '1'
+                }}
+              >
+                {level}
+              </Box>
+              {/* サンプル日付を小さく表示（月/日形式） */}
+              <Box
+                sx={{
+                  fontSize: isSmallMobile ? '8px' : '10px',
+                  lineHeight: '1',
+                  marginTop: '2px',
+                  opacity: 0.8
+                }}
+              >
+                {`月/日`}
+              </Box>
             </Box>
           );
         })}
@@ -70,18 +88,46 @@ const CongestionLegend = () => {
       }}>
         <Box
           sx={{
-            width: isSmallMobile ? '10px' : '18px',
-            height: isSmallMobile ? '10px' : '18px',
+            width: isSmallMobile ? '40px' : isMobile ? '45px' : '55px',
+            height: isSmallMobile ? '40px' : isMobile ? '45px' : '55px',
             backgroundColor: '#e0e0e0',
             border: '1px solid rgba(0,0,0,0.1)',
-            borderRadius: '3px'
+            borderRadius: '4px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
-        />
+        >
+          {/* ダッシュ表示 */}
+          <Box
+            sx={{
+              fontSize: isSmallMobile ? '14px' : isMobile ? '16px' : '20px',
+              fontWeight: 'bold',
+              lineHeight: '1',
+              color: '#666'
+            }}
+          >
+            -
+          </Box>
+          {/* サンプル日付（月/日形式） */}
+          <Box
+            sx={{
+              fontSize: isSmallMobile ? '8px' : '10px',
+              lineHeight: '1',
+              marginTop: '2px',
+              opacity: 0.8,
+              color: '#666'
+            }}
+          >
+            6/1
+          </Box>
+        </Box>
         <Typography 
           variant={isSmallMobile ? "bodyS" : "bodyS"} 
           color="text.secondary"
         >
-          グレーはデータなし
+          データなし
         </Typography>
       </Box>
     </Box>
