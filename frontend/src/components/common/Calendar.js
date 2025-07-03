@@ -159,7 +159,8 @@ const CalendarHeatmap = () => {
                                             cursor: cell && cell.highlighted ? 'pointer' : 'default',
                                             height: isMobile ? (isSmallMobile ? '45px' : '55px') : '65px',
                                             minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '50px',
-                                            minHeight: isMobile ? (isSmallMobile ? '45px' : '55px') : '65px',
+                                            minHeight: isMobile ? (isSmallMobile ? '55px' : '55px') : '65px',
+                                            paddingY: isMobile ? (isSmallMobile ? '5px' : '20px') : '20px'
                                             // ハイライトエフェクト
                                             // ...(cell && cell.highlighted && {
                                             //     '&::before': {
@@ -188,7 +189,7 @@ const CalendarHeatmap = () => {
                                                 flexDirection: 'column',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                gap: isSmallMobile ? '2px' : '4px'
+                                                gap: isSmallMobile ? '2px' : '4px',
                                             }}>
                                                 {/* 日付を上に中央揃えで表示 */}
                                                 <Typography 
@@ -197,7 +198,7 @@ const CalendarHeatmap = () => {
                                                         lineHeight: '1',
                                                         color: cell.congestion === 0 ? '#666' : getTextColor(cell.congestion),
                                                         fontWeight: '500',
-                                                        textAlign: 'center'
+                                                        textAlign: 'center',
                                                     }}
                                                 >
                                                     {`${cell.date}日`}
@@ -206,7 +207,7 @@ const CalendarHeatmap = () => {
                                                 {/* 混雑度を下に中央揃えで表示 */}
                                                 <Typography 
                                                     sx={{ 
-                                                        fontSize: isMobile ? (isSmallMobile ? '16px' : '24px') : '28px',
+                                                        fontSize: isMobile ? (isSmallMobile ? '25px' : '27px') : '28px',
                                                         lineHeight: '1',
                                                         fontWeight: 'bold',
                                                         color: cell.congestion === 0 ? '#666' : 'inherit',

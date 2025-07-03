@@ -67,7 +67,7 @@ const CongestionLegend = () => {
               {/* 混雑度を下に中央揃えで表示 */}
               <Box
                 sx={{
-                  fontSize: isSmallMobile ? '14px' : isMobile ? '16px' : '20px',
+                  fontSize: isSmallMobile ? '18px' : isMobile ? '20px' : '22px',
                   fontWeight: 'bold',
                   lineHeight: '1',
                   textAlign: 'center'
