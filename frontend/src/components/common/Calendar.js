@@ -157,8 +157,9 @@ const CalendarHeatmap = () => {
                                             borderBottom: rowIndex !== calendarData.length - 1 ? '1px solid #ddd' : undefined,
                                             position: 'relative',
                                             cursor: cell && cell.highlighted ? 'pointer' : 'default',
-                                            height: isMobile ? (isSmallMobile ? '45px' : '55px') : 'auto',
-                                            minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : 'auto',
+                                            height: isMobile ? (isSmallMobile ? '45px' : '55px') : '65px',
+                                            minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '50px',
+                                            minHeight: isMobile ? (isSmallMobile ? '45px' : '55px') : '65px',
                                             // ハイライトエフェクト
                                             // ...(cell && cell.highlighted && {
                                             //     '&::before': {
@@ -180,58 +181,60 @@ const CalendarHeatmap = () => {
                                     >
                                         {cell && (
                                             <Box sx={{ 
-                                                textAlign: 'center', 
-                                                padding: isMobile ? (isSmallMobile ? '2px' : '4px') : '10px',
                                                 position: 'relative',
-                                                zIndex: 2,
                                                 width: '100%',
+                                                height: '100%',
                                                 display: 'flex',
-                                                flexDirection: 'column',
                                                 alignItems: 'center',
                                                 justifyContent: 'center'
                                             }}>
-                                                {/* 混雑度を大きく表示 */}
+                                                {/* 混雑度ラベルを左上に小さく配置 */}
+                                                {cell.congestion > 0 && (
+                                                    <Typography 
+                                                        sx={{
+                                                            position: 'absolute',
+                                                            top: isSmallMobile ? '2px' : '4px',
+                                                            left: isSmallMobile ? '2px' : '4px',
+                                                            fontSize: isSmallMobile ? '7px' : isMobile ? '9px' : '10px',
+                                                            lineHeight: '1',
+                                                            opacity: 0.7,
+                                                            color: getTextColor(cell.congestion),
+                                                            fontWeight: '500'
+                                                        }}
+                                                    >
+                                                        混雑度
+                                                    </Typography>
+                                                )}
+                                                
+                                                {/* 混雑度の数値を中央に大きく表示 */}
                                                 <Typography 
-                                                    variant={isMobile ? (isSmallMobile ? "h6" : "h4") : "h3"} 
                                                     sx={{ 
-                                                        margin: '0px',
-                                                        fontSize: isMobile ? (isSmallMobile ? '16px' : '24px') : '28px',
+                                                        fontSize: isMobile ? (isSmallMobile ? '18px' : '28px') : '36px',
                                                         lineHeight: '1',
                                                         fontWeight: 'bold',
-                                                        color: cell.congestion === 0 ? '#666' : 'inherit'
+                                                        color: cell.congestion === 0 ? '#666' : 'inherit',
+                                                        margin: 0,
+                                                        textAlign: 'center'
                                                     }}
                                                 >
                                                     {cell.congestion === 0 ? '-' : cell.congestion}
                                                 </Typography>
                                                 
-                                                {/* 日付を小さく表示（月/日形式） */}
+                                                {/* 日付を右下に小さく表示 */}
                                                 <Typography 
-                                                    variant={isMobile ? "bodyS" : "bodyM"} 
                                                     sx={{
-                                                        fontSize: isSmallMobile ? '10px' : '12px',
+                                                        position: 'absolute',
+                                                        bottom: isSmallMobile ? '2px' : '4px',
+                                                        right: isSmallMobile ? '2px' : '4px',
+                                                        fontSize: isSmallMobile ? '8px' : isMobile ? '10px' : '11px',
                                                         lineHeight: '1',
-                                                        marginTop: '2px',
                                                         opacity: 0.8,
-                                                        color: cell.congestion === 0 ? '#666' : getTextColor(cell.congestion)
+                                                        color: cell.congestion === 0 ? '#666' : getTextColor(cell.congestion),
+                                                        fontWeight: '500'
                                                     }}
                                                 >
                                                     {`${selectedMonth}/${cell.date}`}
                                                 </Typography>
-                                                
-                                                {/* ハイライトされたセルにインフォアイコンを表示 */}
-                                                {/* {cell.highlighted && cell.highlight_reason && cell.congestion > 0 && (
-                                                    <InfoIcon 
-                                                        sx={{ 
-                                                            position: 'absolute',
-                                                            top: isMobile ? '1px' : '5px',
-                                                            right: isMobile ? '1px' : '5px',
-                                                            fontSize: isMobile ? '12px' : '16px',
-                                                            opacity: 0.8,
-                                                            // アイコンの色も動的に決定
-                                                            color: getTextColor(cell.congestion)
-                                                        }}
-                                                    />
-                                                )} */}
                                             </Box>
                                         )}
                                     </Box>

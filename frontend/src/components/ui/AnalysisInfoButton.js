@@ -52,8 +52,6 @@ const AnalysisInfoButton = ({ analysisType, place = 'default' }) => {
         return {
           title: '混雑度カレンダーの計算方法',
           description: [
-            `混雑度は1～10の10段階で表示されています。`,
-            `0は「データなし」を示します。`,
             `混雑度1～10は歩行者数に基づいて算出されます。`,
             `歩行者が0人の日もデータとして平均計算に含まれています。`
           ],
@@ -67,8 +65,6 @@ const AnalysisInfoButton = ({ analysisType, place = 'default' }) => {
         return {
           title: '日付×時間の混雑度の計算方法',
           description: [
-            `混雑度は1～10の10段階で表示されています。`,
-            `0は「データなし」を示します。`,
             `混雑度1～10は歩行者数に基づいて算出されます。`,
             `歩行者が0人の時間帯もデータとして平均計算に含まれています。`
           ],
@@ -82,8 +78,6 @@ const AnalysisInfoButton = ({ analysisType, place = 'default' }) => {
         return {
           title: '曜日×時間の混雑度の計算方法',
           description: [
-            `混雑度は1～10の10段階で表示されています。`,
-            `0は「データなし」を示します。`,
             `混雑度1～10は歩行者数に基づいて算出されます。`,
             `各曜日・時間帯の平均値から算出しています。`,
             `歩行者が0人の時間帯もデータとして平均計算に含まれています。`

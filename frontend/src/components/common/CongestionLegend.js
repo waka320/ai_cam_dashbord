@@ -23,7 +23,7 @@ const CongestionLegend = () => {
           fontSize: isMobile ? '0.9rem' : '1rem'
         }}
       >
-        混雑度の凡例（上：混雑度、下：日付）:
+        混雑度の凡例（中央：混雑度、左上：ラベル、右下：日付）:
       </Typography>
       <Box sx={{ 
         display: 'flex', 
@@ -43,7 +43,6 @@ const CongestionLegend = () => {
                 backgroundColor: getCellColor(level),
                 color: getTextColor(level),
                 display: 'flex',
-                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 border: '1px solid rgba(0,0,0,0.1)',
@@ -52,26 +51,46 @@ const CongestionLegend = () => {
                 position: 'relative'
               }}
             >
-              {/* 混雑度を大きく表示 */}
+              {/* 混雑ラベルを左上に配置 */}
               <Box
                 sx={{
-                  fontSize: isSmallMobile ? '14px' : isMobile ? '16px' : '20px',
+                  position: 'absolute',
+                  top: isSmallMobile ? '2px' : '4px',
+                  left: isSmallMobile ? '2px' : '4px',
+                  fontSize: isSmallMobile ? '6px' : isMobile ? '7px' : '8px',
+                  lineHeight: '1',
+                  opacity: 0.7,
+                  fontWeight: '500'
+                }}
+              >
+                混雑度
+              </Box>
+              
+              {/* 混雑度を中央に大きく表示 */}
+              <Box
+                sx={{
+                  fontSize: isSmallMobile ? '16px' : isMobile ? '18px' : '24px',
                   fontWeight: 'bold',
-                  lineHeight: '1'
+                  lineHeight: '1',
+                  textAlign: 'center'
                 }}
               >
                 {level}
               </Box>
-              {/* サンプル日付を小さく表示（月/日形式） */}
+              
+              {/* 日付を右下に小さく表示 */}
               <Box
                 sx={{
-                  fontSize: isSmallMobile ? '8px' : '10px',
+                  position: 'absolute',
+                  bottom: isSmallMobile ? '2px' : '4px',
+                  right: isSmallMobile ? '2px' : '4px',
+                  fontSize: isSmallMobile ? '6px' : isMobile ? '8px' : '9px',
                   lineHeight: '1',
-                  marginTop: '2px',
-                  opacity: 0.8
+                  opacity: 0.8,
+                  fontWeight: '500'
                 }}
               >
-                {`月/日`}
+                {`6/${level}`}
               </Box>
             </Box>
           );
@@ -94,30 +113,35 @@ const CongestionLegend = () => {
             border: '1px solid rgba(0,0,0,0.1)',
             borderRadius: '4px',
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            position: 'relative'
           }}
         >
-          {/* ダッシュ表示 */}
+          {/* 中央にダッシュ表示 */}
           <Box
             sx={{
-              fontSize: isSmallMobile ? '14px' : isMobile ? '16px' : '20px',
+              fontSize: isSmallMobile ? '16px' : isMobile ? '18px' : '24px',
               fontWeight: 'bold',
               lineHeight: '1',
-              color: '#666'
+              color: '#666',
+              textAlign: 'center'
             }}
           >
             -
           </Box>
-          {/* サンプル日付（月/日形式） */}
+          
+          {/* 日付を右下に表示 */}
           <Box
             sx={{
-              fontSize: isSmallMobile ? '8px' : '10px',
+              position: 'absolute',
+              bottom: isSmallMobile ? '2px' : '4px',
+              right: isSmallMobile ? '2px' : '4px',
+              fontSize: isSmallMobile ? '6px' : isMobile ? '8px' : '9px',
               lineHeight: '1',
-              marginTop: '2px',
               opacity: 0.8,
-              color: '#666'
+              color: '#666',
+              fontWeight: '500'
             }}
           >
             6/1
