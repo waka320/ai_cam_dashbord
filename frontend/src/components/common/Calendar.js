@@ -90,10 +90,10 @@ const CalendarHeatmap = () => {
                     px: 1
                 }}>
                     <Typography 
-                        variant={isMobile ? "subtitle1" : "h6"} 
+                        variant={isMobile ? "subtitle1" : "h5"} 
                         sx={{ textAlign: isMobile ? 'center' : 'left' }}
                     >
-                        混雑度カレンダー（{selectedMonth}月）
+                        {selectedMonth}月の混雑度カレンダー
                     </Typography>
                     
                     <AnalysisInfoButton 
