@@ -93,7 +93,7 @@ const CalendarHeatmap = () => {
                         variant={isMobile ? "subtitle1" : "h6"} 
                         sx={{ textAlign: isMobile ? 'center' : 'left' }}
                     >
-                        混雑度カレンダー
+                        混雑度カレンダー（{selectedMonth}月）
                     </Typography>
                     
                     <AnalysisInfoButton 
@@ -185,31 +185,28 @@ const CalendarHeatmap = () => {
                                                 width: '100%',
                                                 height: '100%',
                                                 display: 'flex',
+                                                flexDirection: 'column',
                                                 alignItems: 'center',
-                                                justifyContent: 'center'
+                                                justifyContent: 'center',
+                                                gap: isSmallMobile ? '2px' : '4px'
                                             }}>
-                                                {/* 混雑度ラベルを左上に小さく配置 */}
-                                                {cell.congestion > 0 && (
-                                                    <Typography 
-                                                        sx={{
-                                                            position: 'absolute',
-                                                            top: isSmallMobile ? '2px' : '4px',
-                                                            left: isSmallMobile ? '2px' : '4px',
-                                                            fontSize: isSmallMobile ? '7px' : isMobile ? '9px' : '10px',
-                                                            lineHeight: '1',
-                                                            opacity: 0.7,
-                                                            color: getTextColor(cell.congestion),
-                                                            fontWeight: '500'
-                                                        }}
-                                                    >
-                                                        混雑度
-                                                    </Typography>
-                                                )}
+                                                {/* 日付を上に中央揃えで表示 */}
+                                                <Typography 
+                                                    sx={{
+                                                        fontSize: isSmallMobile ? '12px' : isMobile ? '14px' : '16px',
+                                                        lineHeight: '1',
+                                                        color: cell.congestion === 0 ? '#666' : getTextColor(cell.congestion),
+                                                        fontWeight: '500',
+                                                        textAlign: 'center'
+                                                    }}
+                                                >
+                                                    {`${cell.date}日`}
+                                                </Typography>
                                                 
-                                                {/* 混雑度の数値を中央に大きく表示 */}
+                                                {/* 混雑度を下に中央揃えで表示 */}
                                                 <Typography 
                                                     sx={{ 
-                                                        fontSize: isMobile ? (isSmallMobile ? '18px' : '28px') : '36px',
+                                                        fontSize: isMobile ? (isSmallMobile ? '16px' : '24px') : '28px',
                                                         lineHeight: '1',
                                                         fontWeight: 'bold',
                                                         color: cell.congestion === 0 ? '#666' : 'inherit',
@@ -218,22 +215,6 @@ const CalendarHeatmap = () => {
                                                     }}
                                                 >
                                                     {cell.congestion === 0 ? '-' : cell.congestion}
-                                                </Typography>
-                                                
-                                                {/* 日付を右下に小さく表示 */}
-                                                <Typography 
-                                                    sx={{
-                                                        position: 'absolute',
-                                                        bottom: isSmallMobile ? '2px' : '4px',
-                                                        right: isSmallMobile ? '2px' : '4px',
-                                                        fontSize: isSmallMobile ? '8px' : isMobile ? '10px' : '11px',
-                                                        lineHeight: '1',
-                                                        opacity: 0.8,
-                                                        color: cell.congestion === 0 ? '#666' : getTextColor(cell.congestion),
-                                                        fontWeight: '500'
-                                                    }}
-                                                >
-                                                    {`${selectedMonth}/${cell.date}`}
                                                 </Typography>
                                             </Box>
                                         )}

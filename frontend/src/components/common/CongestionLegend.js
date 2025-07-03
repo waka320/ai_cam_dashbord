@@ -23,7 +23,7 @@ const CongestionLegend = () => {
           fontSize: isMobile ? '0.9rem' : '1rem'
         }}
       >
-        混雑度の凡例（中央：混雑度、左上：ラベル、右下：日付）:
+        混雑度の凡例（上：日付、下：混雑度）:
       </Typography>
       <Box sx={{ 
         display: 'flex', 
@@ -43,54 +43,37 @@ const CongestionLegend = () => {
                 backgroundColor: getCellColor(level),
                 color: getTextColor(level),
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
                 border: '1px solid rgba(0,0,0,0.1)',
                 borderRadius: '4px',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                position: 'relative'
+                gap: isSmallMobile ? '1px' : '2px'
               }}
             >
-              {/* 混雑ラベルを左上に配置 */}
+              {/* 日付を上に中央揃えで表示 */}
               <Box
                 sx={{
-                  position: 'absolute',
-                  top: isSmallMobile ? '2px' : '4px',
-                  left: isSmallMobile ? '2px' : '4px',
-                  fontSize: isSmallMobile ? '6px' : isMobile ? '7px' : '8px',
+                  fontSize: isSmallMobile ? '8px' : isMobile ? '10px' : '12px',
                   lineHeight: '1',
-                  opacity: 0.7,
-                  fontWeight: '500'
+                  fontWeight: '500',
+                  textAlign: 'center'
                 }}
               >
-                混雑度
+                日にち
               </Box>
               
-              {/* 混雑度を中央に大きく表示 */}
+              {/* 混雑度を下に中央揃えで表示 */}
               <Box
                 sx={{
-                  fontSize: isSmallMobile ? '16px' : isMobile ? '18px' : '24px',
+                  fontSize: isSmallMobile ? '14px' : isMobile ? '16px' : '20px',
                   fontWeight: 'bold',
                   lineHeight: '1',
                   textAlign: 'center'
                 }}
               >
                 {level}
-              </Box>
-              
-              {/* 日付を右下に小さく表示 */}
-              <Box
-                sx={{
-                  position: 'absolute',
-                  bottom: isSmallMobile ? '2px' : '4px',
-                  right: isSmallMobile ? '2px' : '4px',
-                  fontSize: isSmallMobile ? '6px' : isMobile ? '8px' : '9px',
-                  lineHeight: '1',
-                  opacity: 0.8,
-                  fontWeight: '500'
-                }}
-              >
-                {`6/${level}`}
               </Box>
             </Box>
           );
@@ -113,15 +96,29 @@ const CongestionLegend = () => {
             border: '1px solid rgba(0,0,0,0.1)',
             borderRadius: '4px',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            position: 'relative'
+            gap: isSmallMobile ? '1px' : '2px'
           }}
         >
-          {/* 中央にダッシュ表示 */}
+          {/* 日付を上に表示 */}
           <Box
             sx={{
-              fontSize: isSmallMobile ? '16px' : isMobile ? '18px' : '24px',
+              fontSize: isSmallMobile ? '8px' : isMobile ? '10px' : '12px',
+              lineHeight: '1',
+              color: '#666',
+              fontWeight: '500',
+              textAlign: 'center'
+            }}
+          >
+            日にち
+          </Box>
+          
+          {/* ダッシュを下に表示 */}
+          <Box
+            sx={{
+              fontSize: isSmallMobile ? '14px' : isMobile ? '16px' : '20px',
               fontWeight: 'bold',
               lineHeight: '1',
               color: '#666',
@@ -129,22 +126,6 @@ const CongestionLegend = () => {
             }}
           >
             -
-          </Box>
-          
-          {/* 日付を右下に表示 */}
-          <Box
-            sx={{
-              position: 'absolute',
-              bottom: isSmallMobile ? '2px' : '4px',
-              right: isSmallMobile ? '2px' : '4px',
-              fontSize: isSmallMobile ? '6px' : isMobile ? '8px' : '9px',
-              lineHeight: '1',
-              opacity: 0.8,
-              color: '#666',
-              fontWeight: '500'
-            }}
-          >
-            6/1
           </Box>
         </Box>
         <Typography 
