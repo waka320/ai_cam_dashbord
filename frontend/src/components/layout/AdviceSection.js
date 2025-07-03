@@ -78,7 +78,7 @@ function AdviceSection() {
                 }}>
                     <CircularProgress size={36} color="primary" sx={{ mb: 2 }} />
                     <Typography variant="body1" align="center" color="textSecondary">
-                        AIがデータを分析しています...
+                        分析の手引きを読み込んでいます...
                     </Typography>
                 </Box>
             );
