@@ -6,7 +6,7 @@ const SEOComponent = ({
   title = "目的ベースダッシュボード", 
   description = "高山市のAIカメラから取得した歩行者オープンデータを活用。観光地の混雑状況を可視化し、事業者に「やりたいこと」を与え、悩みを解決します。",
   keywords = "高山市,ダッシュボード,観光,混雑度,混雑状況,データ可視化,オープンデータ,データ分析,事業者支援,飛騨高山,MDG,遠藤・浦田研究室",
-  url = "https://ai-cam-dashbord.vercel.app",
+  url = "https://ai-camera.lab.mdg-meidai.com",
   image = "/assets/dashbord_logo.png",
   type = "website"
 }) => {
@@ -29,7 +29,7 @@ const SEOComponent = ({
       <meta property="og:description" content={description} />
       <meta property="og:url" content={url} />
       <meta property="og:site_name" content="目的ベースダッシュボード" />
-      <meta property="og:image" content={`https://ai-cam-dashbord.vercel.app/${image}`} />
+      <meta property="og:image" content={`https://ai-camera.lab.mdg-meidai.com/${image}`} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
       <meta property="og:locale" content="ja_JP" />
@@ -38,7 +38,7 @@ const SEOComponent = ({
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={`https://ai-cam-dashbord.vercel.app/${image}`} />
+      <meta name="twitter:image" content={`https://ai-camera.lab.mdg-meidai.com/${image}`} />
 
       {/* 構造化データ */}
       <script type="application/ld+json">

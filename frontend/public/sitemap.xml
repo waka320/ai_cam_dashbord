@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ai-cam-dashbord.vercel.app/</loc>
+    <loc>https://ai-camera.lab.mdg-meidai.com/</loc>
     <lastmod>2025-07-05</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ai-cam-dashbord.vercel.app/terms</loc>
+    <loc>https://ai-camera.lab.mdg-meidai.com/terms</loc>
     <lastmod>2025-07-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://ai-cam-dashbord.vercel.app/sitemap</loc>
+    <loc>https://ai-camera.lab.mdg-meidai.com/sitemap</loc>
     <lastmod>2025-07-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

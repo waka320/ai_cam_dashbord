@@ -110,7 +110,7 @@ function Content() {
                 title="目的ベースダッシュボード"
                 description="高山市のAIカメラから取得した歩行者オープンデータを活用。観光地の混雑状況を可視化し、事業者に「やりたいこと」を与え、悩みを解決します。"
                 keywords="高山市,ダッシュボード,観光,混雑度,混雑状況,データ可視化,オープンデータ,データ分析,事業者支援,飛騨高山,MDG,遠藤・浦田研究室"
-                url="https://ai-cam-dashbord.vercel.app"
+                url="https://ai-camera.lab.mdg-meidai.com"
             />
             <Box sx={{
                 backgroundColor: 'rgba(249, 250, 251, 0.6)',

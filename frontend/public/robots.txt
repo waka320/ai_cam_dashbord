@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # サイトマップの場所
-Sitemap: https://ai-cam-dashbord.vercel.app/sitemap.xml
+Sitemap: https://ai-camera.lab.mdg-meidai.com/sitemap.xml
 
 # 検索エンジンの巡回を許可するページ
 Allow: /

@@ -14,7 +14,7 @@ const Sitemap = () => {
         title="サイトマップ"
         description="目的ベースダッシュボードのサイトマップです。サイト内の全ページへのリンクをまとめています。"
         keywords="サイトマップ,ページ一覧,ナビゲーション,高山市,ダッシュボード"
-        url="https://ai-cam-dashbord.vercel.app/sitemap"
+        url="https://ai-camera.lab.mdg-meidai.com/sitemap"
       />
       <Container maxWidth="md" sx={{ my: 4 }}>
       <Paper elevation={1} sx={{ 

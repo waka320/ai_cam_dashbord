@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 // サイトのベースURL
-const baseUrl = 'https://ai-cam-dashbord.vercel.app';
+const baseUrl = 'ai-camera.lab.mdg-meidai.com';
 
 // 静的ページのリスト
 const staticPages = [

@@ -31,7 +31,7 @@ const TermsAndPrivacy = () => {
         title="利用規約・プライバシーポリシー"
         description="目的ベースダッシュボードの利用規約とプライバシーポリシーです。サービスを安全にご利用いただくための重要な情報を記載しています。"
         keywords="利用規約,プライバシーポリシー,個人情報保護,データ利用,高山市,オープンデータ"
-        url="https://ai-cam-dashbord.vercel.app/terms"
+        url="https://ai-camera.lab.mdg-meidai.com/terms"
       />
       <Box sx={{
         backgroundColor: 'rgba(249, 250, 251, 0.6)',

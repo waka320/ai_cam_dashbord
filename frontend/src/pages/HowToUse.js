@@ -59,7 +59,7 @@ const HowToUse = () => {
         title="使い方ガイド"
         description="目的ベースダッシュボードの詳しい使い方をご説明します。3つの簡単なステップで観光データを効果的に活用する方法を学びましょう。"
         keywords="高山市,ダッシュボード,使い方,ガイド,観光データ,活用方法,操作説明"
-        url="https://ai-cam-dashbord.vercel.app/how-to-use"
+        url="https://ai-camera.lab.mdg-meidai.com/how-to-use"
       />
       <Box sx={{
         backgroundColor: 'rgba(249, 250, 251, 0.6)',

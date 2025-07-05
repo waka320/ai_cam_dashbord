@@ -26,5 +26,9 @@
   "background_color": "#ffffff",
   "scope": "/",
   "orientation": "any",
-  "categories": ["business", "productivity", "utilities"]
+  "categories": [
+    "business",
+    "productivity",
+    "utilities"
+  ]
 }
