@@ -1,3 +1,17 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+# サイトマップの場所
+Sitemap: https://ai-cam-dashbord.vercel.app/sitemap.xml
+
+# 検索エンジンの巡回を許可するページ
+Allow: /
+Allow: /how-to-use
+Allow: /terms
+Allow: /sitemap
+
+# 静的アセットも許可
+Allow: /static/
+Allow: /assets/
+Allow: /fonts/

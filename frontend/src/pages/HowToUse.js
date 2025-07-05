@@ -37,6 +37,7 @@ import StarIcon from '@mui/icons-material/Star';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import LinkIcon from '@mui/icons-material/Link';
 import FeedbackIcon from '@mui/icons-material/Feedback';
+import SEOComponent from '../components/common/SEOComponent';
 
 // ダミー画像URL - 実際の実装では実際のスクリーンショット画像に置き換える
 const dummyImageUrl = "https://via.placeholder.com/600x400?text=ダッシュボードスクリーンショット";
@@ -53,13 +54,20 @@ const HowToUse = () => {
    
   
   return (
-    <Box sx={{
-      backgroundColor: 'rgba(249, 250, 251, 0.6)',
-      borderRadius: isMobile ? '0' : '8px',
-      padding: isMobile ? '8px 8px 16px' : '16px 24px 24px',
-      boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)',
-      flex: '1 0 auto'
-    }}>
+    <>
+      <SEOComponent 
+        title="使い方ガイド"
+        description="目的ベースダッシュボードの詳しい使い方をご説明します。3つの簡単なステップで観光データを効果的に活用する方法を学びましょう。"
+        keywords="高山市,ダッシュボード,使い方,ガイド,観光データ,活用方法,操作説明"
+        url="https://ai-cam-dashbord.vercel.app/how-to-use"
+      />
+      <Box sx={{
+        backgroundColor: 'rgba(249, 250, 251, 0.6)',
+        borderRadius: isMobile ? '0' : '8px',
+        padding: isMobile ? '8px 8px 16px' : '16px 24px 24px',
+        boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)',
+        flex: '1 0 auto'
+      }}>
       <Container maxWidth="md" sx={{ my: 4 }}>
         <Paper elevation={1} sx={{ 
           p: 4, 
@@ -530,6 +538,7 @@ const HowToUse = () => {
         </Paper>
       </Container>
     </Box>
+    </>
   );
 };
 

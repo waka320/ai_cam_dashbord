@@ -7,6 +7,7 @@ import AdviceSection from './AdviceSection';
 import { useCalendar } from '../../contexts/CalendarContext';
 import SectionContainer from '../ui/SectionContainer';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import SEOComponent from '../common/SEOComponent';
 
 function Content() {
     const { loading, error } = useCalendar();
@@ -104,13 +105,20 @@ function Content() {
     };
 
     return (
-        <Box sx={{
-            backgroundColor: 'rgba(249, 250, 251, 0.6)',
-            borderRadius: isMobile ? '0' : '8px',
-            padding: isMobile ? '8px 8px 16px' : '16px 24px 24px',
-            boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)',
-            flex: '1 0 auto'
-        }}>
+        <>
+            <SEOComponent 
+                title="目的ベースダッシュボード"
+                description="高山市のAIカメラから取得した歩行者オープンデータを活用。観光地の混雑状況を可視化し、事業者に「やりたいこと」を与え、悩みを解決します。"
+                keywords="高山市,ダッシュボード,観光,混雑度,混雑状況,データ可視化,オープンデータ,データ分析,事業者支援,飛騨高山,MDG,遠藤・浦田研究室"
+                url="https://ai-cam-dashbord.vercel.app"
+            />
+            <Box sx={{
+                backgroundColor: 'rgba(249, 250, 251, 0.6)',
+                borderRadius: isMobile ? '0' : '8px',
+                padding: isMobile ? '8px 8px 16px' : '16px 24px 24px',
+                boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)',
+                flex: '1 0 auto'
+            }}>
             {renderError()}
             {renderLoading()}
             
@@ -142,6 +150,7 @@ function Content() {
                 </Box>
             </Box>
         </Box>
+        </>
     );
 }
 

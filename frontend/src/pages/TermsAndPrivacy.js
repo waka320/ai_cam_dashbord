@@ -6,6 +6,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import InfoIcon from '@mui/icons-material/Info';
+import SEOComponent from '../components/common/SEOComponent';
 
 const TermsAndPrivacy = () => {
   const isMobile = useMediaQuery('(max-width:768px)');
@@ -25,13 +26,20 @@ const TermsAndPrivacy = () => {
   };
 
   return (
-    <Box sx={{
-      backgroundColor: 'rgba(249, 250, 251, 0.6)',
-      borderRadius: isMobile ? '0' : '8px',
-      padding: isMobile ? '8px 8px 16px' : '16px 24px 24px',
-      boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)',
-      flex: '1 0 auto'
-    }}>
+    <>
+      <SEOComponent 
+        title="利用規約・プライバシーポリシー"
+        description="目的ベースダッシュボードの利用規約とプライバシーポリシーです。サービスを安全にご利用いただくための重要な情報を記載しています。"
+        keywords="利用規約,プライバシーポリシー,個人情報保護,データ利用,高山市,オープンデータ"
+        url="https://ai-cam-dashbord.vercel.app/terms"
+      />
+      <Box sx={{
+        backgroundColor: 'rgba(249, 250, 251, 0.6)',
+        borderRadius: isMobile ? '0' : '8px',
+        padding: isMobile ? '8px 8px 16px' : '16px 24px 24px',
+        boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)',
+        flex: '1 0 auto'
+      }}>
       <Container maxWidth="md" sx={{ py: 2 }}>
         <Paper elevation={1} sx={{ 
           p: 4, 
@@ -678,6 +686,7 @@ const TermsAndPrivacy = () => {
         </Paper>
       </Container>
     </Box>
+    </>
   );
 };
 

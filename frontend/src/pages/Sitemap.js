@@ -4,11 +4,19 @@ import { Link as RouterLink } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import SecurityIcon from '@mui/icons-material/Security';
 import ArticleIcon from '@mui/icons-material/Article';
+import SEOComponent from '../components/common/SEOComponent';
 // import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 const Sitemap = () => {
   return (
-    <Container maxWidth="md" sx={{ my: 4 }}>
+    <>
+      <SEOComponent 
+        title="サイトマップ"
+        description="目的ベースダッシュボードのサイトマップです。サイト内の全ページへのリンクをまとめています。"
+        keywords="サイトマップ,ページ一覧,ナビゲーション,高山市,ダッシュボード"
+        url="https://ai-cam-dashbord.vercel.app/sitemap"
+      />
+      <Container maxWidth="md" sx={{ my: 4 }}>
       <Paper elevation={1} sx={{ 
         p: 4, 
         bgcolor: 'white',  // 背景色を白に設定
@@ -49,6 +57,7 @@ const Sitemap = () => {
         </Box>
       </Paper>
     </Container>
+    </>
   );
 };
 
