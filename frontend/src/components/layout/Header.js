@@ -211,8 +211,9 @@ function Header() {
                 flexDirection: isMobile ? 'column' : 'row',
                 alignItems: isMobile ? 'stretch' : 'center',
                 width: isMobile ? '100%' : isTablet || isSmallDesktop ? '100%' : 'auto',
-                gap: isMobile ? 1 : 1.5,
-                mb: (!isMobile && (isTablet || isSmallDesktop)) ? 1.5 : 0
+                gap: isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 1 : 1.5),
+                mb: 0,
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
         >
             <Typography
@@ -222,9 +223,12 @@ function Header() {
                     color: theme.palette.text.white,
                     fontWeight: 'bold',
                     textAlign: isMobile ? 'center' : 'left',
-                    fontSize: isMobile ? '1rem' : isTablet || isSmallDesktop ? '1.1rem' : undefined,
+                    fontSize: isScrolled ? 
+                        (isMobile ? '0.75rem' : '0.9rem') : 
+                        (isMobile ? '0.9rem' : isTablet || isSmallDesktop ? '1.1rem' : undefined),
                     whiteSpace: 'nowrap',
-                    textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                    textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
             >
                 やりたいことは...
@@ -235,7 +239,8 @@ function Header() {
                 maxWidth: isMobile ? 'none' : '400px',
                 flex: isMobile ? 'none' : 1,
                 '& .MuiOutlinedInput-root': {
-                    height: isMobile ? '40px' : '44px'
+                    height: isScrolled ? (isMobile ? '28px' : '34px') : (isMobile ? '32px' : '44px'),
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }
             }}>
                 <Select
@@ -260,14 +265,17 @@ function Header() {
                             color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
                             right: isMobile ? '8px' : '10px'
                         },
-                        fontSize: isMobile ? '0.9rem' : '0.95rem',
+                        fontSize: isScrolled ? 
+                            (isMobile ? '0.7rem' : '0.85rem') : 
+                            (isMobile ? '0.85rem' : '0.95rem'),
                         '& .MuiSelect-select': {
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             fontWeight: 500
                         },
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
                     MenuProps={{
                         PaperProps: {
@@ -299,359 +307,65 @@ function Header() {
         </Box>
     );
 
-    // 固定表示用のコンテンツ（やりたいこと + 年・月）
-    const StickyHeaderContent = () => (
-        <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column',
-            alignItems: 'stretch',
-            width: '100%',
-            gap: 1.5
-        }}>
-            {/* やりたいこと部分 */}
-            <Box sx={{ 
-                display: 'flex', 
-                flexDirection: isMobile ? 'column' : 'row',
-                alignItems: isMobile ? 'stretch' : 'center',
-                gap: isMobile ? 1 : 1.5
-            }}>
-                <Typography
-                    variant={isMobile ? "bodyL" : "h6"}
-                    sx={{
-                        marginRight: isMobile ? 0 : '10px',
-                        color: theme.palette.text.white,
-                        fontWeight: 'bold',
-                        textAlign: isMobile ? 'center' : 'left',
-                        fontSize: isMobile ? '0.9rem' : '1rem',
-                        whiteSpace: 'nowrap',
-                        textShadow: '0 1px 2px rgba(0,0,0,0.2)'
-                    }}
-                >
-                    やりたいことは...
-                </Typography>
-
-                <FormControl variant="outlined" sx={{ 
-                    minWidth: isMobile ? '100%' : '300px',
-                    maxWidth: isMobile ? 'none' : '400px',
-                    flex: isMobile ? 'none' : 1,
-                    '& .MuiOutlinedInput-root': {
-                        height: '32px'
-                    }
-                }}>
-                    <Select
-                        value={selectedAction}
-                        onChange={handleChange}
-                        disabled={loading}
-                        displayEmpty
-                        renderValue={(value) => {
-                            if (value === "") return "未入力";
-                            const selectedItem = menuItems.find((item) => item.value === value);
-                            return selectedItem ? (isMobile ? selectedItem.shortLabel : selectedItem.label) : "";
-                        }}
-                        sx={{
-                            backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
-                            borderRadius: '6px',
-                            color:
-                                selectedAction === ""
-                                    ? theme.palette.text.secondary
-                                    : theme.palette.text.primary,
-                            padding: '4px 8px',
-                            '.MuiSelect-icon': { 
-                                color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
-                                right: '4px',
-                                fontSize: '1rem'
-                            },
-                            fontSize: isMobile ? '0.8rem' : '0.85rem',
-                            '& .MuiSelect-select': {
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                fontWeight: 500,
-                                padding: '4px 8px !important'
-                            },
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                        }}
-                        MenuProps={{
-                            PaperProps: {
-                                style: {
-                                    maxHeight: isMobile ? 240 : 320,
-                                    width: 'auto',
-                                    maxWidth: '85vw',
-                                    borderRadius: '6px',
-                                    marginTop: '4px'
-                                },
-                            },
-                        }}
-                    >
-                        {menuItems.map((item) => (
-                            <MenuItem 
-                                key={item.value} 
-                                value={item.value}
-                                sx={{
-                                    fontSize: isMobile ? '0.8rem' : '0.85rem',
-                                    minHeight: isMobile ? '40px' : '48px',
-                                    fontWeight: 400
-                                }}
-                            >
-                                {item.label}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            </Box>
-            
-            {/* 年・月部分 */}
-            <Box sx={{ 
-                display: 'flex', 
-                flexDirection: isMobile ? 'column' : 'row',
-                alignItems: isMobile ? 'stretch' : 'center',
-                gap: isMobile ? 1 : 1.5
-            }}>
-                <Typography 
-                    variant={isMobile ? "bodyL" : "h6"}
-                    sx={{ 
-                        color: theme.palette.text.white, 
-                        fontWeight: 'bold',
-                        textAlign: isMobile ? 'center' : 'left',
-                        fontSize: isMobile ? '0.9rem' : '1rem',
-                        whiteSpace: 'nowrap',
-                        textShadow: '0 1px 2px rgba(0,0,0,0.2)',
-                        marginRight: isMobile ? 0 : '10px'
-                    }}
-                >
-                    データの年・月
-                </Typography>
-                
-                <Box sx={{ 
-                    display: 'flex', 
-                    gap: isMobile ? 0.8 : 0.8,
-                    alignItems: 'center',
-                    justifyContent: 'flex-start',
-                    width: isMobile ? '100%' : 'auto',
-                    flexWrap: 'nowrap'
-                }}>
-                    <Tooltip title="前の月">
-                        <span>
-                            <IconButton 
-                                onClick={handlePreviousMonth}
-                                disabled={loading || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
-                                sx={{ 
-                                    width: '32px',
-                                    height: '32px',
-                                    bgcolor: 'white', 
-                                    color: theme.palette.primary.main,
-                                    '&:hover': {
-                                        bgcolor: 'rgba(255, 255, 255, 0.9)',
-                                    },
-                                    '&:disabled': {
-                                        bgcolor: 'rgba(255, 255, 255, 0.6)',
-                                        color: 'rgba(0, 0, 0, 0.38)',
-                                    },
-                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                                    borderRadius: '6px'
-                                }}
-                            >
-                                <ArrowBackIosNewIcon sx={{ fontSize: '16px' }} />
-                            </IconButton>
-                        </span>
-                    </Tooltip>
-
-                    <Box sx={{ 
-                        display: 'flex', 
-                        gap: isMobile ? 1 : 1,
-                        flex: isMobile ? 1 : 'none'
-                    }}>
-                        <FormControl variant="outlined" sx={{ 
-                            flex: 1,
-                            minWidth:'100px',
-                            '& .MuiOutlinedInput-root': {
-                                height: '32px'
-                            }
-                        }}>
-                            <Select
-                                value={selectedYear}
-                                onChange={handleYearChange}
-                                disabled={loading}
-                                displayEmpty
-                                renderValue={(value) => {
-                                    if (value === "") return "----年";
-                                    return value + "年";
-                                }}
-                                sx={{
-                                    backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
-                                    borderRadius: '6px',
-                                    fontSize: isMobile ? '0.85rem' : '0.85rem',
-                                    fontWeight: 500,
-                                    '.MuiSelect-icon': { 
-                                        color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
-                                        right: '4px',
-                                        fontSize: '1rem'
-                                    },
-                                    '& .MuiOutlinedInput-input': {
-                                        padding: '4px 8px',
-                                    },
-                                    color: selectedYear === "" ? theme.palette.text.secondary : theme.palette.text.primary,
-                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                                }}
-                                MenuProps={{
-                                    PaperProps: {
-                                        style: {
-                                            maxHeight: 200,
-                                            borderRadius: '6px',
-                                            marginTop: '4px'
-                                        }
-                                    }
-                                }}
-                            >
-                                {yearItems.map((item) => (
-                                    <MenuItem key={item.value} value={item.value} sx={{ fontSize: '0.85rem' }}>
-                                        {item.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-
-                        <FormControl variant="outlined" sx={{ 
-                            flex: 1,
-                            minWidth: isMobile ? '50px' : '60px',
-                            '& .MuiOutlinedInput-root': {
-                                height: '32px'
-                            }
-                        }}>
-                            <Select
-                                value={selectedMonth}
-                                onChange={handleMonthChange}
-                                disabled={loading || !selectedYear}
-                                displayEmpty
-                                renderValue={(value) => {
-                                    if (value === "") return "--月";
-                                    return value + "月";
-                                }}
-                                sx={{
-                                    backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
-                                    borderRadius: '6px',
-                                    fontSize: isMobile ? '0.85rem' : '0.85rem',
-                                    fontWeight: 500,
-                                    '.MuiSelect-icon': { 
-                                        color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
-                                        right: '4px',
-                                        fontSize: '1rem'
-                                    },
-                                    '& .MuiOutlinedInput-input': {
-                                        padding: '4px 8px',
-                                    },
-                                    color: selectedMonth === "" ? theme.palette.text.secondary : theme.palette.text.primary,
-                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                                }}
-                                MenuProps={{
-                                    PaperProps: {
-                                        style: {
-                                            maxHeight: 200,
-                                            borderRadius: '6px',
-                                            marginTop: '4px'
-                                        }
-                                    }
-                                }}
-                            >
-                                {availableMonths.map((item) => (
-                                    <MenuItem key={item.value} value={item.value} sx={{ fontSize: '0.85rem' }}>
-                                        {item.label}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Box>
-
-                    <Tooltip title="次の月">
-                        <span>
-                            <IconButton
-                                onClick={handleNextMonth}
-                                disabled={loading || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
-                                sx={{ 
-                                    width: '32px',
-                                    height: '32px',
-                                    bgcolor: 'white', 
-                                    color: theme.palette.primary.main,
-                                    '&:hover': {
-                                        bgcolor: 'rgba(255, 255, 255, 0.9)',
-                                    },
-                                    '&:disabled': {
-                                        bgcolor: 'rgba(255, 255, 255, 0.6)',
-                                        color: 'rgba(0, 0, 0, 0.38)',
-                                    },
-                                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                                    borderRadius: '6px'
-                                }}
-                            >
-                                <ArrowForwardIosIcon sx={{ fontSize: '16px' }} />
-                            </IconButton>
-                        </span>
-                    </Tooltip>
-                </Box>
-            </Box>
-        </Box>
-    );
-
     return (
         <>
-            {/* 固定表示される選択肢 - スクロール時のみ表示 */}
-            {!isSpecialPage() && isScrolled && (
-                <Paper
-                    elevation={3}
-                    sx={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        zIndex: 1100,
-                        backgroundColor: theme.palette.primary.main,
-                        padding: isMobile ? '8px 12px' : '12px 16px',
-                        borderRadius: '0 0 8px 8px',
-                        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.2)',
-                        transition: 'all 0.3s ease-in-out',
-                        transform: isScrolled ? 'translateY(0)' : 'translateY(-100%)',
-                    }}
-                >
-                    <StickyHeaderContent />
-                </Paper>
-            )}
-            
-            {/* 元のヘッダー */}
-            <AppBar position="static" color="primary" ref={headerRef} sx={{ 
-                padding: isMobile ? '8px 0' : '8px 0',
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                borderRadius: '0 0 8px 8px',
-            }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                    {/* ロゴとタイトル部分 */}
-                    <Box sx={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        alignItems: 'center',
-                        borderBottom: isMobile || isSpecialPage() ? 'none' : '1px solid rgba(255,255,255,0.3)',
-                        py: 1
-                    }}>
-                        <RouterLink to="/" aria-label="トップページへ戻る">
-                            <Box
-                                component="img"
-                                src={logo}
-                                alt="目的ベースダッシュボードのロゴ"
-                                sx={{ 
-                                    height: isMobile ? '42px' : '54px', 
-                                    objectFit: 'contain'
-                                }}
-                            />
-                        </RouterLink>
-                    </Box>
+            {/* 元のヘッダー - stickyポジションで滑らかに固定 */}
+            <AppBar 
+                position="sticky" 
+                color="primary" 
+                ref={headerRef} 
+                sx={{ 
+                    top: 0,
+                    zIndex: 1100,
+                    padding: isScrolled ? (isMobile ? '2px 0' : '8px 0') : (isMobile ? '4px 0' : '8px 0'),
+                    boxShadow: isScrolled ? '0 4px 10px rgba(0, 0, 0, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    borderRadius: isScrolled ? '0' : '0 0 8px 8px',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transform: isScrolled ? 'scale(0.98)' : 'scale(1)',
+                    transformOrigin: 'top center',
+                }}>
+                <Box sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    width: '100%',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    padding: isScrolled ? '4px 0' : '0',
+                }}>
+                    {/* ロゴとタイトル部分 - スクロール時は非表示 */}
+                    {!isScrolled && (
+                        <Box sx={{ 
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            alignItems: 'center',
+                            borderBottom: (isMobile || isSpecialPage()) ? 'none' : '1px solid rgba(255,255,255,0.3)',
+                            py: 1,
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            opacity: isScrolled ? 0 : 1,
+                            transform: isScrolled ? 'translateY(-20px)' : 'translateY(0)',
+                        }}>
+                            <RouterLink to="/" aria-label="トップページへ戻る">
+                                <Box
+                                    component="img"
+                                    src={logo}
+                                    alt="目的ベースダッシュボードのロゴ"
+                                    sx={{ 
+                                        height: isMobile ? '42px' : '54px',
+                                        objectFit: 'contain',
+                                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    }}
+                                />
+                            </RouterLink>
+                        </Box>
+                    )}
                     
                     {/* コントロール部分 - 特定のページでは表示しない */}
                     {!isSpecialPage() && (
                         <Paper elevation={0} sx={{
                             backgroundColor: 'transparent',
-                            margin: isMobile ? '8px 12px' : '12px 16px',
+                            margin: isScrolled ? (isMobile ? '1px 4px' : '4px 8px') : (isMobile ? '4px 8px' : '12px 16px'),
                             borderRadius: '8px',
-                            padding: isMobile ? '8px' : '12px',
-                            border: '1px solid rgba(255,255,255,0.3)',
+                            padding: isScrolled ? (isMobile ? '3px' : '6px') : (isMobile ? '6px' : '12px'),
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         }}>
                             <Toolbar 
                                 sx={{ 
@@ -659,10 +373,11 @@ function Header() {
                                     flexDirection: isMobile ? 'column' : 'row',
                                     justifyContent: 'space-between', 
                                     alignItems: isMobile ? 'stretch' : 'center',
-                                    gap: isMobile ? 2 : 2,
+                                    gap: isScrolled ? (isMobile ? 0.5 : 1) : (isMobile ? 1 : 2),
                                     padding: '0 !important',
                                     minHeight: 'auto !important',
-                                    flexWrap: isMobile ? 'nowrap' : 'wrap'
+                                    flexWrap: isMobile ? 'nowrap' : 'wrap',
+                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                 }}
                             >
                                 {/* 目的選択部分 */}
@@ -674,7 +389,7 @@ function Header() {
                                         display: 'flex', 
                                         flexDirection: 'column',
                                         alignItems: 'stretch', 
-                                        gap: 1.5, 
+                                        gap: isScrolled ? 0.5 : 1, 
                                         marginLeft: isMobile ? 0 : '0',
                                         marginTop: isMobile ? 0 : 0,
                                         width: isMobile ? '100%' : 'auto',
@@ -683,16 +398,17 @@ function Header() {
                                     }}
                                 >
                                     {/* データの年・月セクション */}
-                                    <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isMobile ? 1 : 1.5 }}>
+                                    <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isScrolled ? (isMobile ? 0.5 : 1) : (isMobile ? 0.8 : 1.5) }}>
                                         <Typography 
                                             variant="labelL" 
                                             sx={{ 
                                                 color: theme.palette.text.white, 
                                                 fontWeight: 'bold',
                                                 textAlign: isMobile ? 'center' : 'left',
-                                                fontSize: isMobile ? '0.9rem' : '0.95rem',
+                                                fontSize: isScrolled ? (isMobile ? '0.7rem' : '0.85rem') : (isMobile ? '0.85rem' : '0.95rem'),
                                                 whiteSpace: 'nowrap',
-                                                textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                                                textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                             }}
                                         >
                                             データの年・月
@@ -716,8 +432,8 @@ function Header() {
                                                         onClick={handlePreviousMonth}
                                                         disabled={loading || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
                                                         sx={{ 
-                                                            width: '40px',
-                                                            height: '40px',
+                                                            width: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
+                                                            height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
                                                             bgcolor: 'white', 
                                                             color: theme.palette.primary.main,
                                                             '&:hover': {
@@ -728,7 +444,8 @@ function Header() {
                                                                 color: 'rgba(0, 0, 0, 0.38)',
                                                             },
                                                             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                                                            borderRadius: '8px'
+                                                            borderRadius: '8px',
+                                                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                                         }}
                                                     >
                                                         <ArrowBackIosNewIcon fontSize="small" />
@@ -770,7 +487,8 @@ function Header() {
                                             <FormControl variant="outlined" sx={{ 
                                                 width: isMobile ? '50%' : isSmallDesktop ? 110 : 140,
                                                 '& .MuiOutlinedInput-root': {
-                                                    height: isMobile ? '40px' : '40px'
+                                                    height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
+                                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                                 }
                                             }}>
                                                 <Tooltip title="年を選択">
@@ -834,7 +552,8 @@ function Header() {
                                             <FormControl variant="outlined" sx={{ 
                                                 width: isMobile ? '50%' : isSmallDesktop ? 100 : 120,
                                                 '& .MuiOutlinedInput-root': {
-                                                    height: isMobile ? '40px' : '40px'
+                                                    height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
+                                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                                 }
                                             }}>
                                                 <Tooltip title="月を選択">
@@ -845,8 +564,7 @@ function Header() {
                                                         displayEmpty
                                                         renderValue={(value) => {
                                                             if (value === "") return "--月";
-                                                            const selectedMonth = availableMonths.find((item) => item.value === value);
-                                                            return selectedMonth ? selectedMonth.label + "月" : "";
+                                                            return value + "月";
                                                         }}
                                                         sx={{
                                                             backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
@@ -903,8 +621,8 @@ function Header() {
                                                         onClick={handleNextMonth}
                                                         disabled={loading || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
                                                         sx={{ 
-                                                            width: '40px',
-                                                            height: '40px',
+                                                            width: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
+                                                            height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
                                                             bgcolor: 'white', 
                                                             color: theme.palette.primary.main,
                                                             '&:hover': {
@@ -915,7 +633,8 @@ function Header() {
                                                                 color: 'rgba(0, 0, 0, 0.38)',
                                                             },
                                                             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                                                            borderRadius: '8px'
+                                                            borderRadius: '8px',
+                                                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                                         }}
                                                     >
                                                         <ArrowForwardIosIcon fontSize="small" />
@@ -952,16 +671,17 @@ function Header() {
                                     </Box>
 
                                     {/* 計測場所セクション */}
-                                    <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isMobile ? 1 : 1.5 }}>
+                                    <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isScrolled ? (isMobile ? 0.5 : 1) : (isMobile ? 0.8 : 1.5) }}>
                                         <Typography 
                                             variant="labelL" 
                                             sx={{ 
                                                 color: theme.palette.text.white, 
                                                 fontWeight: 'bold',
                                                 textAlign: isMobile ? 'center' : 'left',
-                                                fontSize: isMobile ? '0.9rem' : '0.95rem',
+                                                fontSize: isScrolled ? (isMobile ? '0.7rem' : '0.85rem') : (isMobile ? '0.85rem' : '0.95rem'),
                                                 whiteSpace: 'nowrap',
-                                                textShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                                                textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                             }}
                                         >
                                             計測場所
@@ -971,7 +691,8 @@ function Header() {
                                         <FormControl variant="outlined" sx={{ 
                                             width: isMobile ? '100%' : isSmallDesktop ? 150 : 180,
                                             '& .MuiOutlinedInput-root': {
-                                                height: isMobile ? '40px' : '40px'
+                                                height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
+                                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                             }
                                         }}>
                                             <Tooltip title="計測場所を選択">
