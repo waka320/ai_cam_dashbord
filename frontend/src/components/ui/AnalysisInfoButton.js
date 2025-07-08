@@ -52,8 +52,7 @@ const AnalysisInfoButton = ({ analysisType, place = 'default' }) => {
         return {
           title: '混雑度カレンダーの計算方法',
           description: [
-            `混雑度1～10は歩行者数に基づいて算出されます。`,
-            `歩行者が1人以上いる時間帯のデータのみで平均値を計算しています。`
+            `混雑度1～10は歩行者数に基づいて算出されます。`
           ],
           details: [
             `• 混雑度1-2の境界値: ${thresholds[0]}人`,
@@ -65,8 +64,7 @@ const AnalysisInfoButton = ({ analysisType, place = 'default' }) => {
         return {
           title: '日付×時間の混雑度の計算方法',
           description: [
-            `混雑度1～10は歩行者数に基づいて算出されます。`,
-            `歩行者が1人以上いる時間帯のデータのみで平均値を計算しています。`
+            `混雑度1～10は歩行者数に基づいて算出されます。`
           ],
           details: [
             `• 混雑度1-2の境界値: ${thresholds[0]}人`,
@@ -79,8 +77,7 @@ const AnalysisInfoButton = ({ analysisType, place = 'default' }) => {
           title: '曜日×時間の混雑度の計算方法',
           description: [
             `混雑度1～10は歩行者数に基づいて算出されます。`,
-            `各曜日・時間帯の平均値から算出しています。`,
-            `歩行者が1人以上いる時間帯のデータのみで平均値を計算しています。`
+            `各曜日・時間帯の平均値から算出しています。`
           ],
           details: [
             `• 混雑度1-2の境界値: ${thresholds[0]}人`,

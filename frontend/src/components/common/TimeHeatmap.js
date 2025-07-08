@@ -21,7 +21,7 @@ const getDayNameJa = (dayName) => {
 
 // 時間帯別ヒートマップコンポーネント
 const TimeHeatmap = () => {
-  const { calendarData, selectedAction, loading, selectedLocation } = useCalendar();
+  const { calendarData, selectedAction, loading, selectedLocation, shouldShowCalculationNote } = useCalendar();
   const { getCellColor, getTextColor } = useColorPalette();
   
   // レスポンシブ対応のためのメディアクエリ
@@ -425,7 +425,7 @@ const TimeHeatmap = () => {
         </Popper>
 
         <Box sx={{ mt: 2 }}>
-          <CongestionLegend />
+          <CongestionLegend showCalculationNote={shouldShowCalculationNote()} />
         </Box>
       </Box>
     </ClickAwayListener>

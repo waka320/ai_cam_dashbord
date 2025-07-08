@@ -285,6 +285,11 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
     }
   }, [inputsComplete, fetchCalendarData, cookiesLoaded]);
 
+  // 計算方法の注記を表示するかどうかを判定する関数
+  const shouldShowCalculationNote = useCallback(() => {
+    return selectedAction.startsWith('wti') || selectedAction.startsWith('dti');
+  }, [selectedAction]);
+
   // 年月を同時に更新し、その後データを取得する関数
   const updateMonthAndFetch = useCallback((newYear, newMonth) => {
     // データ変更のログを出力
@@ -431,7 +436,8 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
       fetchCalendarData,
       askFollowupQuestion,
       resetSelections,
-      updateMonthAndFetch
+      updateMonthAndFetch,
+      shouldShowCalculationNote
     }}>
       {children}
     </CalendarContext.Provider>

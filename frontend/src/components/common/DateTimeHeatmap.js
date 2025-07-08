@@ -20,7 +20,7 @@ const getDayOfWeek = (dateStr) => {
 
 // 日付×時間ヒートマップコンポーネント
 const DateTimeHeatmap = () => {
-    const { calendarData, selectedAction, loading, selectedLocation } = useCalendar();
+    const { calendarData, selectedAction, loading, selectedLocation, shouldShowCalculationNote } = useCalendar();
     const { getCellColor, getTextColor } = useColorPalette();
     // レスポンシブ対応のためのメディアクエリ
     const isMobile = useMediaQuery('(max-width:768px)');
@@ -449,7 +449,7 @@ const DateTimeHeatmap = () => {
                 </Popper>
 
                 <Box sx={{ mt: 2 }}>
-                    <CongestionLegend />
+                    <CongestionLegend showCalculationNote={shouldShowCalculationNote()} />
                 </Box>
             </Box>
         </ClickAwayListener>

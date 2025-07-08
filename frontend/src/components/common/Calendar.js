@@ -7,7 +7,7 @@ import AnalysisInfoButton from '../ui/AnalysisInfoButton'; // 追加
 
 // カレンダーコンポーネント
 const CalendarHeatmap = () => {
-    const { calendarData, selectedAction, selectedMonth, loading, selectedLocation } = useCalendar();
+    const { calendarData, selectedAction, selectedMonth, loading, selectedLocation, shouldShowCalculationNote } = useCalendar();
     const { getCellColor, getTextColor } = useColorPalette();
     const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
     
@@ -267,7 +267,7 @@ const CalendarHeatmap = () => {
                     </Paper>
                 </Popper>
                 
-                <CongestionLegend />
+                <CongestionLegend showCalculationNote={shouldShowCalculationNote()} />
             </Box>
         </ClickAwayListener>
     );

@@ -1,9 +1,10 @@
 // src/components/heatmap/CongestionLegend.js
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Box, Typography, useMediaQuery } from '@mui/material';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
 
-const CongestionLegend = () => {
+const CongestionLegend = ({ showCalculationNote = false }) => {
   const { getCellColor, getTextColor } = useColorPalette(); // getTextColorを追加
   const isMobile = useMediaQuery('(max-width:768px)');
   const isSmallMobile = useMediaQuery('(max-width:480px)');
@@ -135,8 +136,35 @@ const CongestionLegend = () => {
           データなし
         </Typography>
       </Box>
+      
+      {/* 計算方法の注記（必要に応じて表示） */}
+      {showCalculationNote && (
+        <Box sx={{ 
+          mt: 1.5,
+          p: 1,
+          backgroundColor: 'rgba(0, 0, 0, 0.02)',
+          borderRadius: '4px',
+          border: '1px solid rgba(0, 0, 0, 0.08)'
+        }}>
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              color: 'text.secondary',
+              fontSize: isMobile ? '0.7rem' : '0.75rem',
+              lineHeight: 1.3
+            }}
+          >
+            ※ 歩行者が1人以上いる時間帯のデータのみで平均値を計算しています
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
+};
+
+// PropTypesの追加
+CongestionLegend.propTypes = {
+  showCalculationNote: PropTypes.bool
 };
 
 export default CongestionLegend;
