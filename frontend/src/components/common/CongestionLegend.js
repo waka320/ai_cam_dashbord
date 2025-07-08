@@ -28,50 +28,68 @@ const CongestionLegend = ({ showCalculationNote = false, legendType = 'calendar'
       </Typography>
       <Box sx={{ 
         display: 'flex', 
-        flexWrap: 'wrap', 
+        flexDirection: 'column',
         gap: 0.5,
-        justifyContent: 'flex-start',
         mb: 1.5
       }}>
-        {[...Array(10)].map((_, i) => {
-          const level = i + 1;
-          return (
-            <Box
-              key={level}
-              sx={{
-                width: isSmallMobile ? '40px' : isMobile ? '45px' : '55px',
-                height: isSmallMobile ? '40px' : isMobile ? '45px' : '55px',
-                backgroundColor: getCellColor(level),
-                color: getTextColor(level),
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '1px solid rgba(0,0,0,0.1)',
-                borderRadius: '4px',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                gap: isSmallMobile ? '1px' : '2px'
-              }}
-            >
-              {legendType === 'calendar' ? (
-                // カレンダー形式（日付＋混雑度）
-                <>
-                  {/* 日付を上に中央揃えで表示 */}
+        {/* 1行目: 混雑度1-5 */}
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 0.5,
+          justifyContent: 'flex-start'
+        }}>
+          {[...Array(5)].map((_, i) => {
+            const level = i + 1;
+            return (
+              <Box
+                key={level}
+                sx={{
+                  width: isSmallMobile ? '40px' : isMobile ? '45px' : '55px',
+                  height: isSmallMobile ? '40px' : isMobile ? '45px' : '55px',
+                  backgroundColor: getCellColor(level),
+                  color: getTextColor(level),
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  borderRadius: '4px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  gap: isSmallMobile ? '1px' : '2px'
+                }}
+              >
+                {legendType === 'calendar' ? (
+                  // カレンダー形式（日付＋混雑度）
+                  <>
+                    {/* 日付を上に中央揃えで表示 */}
+                    <Box
+                      sx={{
+                        fontSize: isSmallMobile ? '8px' : isMobile ? '10px' : '12px',
+                        lineHeight: '1',
+                        fontWeight: '500',
+                        textAlign: 'center'
+                      }}
+                    >
+                      日にち
+                    </Box>
+                    
+                    {/* 混雑度を下に中央揃えで表示 */}
+                    <Box
+                      sx={{
+                        fontSize: isSmallMobile ? '18px' : isMobile ? '20px' : '22px',
+                        fontWeight: 'bold',
+                        lineHeight: '1',
+                        textAlign: 'center'
+                      }}
+                    >
+                      {level}
+                    </Box>
+                  </>
+                ) : (
+                  // ヒートマップ形式（混雑度のみ）
                   <Box
                     sx={{
-                      fontSize: isSmallMobile ? '8px' : isMobile ? '10px' : '12px',
-                      lineHeight: '1',
-                      fontWeight: '500',
-                      textAlign: 'center'
-                    }}
-                  >
-                    日にち
-                  </Box>
-                  
-                  {/* 混雑度を下に中央揃えで表示 */}
-                  <Box
-                    sx={{
-                      fontSize: isSmallMobile ? '18px' : isMobile ? '20px' : '22px',
+                      fontSize: isSmallMobile ? '16px' : isMobile ? '18px' : '20px',
                       fontWeight: 'bold',
                       lineHeight: '1',
                       textAlign: 'center'
@@ -79,23 +97,82 @@ const CongestionLegend = ({ showCalculationNote = false, legendType = 'calendar'
                   >
                     {level}
                   </Box>
-                </>
-              ) : (
-                // ヒートマップ形式（混雑度のみ）
-                <Box
-                  sx={{
-                    fontSize: isSmallMobile ? '16px' : isMobile ? '18px' : '20px',
-                    fontWeight: 'bold',
-                    lineHeight: '1',
-                    textAlign: 'center'
-                  }}
-                >
-                  {level}
-                </Box>
-              )}
-            </Box>
-          );
-        })}
+                )}
+              </Box>
+            );
+          })}
+        </Box>
+        
+        {/* 2行目: 混雑度6-10 */}
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 0.5,
+          justifyContent: 'flex-start'
+        }}>
+          {[...Array(5)].map((_, i) => {
+            const level = i + 6;
+            return (
+              <Box
+                key={level}
+                sx={{
+                  width: isSmallMobile ? '40px' : isMobile ? '45px' : '55px',
+                  height: isSmallMobile ? '40px' : isMobile ? '45px' : '55px',
+                  backgroundColor: getCellColor(level),
+                  color: getTextColor(level),
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  borderRadius: '4px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  gap: isSmallMobile ? '1px' : '2px'
+                }}
+              >
+                {legendType === 'calendar' ? (
+                  // カレンダー形式（日付＋混雑度）
+                  <>
+                    {/* 日付を上に中央揃えで表示 */}
+                    <Box
+                      sx={{
+                        fontSize: isSmallMobile ? '8px' : isMobile ? '10px' : '12px',
+                        lineHeight: '1',
+                        fontWeight: '500',
+                        textAlign: 'center'
+                      }}
+                    >
+                      日にち
+                    </Box>
+                    
+                    {/* 混雑度を下に中央揃えで表示 */}
+                    <Box
+                      sx={{
+                        fontSize: isSmallMobile ? '18px' : isMobile ? '20px' : '22px',
+                        fontWeight: 'bold',
+                        lineHeight: '1',
+                        textAlign: 'center'
+                      }}
+                    >
+                      {level}
+                    </Box>
+                  </>
+                ) : (
+                  // ヒートマップ形式（混雑度のみ）
+                  <Box
+                    sx={{
+                      fontSize: isSmallMobile ? '16px' : isMobile ? '18px' : '20px',
+                      fontWeight: 'bold',
+                      lineHeight: '1',
+                      textAlign: 'center'
+                    }}
+                  >
+                    {level}
+                  </Box>
+                )}
+              </Box>
+            );
+          })}
+        </Box>
       </Box>
       
       {/* データなしの説明テキスト */}
