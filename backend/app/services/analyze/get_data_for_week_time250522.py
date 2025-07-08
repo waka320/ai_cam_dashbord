@@ -82,8 +82,15 @@ def get_data_for_week_time(csv_file_path: str, year: int, month: int) -> List[Da
         min_threshold, max_threshold = CONGESTION_THRESHOLDS.get(place, CONGESTION_THRESHOLDS['default'])
         
         # データの平均値を計算（混雑度5,6の境界値）
+        # 0人の時間帯を除いた平均値を計算
         if not grouped.empty:
-            middle_threshold = grouped['count_1_hour'].mean()
+            # 0人より多い時間帯のデータのみで平均値を計算
+            non_zero_data = grouped[grouped['count_1_hour'] > 0]
+            if not non_zero_data.empty:
+                middle_threshold = non_zero_data['count_1_hour'].mean()
+            else:
+                # 全て0人の場合は、min_thresholdとmax_thresholdの中間値を使用
+                middle_threshold = (min_threshold + max_threshold) / 2
         else:
             # データがない場合は、min_thresholdとmax_thresholdの中間値を使用
             middle_threshold = (min_threshold + max_threshold) / 2
