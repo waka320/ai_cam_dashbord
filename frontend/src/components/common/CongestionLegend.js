@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { Box, Typography, useMediaQuery } from '@mui/material';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
 
-const CongestionLegend = ({ showCalculationNote = false }) => {
+const CongestionLegend = ({ showCalculationNote = false, legendType = 'calendar' }) => {
   const { getCellColor, getTextColor } = useColorPalette(); // getTextColorを追加
   const isMobile = useMediaQuery('(max-width:768px)');
   const isSmallMobile = useMediaQuery('(max-width:480px)');
@@ -24,7 +24,7 @@ const CongestionLegend = ({ showCalculationNote = false }) => {
           fontSize: isMobile ? '0.9rem' : '1rem'
         }}
       >
-        混雑度の凡例（上：日付、下：混雑度）:
+        {legendType === 'calendar' ? '混雑度の凡例（上：日付、下：混雑度）:' : '混雑度の凡例:'}
       </Typography>
       <Box sx={{ 
         display: 'flex', 
@@ -53,29 +53,46 @@ const CongestionLegend = ({ showCalculationNote = false }) => {
                 gap: isSmallMobile ? '1px' : '2px'
               }}
             >
-              {/* 日付を上に中央揃えで表示 */}
-              <Box
-                sx={{
-                  fontSize: isSmallMobile ? '8px' : isMobile ? '10px' : '12px',
-                  lineHeight: '1',
-                  fontWeight: '500',
-                  textAlign: 'center'
-                }}
-              >
-                日にち
-              </Box>
-              
-              {/* 混雑度を下に中央揃えで表示 */}
-              <Box
-                sx={{
-                  fontSize: isSmallMobile ? '18px' : isMobile ? '20px' : '22px',
-                  fontWeight: 'bold',
-                  lineHeight: '1',
-                  textAlign: 'center'
-                }}
-              >
-                {level}
-              </Box>
+              {legendType === 'calendar' ? (
+                // カレンダー形式（日付＋混雑度）
+                <>
+                  {/* 日付を上に中央揃えで表示 */}
+                  <Box
+                    sx={{
+                      fontSize: isSmallMobile ? '8px' : isMobile ? '10px' : '12px',
+                      lineHeight: '1',
+                      fontWeight: '500',
+                      textAlign: 'center'
+                    }}
+                  >
+                    日にち
+                  </Box>
+                  
+                  {/* 混雑度を下に中央揃えで表示 */}
+                  <Box
+                    sx={{
+                      fontSize: isSmallMobile ? '18px' : isMobile ? '20px' : '22px',
+                      fontWeight: 'bold',
+                      lineHeight: '1',
+                      textAlign: 'center'
+                    }}
+                  >
+                    {level}
+                  </Box>
+                </>
+              ) : (
+                // ヒートマップ形式（混雑度のみ）
+                <Box
+                  sx={{
+                    fontSize: isSmallMobile ? '16px' : isMobile ? '18px' : '20px',
+                    fontWeight: 'bold',
+                    lineHeight: '1',
+                    textAlign: 'center'
+                  }}
+                >
+                  {level}
+                </Box>
+              )}
             </Box>
           );
         })}
@@ -103,31 +120,49 @@ const CongestionLegend = ({ showCalculationNote = false }) => {
             gap: isSmallMobile ? '1px' : '2px'
           }}
         >
-          {/* 日付を上に表示 */}
-          <Box
-            sx={{
-              fontSize: isSmallMobile ? '8px' : isMobile ? '10px' : '12px',
-              lineHeight: '1',
-              color: '#666',
-              fontWeight: '500',
-              textAlign: 'center'
-            }}
-          >
-            日にち
-          </Box>
-          
-          {/* ダッシュを下に表示 */}
-          <Box
-            sx={{
-              fontSize: isSmallMobile ? '14px' : isMobile ? '16px' : '20px',
-              fontWeight: 'bold',
-              lineHeight: '1',
-              color: '#666',
-              textAlign: 'center'
-            }}
-          >
-            -
-          </Box>
+          {legendType === 'calendar' ? (
+            // カレンダー形式（日付＋ダッシュ）
+            <>
+              {/* 日付を上に表示 */}
+              <Box
+                sx={{
+                  fontSize: isSmallMobile ? '8px' : isMobile ? '10px' : '12px',
+                  lineHeight: '1',
+                  color: '#666',
+                  fontWeight: '500',
+                  textAlign: 'center'
+                }}
+              >
+                日にち
+              </Box>
+              
+              {/* ダッシュを下に表示 */}
+              <Box
+                sx={{
+                  fontSize: isSmallMobile ? '14px' : isMobile ? '16px' : '20px',
+                  fontWeight: 'bold',
+                  lineHeight: '1',
+                  color: '#666',
+                  textAlign: 'center'
+                }}
+              >
+                -
+              </Box>
+            </>
+          ) : (
+            // ヒートマップ形式（ダッシュのみ）
+            <Box
+              sx={{
+                fontSize: isSmallMobile ? '14px' : isMobile ? '16px' : '18px',
+                fontWeight: 'bold',
+                lineHeight: '1',
+                color: '#666',
+                textAlign: 'center'
+              }}
+            >
+              -
+            </Box>
+          )}
         </Box>
         <Typography 
           variant={isSmallMobile ? "bodyS" : "bodyS"} 
@@ -164,7 +199,8 @@ const CongestionLegend = ({ showCalculationNote = false }) => {
 
 // PropTypesの追加
 CongestionLegend.propTypes = {
-  showCalculationNote: PropTypes.bool
+  showCalculationNote: PropTypes.bool,
+  legendType: PropTypes.oneOf(['calendar', 'heatmap'])
 };
 
 export default CongestionLegend;

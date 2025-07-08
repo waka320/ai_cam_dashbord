@@ -267,7 +267,10 @@ const CalendarHeatmap = () => {
                     </Paper>
                 </Popper>
                 
-                <CongestionLegend showCalculationNote={shouldShowCalculationNote()} />
+                <CongestionLegend 
+                    showCalculationNote={shouldShowCalculationNote()} 
+                    legendType="calendar" 
+                />
             </Box>
         </ClickAwayListener>
     );

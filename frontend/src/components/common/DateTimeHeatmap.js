@@ -449,7 +449,10 @@ const DateTimeHeatmap = () => {
                 </Popper>
 
                 <Box sx={{ mt: 2 }}>
-                    <CongestionLegend showCalculationNote={shouldShowCalculationNote()} />
+                    <CongestionLegend 
+                        showCalculationNote={shouldShowCalculationNote()} 
+                        legendType="heatmap" 
+                    />
                 </Box>
             </Box>
         </ClickAwayListener>
