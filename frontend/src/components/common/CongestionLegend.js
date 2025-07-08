@@ -29,7 +29,7 @@ const CongestionLegend = () => {
         display: 'flex', 
         flexWrap: 'wrap', 
         gap: 0.5,
-        justifyContent: isMobile ? 'center' : 'flex-start',
+        justifyContent: 'flex-start',
         mb: 1.5
       }}>
         {[...Array(10)].map((_, i) => {
@@ -85,8 +85,8 @@ const CongestionLegend = () => {
         display: 'flex', 
         alignItems: 'center', 
         gap: 1,
-        ml: isMobile ? 0 : 0.5,
-        justifyContent: isMobile ? 'center' : 'flex-start'
+        ml: 0.5,
+        justifyContent: 'flex-start'
       }}>
         <Box
           sx={{
