@@ -349,7 +349,7 @@ function Header() {
                                     src={logo}
                                     alt="目的ベースダッシュボードのロゴ"
                                     sx={{ 
-                                        height: isMobile ? '42px' : '54px',
+                                        height: isMobile ? '38px' : '50px',
                                         objectFit: 'contain',
                                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                     }}
