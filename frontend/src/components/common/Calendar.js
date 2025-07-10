@@ -4,6 +4,7 @@ import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
 import AnalysisInfoButton from '../ui/AnalysisInfoButton'; // 追加
+import WeatherIcon from '../ui/WeatherIcon'; // 追加
 
 // カレンダーコンポーネント
 const CalendarHeatmap = () => {
@@ -161,23 +162,6 @@ const CalendarHeatmap = () => {
                                             minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '50px',
                                             minHeight: isMobile ? (isSmallMobile ? '55px' : '55px') : '65px',
                                             paddingY: isMobile ? (isSmallMobile ? '5px' : '20px') : '20px'
-                                            // ハイライトエフェクト
-                                            // ...(cell && cell.highlighted && {
-                                            //     '&::before': {
-                                            //         content: '""',
-                                            //         position: 'absolute',
-                                            //         top: isMobile ? '2px' : '3px',
-                                            //         left: isMobile ? '2px' : '3px',
-                                            //         right: isMobile ? '2px' : '3px',
-                                            //         bottom: isMobile ? '2px' : '3px',
-                                            //         borderRadius: '2px',
-                                            //         border: isMobile ? '1.5px solid rgba(255, 215, 0, 0.8)' : '2px solid rgba(255, 215, 0, 0.8)',
-                                            //         boxShadow: '0 0 3px rgba(255, 215, 0, 0.8)',
-                                            //         pointerEvents: 'none',
-                                            //         zIndex: 1,
-                                            //         backgroundColor: 'transparent',
-                                            //     }
-                                            // }),
                                         }}
                                     >
                                         {cell && (
@@ -189,7 +173,7 @@ const CalendarHeatmap = () => {
                                                 flexDirection: 'column',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                gap: isSmallMobile ? '2px' : '4px',
+                                                gap: isSmallMobile ? '1px' : '2px',
                                             }}>
                                                 {/* 日付を上に中央揃えで表示 */}
                                                 <Typography 
@@ -207,7 +191,7 @@ const CalendarHeatmap = () => {
                                                 {/* 混雑度を下に中央揃えで表示 */}
                                                 <Typography 
                                                     sx={{ 
-                                                        fontSize: isMobile ? (isSmallMobile ? '25px' : '27px') : '28px',
+                                                        fontSize: isMobile ? (isSmallMobile ? '22px' : '24px') : '26px',
                                                         lineHeight: '1',
                                                         fontWeight: 'bold',
                                                         color: cell.congestion === 0 ? '#666' : 'inherit',
@@ -217,6 +201,23 @@ const CalendarHeatmap = () => {
                                                 >
                                                     {cell.congestion === 0 ? '-' : cell.congestion}
                                                 </Typography>
+                                                
+                                                {/* 天気アイコンを右上の角にさりげなく表示 */}
+                                                {cell.weather_info && (
+                                                    <Box sx={{
+                                                        position: 'absolute',
+                                                        top: '3px',
+                                                        right: '3px',
+                                                        opacity: 0.8,
+                                                        zIndex: 1
+                                                    }}>
+                                                        <WeatherIcon 
+                                                            weather={cell.weather_info.weather}
+                                                            size="medium"
+                                                            showTemp={false}
+                                                        />
+                                                    </Box>
+                                                )}
                                             </Box>
                                         )}
                                     </Box>

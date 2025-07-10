@@ -1,0 +1,66 @@
+.weather-icon {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-family: 'Noto Sans JP', sans-serif;
+  justify-content: center;
+}
+
+.weather-icon.tiny {
+  font-size: 10px;
+  opacity: 1;
+}
+
+.weather-icon.small {
+  font-size: 14px;
+}
+
+.weather-icon.medium {
+  font-size: 14px;
+}
+
+.weather-icon.large {
+  font-size: 18px;
+}
+
+.weather-emoji {
+  font-size: 1.1em;
+  line-height: 1;
+  display: inline-block;
+}
+
+.temperature {
+  font-size: 0.8em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .weather-icon.tiny {
+    font-size: 8px;
+    opacity: 1;
+  }
+  
+  .weather-icon.small {
+    font-size: 10px;
+  }
+  
+  .weather-icon.medium {
+    font-size: 10px;
+  }
+  
+  .weather-icon.large {
+    font-size: 16px;
+  }
+}
+
+/* ツールチップ用スタイル */
+.weather-icon[title] {
+  cursor: default;
+}
+
+.weather-icon[title]:hover {
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}

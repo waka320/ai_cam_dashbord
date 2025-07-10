@@ -24,7 +24,7 @@ CONGESTION_THRESHOLDS = {
     'default': (10, 500)
 }
 
-def get_data_for_date_time(df: pd.DataFrame, year: int, month: int, place: str = 'default') -> List[Dict[str, Any]]:
+def get_data_for_date_time(df: pd.DataFrame, year: int, month: int, place: str = 'default', weather_data: Dict[int, List[Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
     """
     DataFrameから歩行者データを取得し、時間×日付形式に整形する。
     混雑度を10段階で計算する。7時から22時までの時間帯のデータを返す。
@@ -137,10 +137,41 @@ def get_data_for_date_time(df: pd.DataFrame, year: int, month: int, place: str =
             date_obj = datetime(year, month, day_num)
             weekday = date_obj.strftime('%a')  # 曜日の省略形
             
+            # その日の天気データを取得
+            day_weather_data = weather_data.get(day_num, []) if weather_data else []
+            day_weather = None
+            if day_weather_data:
+                # 最も頻繁に出現する天気を取得
+                weather_list = [wd['weather'] for wd in day_weather_data]
+                most_common = max(set(weather_list), key=weather_list.count) if weather_list else None
+                avg_temp = sum(wd['temperature'] for wd in day_weather_data if wd['temperature'] is not None) / len([wd for wd in day_weather_data if wd['temperature'] is not None]) if any(wd['temperature'] is not None for wd in day_weather_data) else None
+                avg_rain = sum(wd['rain'] for wd in day_weather_data if wd['rain'] is not None) / len([wd for wd in day_weather_data if wd['rain'] is not None]) if any(wd['rain'] is not None for wd in day_weather_data) else None
+                
+                day_weather = {
+                    'day': day_num,
+                    'date': date_str,
+                    'weather': most_common,
+                    'avg_temperature': round(avg_temp, 1) if avg_temp is not None else None,
+                    'total_rain': round(avg_rain, 1) if avg_rain is not None else None
+                }
+            
             result_dict[date_str] = {
                 "date": date_str,  # 日付を文字列で格納
                 "day": weekday,
-                "hours": []
+                "hours": [],
+                "weather_info": day_weather
+            }
+        
+        # 時間別の天気データを取得
+        hour_weather_data = next((wd for wd in weather_data.get(day_num, []) if wd['hour'] == hour), None) if weather_data else None
+        hour_weather = None
+        if hour_weather_data:
+            hour_weather = {
+                'day': day_num,
+                'date': date_str,
+                'weather': hour_weather_data['weather'],
+                'avg_temperature': hour_weather_data['temperature'],
+                'total_rain': hour_weather_data['rain']
             }
         
         # その日の時間データを追加（ハイライト用のプロパティも初期化）
@@ -149,7 +180,8 @@ def get_data_for_date_time(df: pd.DataFrame, year: int, month: int, place: str =
             "congestion": level,
             "count": count,
             "highlighted": False,  # ハイライト表示のフラグ（デフォルトはfalse）
-            "highlight_reason": ""  # ハイライトの理由（デフォルトは空文字）
+            "highlight_reason": "",  # ハイライトの理由（デフォルトは空文字）
+            "weather_info": hour_weather
         })
 
     # 辞書をリストに変換して返す

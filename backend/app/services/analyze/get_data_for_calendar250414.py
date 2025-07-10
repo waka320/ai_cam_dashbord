@@ -1,7 +1,7 @@
 import pandas as pd
 import calendar
 from typing import List, Optional
-from app.models import DayCongestion
+from app.models import DayCongestion, WeatherInfo
 import os
 import glob
 
@@ -24,7 +24,7 @@ CONGESTION_THRESHOLDS = {
     'default': (2300, 9500)
 }
 
-def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 'default') -> List[List[Optional[DayCongestion]]]:
+def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 'default', weather_data: List[dict] = None) -> List[List[Optional[DayCongestion]]]:
     """
     DataFrameから歩行者データを取得し、カレンダー形式に整形する。
     混雑度を10段階で計算する。日曜始まりのカレンダーを作成する。
@@ -130,6 +130,18 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 
     # 月の日数を計算
     days_in_month = calendar.monthrange(year, month)[1]
 
+    # 天気データを日付でマッピング
+    weather_map = {}
+    if weather_data:
+        for wd in weather_data:
+            weather_map[wd['day']] = WeatherInfo(
+                day=wd['day'],
+                date=wd['date'],
+                weather=wd['weather'],
+                avg_temperature=wd['avg_temperature'],
+                total_rain=wd['total_rain']
+            )
+
     # カレンダー形式のデータを作成
     calendar_data: List[List[Optional[DayCongestion]]] = []
     week: List[Optional[DayCongestion]] = [
@@ -142,7 +154,10 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 
         else:
             level = 0  # データがない場合は混雑度0
 
-        day_data = DayCongestion(date=day, congestion=int(level))
+        # 天気情報を取得
+        weather_info = weather_map.get(day, None)
+
+        day_data = DayCongestion(date=day, congestion=int(level), weather_info=weather_info)
         week.append(day_data)
 
         if len(week) == 7:

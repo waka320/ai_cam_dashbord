@@ -6,7 +6,8 @@ from app.services.analyze import get_data_for_week_time250522
 from app.services.analyze import get_data_for_date_time250504
 from app.services.ai_service_debug import analyze_csv_data_debug
 from app.services.highlighter_service import highlight_calendar_data, highlight_week_time_data, highlight_date_time_data
-from app.models import GraphRequest, GraphResponse, DayWithHours
+from app.services.weather_service import weather_service
+from app.models import GraphRequest, GraphResponse, DayWithHours, WeatherInfo
 import time
 from datetime import datetime, timedelta
 
@@ -61,21 +62,26 @@ async def get_graph(request: GraphRequest):
         if df_filtered.empty:
             print(f"Warning: No data found for {place} in {year}/{month}")
             
+        # 天気データの取得
+        weather_data = weather_service.get_daily_weather_summary(year, month)
+        
         # アクションに応じたデータ生成とハイライト
         if action[:3] == "cal":
             # カレンダーデータの作成 - placeをファイル名から抽出して渡す
             place_name = os.path.splitext(os.path.basename(place))[0]
-            data = calendar_service.get_data_for_calendar(df, year, month, place_name)
+            data = calendar_service.get_data_for_calendar(df, year, month, place_name, weather_data)
             # ハイライト処理
             data = highlight_calendar_data(data, action)
         elif action[:3] == "wti":
             # 曜日×時間帯データの作成
-            data = get_data_for_week_time250522.get_data_for_week_time(csv_file_path, year, month)
+            week_weather_data = weather_service.get_weather_for_week_time(year, month)
+            data = get_data_for_week_time250522.get_data_for_week_time(csv_file_path, year, month, week_weather_data)
             # ハイライト処理
             data = highlight_week_time_data(data, action)
         elif action[:3] == "dti":
             # 日付×時間帯データの作成
-            data = get_data_for_date_time250504.get_data_for_date_time(df, year, month, place)
+            date_time_weather_data = weather_service.get_weather_for_date_time(year, month)
+            data = get_data_for_date_time250504.get_data_for_date_time(df, year, month, place, date_time_weather_data)
             # ハイライト処理
             data = highlight_date_time_data(data, action)
         else:
@@ -86,10 +92,23 @@ async def get_graph(request: GraphRequest):
         # AIアドバイスの生成
         ai_advice = await analyze_csv_data_debug(csv_file_path, year, month, action)
         
+        # 天気データの取得
+        weather_data = weather_service.get_daily_weather_summary(year, month)
+        weather_info_list = [
+            WeatherInfo(
+                day=wd['day'],
+                date=wd['date'],
+                weather=wd['weather'],
+                avg_temperature=wd['avg_temperature'],
+                total_rain=wd['total_rain']
+            ) for wd in weather_data
+        ]
+        
         response = GraphResponse(
             graph=f"Graph for {place} in {year}/{month}",
             data=data,
-            ai_advice=ai_advice
+            ai_advice=ai_advice,
+            weather_data=weather_info_list
         )
         
         # キャッシュにレスポンスを保存

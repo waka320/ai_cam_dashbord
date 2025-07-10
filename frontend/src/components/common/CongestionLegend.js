@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Box, Typography, useMediaQuery } from '@mui/material';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
+import WeatherIcon from '../ui/WeatherIcon'; // 追加
 
 const CongestionLegend = ({ showCalculationNote = false, legendType = 'calendar' }) => {
   const { getCellColor, getTextColor } = useColorPalette(); // getTextColorを追加
@@ -26,6 +27,45 @@ const CongestionLegend = ({ showCalculationNote = false, legendType = 'calendar'
       >
         {legendType === 'calendar' ? '混雑度の凡例（上：日付、下：混雑度）:' : '混雑度の凡例:'}
       </Typography>
+      
+      {/* 天気情報の説明を追加 */}
+      <Box sx={{ 
+        display: 'flex', 
+        alignItems: 'center',
+        gap: 1,
+        mb: 1.5,
+        p: 1,
+        backgroundColor: 'rgba(33, 150, 243, 0.08)',
+        borderRadius: '6px',
+        border: '1px solid rgba(33, 150, 243, 0.2)'
+      }}>
+        <Typography 
+          variant={isMobile ? "bodyS" : "bodyM"} 
+          sx={{ 
+            fontWeight: '500',
+            color: 'text.primary',
+            fontSize: isMobile ? '0.8rem' : '0.9rem'
+          }}
+        >
+          天気情報: 
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <WeatherIcon weather="晴れ" size="small" showTemp={false} />
+          <WeatherIcon weather="曇り" size="small" showTemp={false} />
+          <WeatherIcon weather="雨" size="small" showTemp={false} />
+          <WeatherIcon weather="雪" size="small" showTemp={false} />
+        </Box>
+        <Typography 
+          variant={isMobile ? "bodyS" : "bodyM"} 
+          sx={{ 
+            color: 'text.secondary',
+            fontSize: isMobile ? '0.75rem' : '0.85rem'
+          }}
+        >
+          各セルの右上に表示
+        </Typography>
+      </Box>
+
       <Box sx={{ 
         display: 'flex', 
         flexDirection: 'column',

@@ -4,6 +4,7 @@ import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
 import AnalysisInfoButton from '../ui/AnalysisInfoButton'; // 追加
+import WeatherIcon from '../ui/WeatherIcon'; // 追加
 
 // 日本語の曜日名に変換する関数
 const getDayNameJa = (dayName) => {
@@ -220,6 +221,7 @@ const TimeHeatmap = () => {
                     padding: isMobile ? '4px 0' : '8px 0',
                     backgroundColor: '#f9f9f9',
                     height: isMobile ? (isSmallMobile ? '35px' : '40px') : '40px',
+                    position: 'relative'
                   }}
                 >
                   <Typography 
@@ -360,18 +362,22 @@ const TimeHeatmap = () => {
                               {congestion === 0 ? '-' : congestion}
                             </Typography>
                             
-                            {/* ハイライトされたセルにインフォアイコンを表示 */}
-                            {/* {highlighted && highlightReason && (
-                              <InfoIcon 
-                                sx={{ 
-                                  position: 'absolute',
-                                  top: isMobile ? '1px' : '5px',
-                                  right: isMobile ? '1px' : '5px',
-                                  fontSize: isMobile ? '12px' : '16px',
-                                  opacity: 0.8
-                                }}
-                              />
-                            )} */}
+                            {/* 天気アイコンを右上角にさりげなく表示 */}
+                            {hourData && hourData.weather_info && (
+                              <Box sx={{
+                                position: 'absolute',
+                                top: '1px',
+                                right: '1px',
+                                opacity: 0.7,
+                                zIndex: 1
+                              }}>
+                                <WeatherIcon 
+                                  weather={hourData.weather_info.weather}
+                                  size="small"
+                                  showTemp={false}
+                                />
+                              </Box>
+                            )}
                           </Box>
                         </Box>
                       );

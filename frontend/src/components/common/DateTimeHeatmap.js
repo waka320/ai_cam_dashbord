@@ -4,6 +4,7 @@ import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
 import { useColorPalette } from '../../contexts/ColorPaletteContext'; 
 import AnalysisInfoButton from '../ui/AnalysisInfoButton'; // 追加
+import WeatherIcon from '../ui/WeatherIcon'; // 追加
 
 // 日付を整形する関数（例: "2024-07-01" -> "7/1"）
 const formatDate = (dateStr) => {
@@ -212,7 +213,7 @@ const DateTimeHeatmap = () => {
                                 </Typography>
                             </Box>
 
-                            {/* 日付ラベル */}
+                                            {/* 日付ラベル */}
                             {sortedData.map((dateData, rowIndex) => (
                                 <Box 
                                     key={`date-label-${dateData.date}`}
@@ -230,7 +231,9 @@ const DateTimeHeatmap = () => {
                                     <Box sx={{ 
                                         display: 'flex', 
                                         flexDirection: 'column', 
-                                        alignItems: 'center'
+                                        alignItems: 'center',
+                                        gap: '2px',
+                                        position: 'relative'
                                     }}>
                                         <Typography 
                                             variant={isSmallMobile ? "bodyS" : "bodyM"} 
@@ -384,18 +387,22 @@ const DateTimeHeatmap = () => {
                                                             {congestion === 0 ? '-' : congestion}
                                                         </Typography>
                                                         
-                                                        {/* ハイライトされたセルにインフォアイコンを表示 */}
-                                                        {/* {highlighted && highlightReason && (
-                                                            <InfoIcon 
-                                                                sx={{ 
-                                                                    position: 'absolute',
-                                                                    top: isMobile ? '1px' : '5px',
-                                                                    right: isMobile ? '1px' : '5px',
-                                                                    fontSize: isMobile ? '12px' : '16px',
-                                                                    opacity: 0.8
-                                                                }}
-                                                            />
-                                                        )} */}
+                                                        {/* 天気アイコンを右上角にさりげなく表示 */}
+                                                        {hourData && hourData.weather_info && (
+                                                            <Box sx={{
+                                                                position: 'absolute',
+                                                                top: '1px',
+                                                                right: '1px',
+                                                                opacity: 0.7,
+                                                                zIndex: 1
+                                                            }}>
+                                                                <WeatherIcon 
+                                                                    weather={hourData.weather_info.weather}
+                                                                    size="tiny"
+                                                                    showTemp={false}
+                                                                />
+                                                            </Box>
+                                                        )}
                                                     </Box>
                                                 </Box>
                                             );

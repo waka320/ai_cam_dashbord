@@ -2,7 +2,7 @@ import pandas as pd
 import calendar
 from typing import List, Dict, Any
 import os
-from app.models import HourData, DayWithHours
+from app.models import HourData, DayWithHours, WeatherInfo
 
 # 各場所の混雑度境界値の定義
 CONGESTION_THRESHOLDS = {
@@ -37,7 +37,7 @@ WEEKDAY_NAMES = {
     6: {"en": "Sun", "jp": "日"}
 }
 
-def get_data_for_week_time(csv_file_path: str, year: int, month: int) -> List[DayWithHours]:
+def get_data_for_week_time(csv_file_path: str, year: int, month: int, weather_data: Dict[int, List[Dict[str, Any]]] = None) -> List[DayWithHours]:
     """
     CSVファイルから特定の年月の歩行者データを取得し、曜日×時間帯形式で整形する。
     混雑度を10段階で計算する。7時から22時までの時間帯のデータを返す。
@@ -136,10 +136,42 @@ def get_data_for_week_time(csv_file_path: str, year: int, month: int) -> List[Da
         for weekday in range(7):  # 0:月曜〜6:日曜
             weekday_data = grouped[grouped['weekday'] == weekday]
             
+            # 曜日の天気データを取得
+            weekday_weather = weather_data.get(weekday, []) if weather_data else []
+            weather_map = {wd['hour']: wd for wd in weekday_weather}
+            
+            # 曜日の代表的な天気を取得（最も頻繁に出現する天気）
+            day_weather = None
+            if weekday_weather:
+                weather_list = [wd['weather'] for wd in weekday_weather]
+                most_common = max(set(weather_list), key=weather_list.count) if weather_list else None
+                avg_temp = sum(wd['avg_temperature'] for wd in weekday_weather if wd['avg_temperature'] is not None) / len([wd for wd in weekday_weather if wd['avg_temperature'] is not None]) if any(wd['avg_temperature'] is not None for wd in weekday_weather) else None
+                avg_rain = sum(wd['avg_rain'] for wd in weekday_weather if wd['avg_rain'] is not None) / len([wd for wd in weekday_weather if wd['avg_rain'] is not None]) if any(wd['avg_rain'] is not None for wd in weekday_weather) else None
+                
+                day_weather = WeatherInfo(
+                    day=0,  # 曜日なのでdayは0
+                    date=f"{year}-{month:02d}",
+                    weather=most_common,
+                    avg_temperature=round(avg_temp, 1) if avg_temp is not None else None,
+                    total_rain=round(avg_rain, 1) if avg_rain is not None else None
+                )
+            
             hours_data = []
             # 7時から22時までの各時間のデータを取得
             for hour in range(7, 23):
                 hour_data = weekday_data[weekday_data['time_jst'] == hour]
+                
+                # 時間別の天気データを取得
+                hour_weather = weather_map.get(hour, None)
+                hour_weather_info = None
+                if hour_weather:
+                    hour_weather_info = WeatherInfo(
+                        day=0,
+                        date=f"{year}-{month:02d}",
+                        weather=hour_weather['weather'],
+                        avg_temperature=hour_weather['avg_temperature'],
+                        total_rain=hour_weather['avg_rain']
+                    )
                 
                 if not hour_data.empty:
                     # データがある場合
@@ -156,13 +188,15 @@ def get_data_for_week_time(csv_file_path: str, year: int, month: int) -> List[Da
                     congestion=level,
                     count=count,
                     highlighted=False,
-                    highlight_reason=""
+                    highlight_reason="",
+                    weather_info=hour_weather_info
                 ))
             
             # DayWithHoursオブジェクトとして結果に追加
             result.append(DayWithHours(
                 day=WEEKDAY_NAMES[weekday]["jp"],
-                hours=hours_data
+                hours=hours_data,
+                weather_info=day_weather
             ))
         
         return result
