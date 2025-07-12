@@ -62,7 +62,7 @@ const CongestionLegend = ({ showCalculationNote = false, legendType = 'calendar'
             fontSize: isMobile ? '0.75rem' : '0.85rem'
           }}
         >
-          各セルの右上に表示
+          {legendType === 'calendar' ? '各セルの下部に表示' : '各セルの右上に表示'}
         </Typography>
       </Box>
 

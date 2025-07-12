@@ -147,78 +147,88 @@ const CalendarHeatmap = () => {
                                         sx={{
                                             flex: 1,
                                             display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
+                                            flexDirection: 'column',
                                             // 混雑度0の日を灰色で表示
                                             backgroundColor: !cell ? '#fff' : 
                                                 cell.congestion === 0 ? '#e0e0e0' : getCellColor(cell.congestion),
-                                            // getTextColorを使用して文字色を動的に設定
-                                            color: !cell ? 'inherit' : getTextColor(cell.congestion),
                                             borderRight: colIndex !== 6 ? '1px solid #ddd' : undefined,
                                             borderBottom: rowIndex !== calendarData.length - 1 ? '1px solid #ddd' : undefined,
                                             position: 'relative',
                                             cursor: cell && cell.highlighted ? 'pointer' : 'default',
-                                            height: isMobile ? (isSmallMobile ? '45px' : '55px') : '65px',
+                                            height: isMobile ? (isSmallMobile ? '60px' : '70px') : '80px',
                                             minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '50px',
-                                            minHeight: isMobile ? (isSmallMobile ? '55px' : '55px') : '65px',
-                                            paddingY: isMobile ? (isSmallMobile ? '5px' : '20px') : '20px'
                                         }}
                                     >
                                         {cell && (
-                                            <Box sx={{ 
-                                                position: 'relative',
-                                                width: '100%',
-                                                height: '100%',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                gap: isSmallMobile ? '1px' : '2px',
-                                            }}>
-                                                {/* 日付を上に中央揃えで表示 */}
-                                                <Typography 
-                                                    sx={{
-                                                        fontSize: isSmallMobile ? '12px' : isMobile ? '14px' : '16px',
-                                                        lineHeight: '1',
-                                                        color: cell.congestion === 0 ? '#666' : getTextColor(cell.congestion),
-                                                        fontWeight: '500',
-                                                        textAlign: 'center',
-                                                    }}
-                                                >
-                                                    {`${cell.date}日`}
-                                                </Typography>
+                                            <>
+                                                {/* メインコンテンツエリア */}
+                                                <Box sx={{ 
+                                                    flex: 1,
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    gap: isSmallMobile ? '1px' : '2px',
+                                                    color: !cell ? 'inherit' : getTextColor(cell.congestion),
+                                                }}>
+                                                    {/* 日付を上に中央揃えで表示 */}
+                                                    <Typography 
+                                                        sx={{
+                                                            fontSize: isSmallMobile ? '12px' : isMobile ? '14px' : '16px',
+                                                            lineHeight: '1',
+                                                            color: cell.congestion === 0 ? '#666' : getTextColor(cell.congestion),
+                                                            fontWeight: '500',
+                                                            textAlign: 'center',
+                                                        }}
+                                                    >
+                                                        {`${cell.date}日`}
+                                                    </Typography>
+                                                    
+                                                    {/* 混雑度を下に中央揃えで表示 */}
+                                                    <Typography 
+                                                        sx={{ 
+                                                            fontSize: isMobile ? (isSmallMobile ? '22px' : '24px') : '26px',
+                                                            lineHeight: '1',
+                                                            fontWeight: 'bold',
+                                                            color: cell.congestion === 0 ? '#666' : 'inherit',
+                                                            margin: 0,
+                                                            textAlign: 'center'
+                                                        }}
+                                                    >
+                                                        {cell.congestion === 0 ? '-' : cell.congestion}
+                                                    </Typography>
+                                                </Box>
                                                 
-                                                {/* 混雑度を下に中央揃えで表示 */}
-                                                <Typography 
-                                                    sx={{ 
-                                                        fontSize: isMobile ? (isSmallMobile ? '22px' : '24px') : '26px',
-                                                        lineHeight: '1',
-                                                        fontWeight: 'bold',
-                                                        color: cell.congestion === 0 ? '#666' : 'inherit',
-                                                        margin: 0,
-                                                        textAlign: 'center'
-                                                    }}
-                                                >
-                                                    {cell.congestion === 0 ? '-' : cell.congestion}
-                                                </Typography>
-                                                
-                                                {/* 天気アイコンを右上の角にさりげなく表示 */}
+                                                {/* 天気情報エリア */}
                                                 {cell.weather_info && (
                                                     <Box sx={{
-                                                        position: 'absolute',
-                                                        top: '3px',
-                                                        right: '3px',
-                                                        opacity: 0.8,
-                                                        zIndex: 1
+                                                        width: '100%',
+                                                        height: isSmallMobile ? '18px' : isMobile ? '20px' : '24px',
+                                                        backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        gap: '3px'
                                                     }}>
                                                         <WeatherIcon 
                                                             weather={cell.weather_info.weather}
-                                                            size="medium"
+                                                            size="tiny"
                                                             showTemp={false}
                                                         />
+                                                        {cell.weather_info.avg_temperature && (
+                                                            <Typography 
+                                                                sx={{ 
+                                                                    fontSize: isSmallMobile ? '7px' : '8px',
+                                                                    color: '#333',
+                                                                    fontWeight: '500'
+                                                                }}
+                                                            >
+                                                                {Math.round(cell.weather_info.avg_temperature)}°
+                                                            </Typography>
+                                                        )}
                                                     </Box>
                                                 )}
-                                            </Box>
+                                            </>
                                         )}
                                     </Box>
                                 );

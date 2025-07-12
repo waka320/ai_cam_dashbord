@@ -203,7 +203,7 @@ const DateTimeHeatmap = () => {
                                 alignItems: 'center',
                                 padding: isMobile ? '5px 2px' : '10px 5px',
                                 backgroundColor: '#f5f5f5',
-                                height: isMobile ? (isSmallMobile ? '35px' : '40px') : '40px',
+                                height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
                             }}>
                                 <Typography 
                                     variant={isSmallMobile ? "bodyS" : "bodyM"} 
@@ -225,7 +225,7 @@ const DateTimeHeatmap = () => {
                                         alignItems: 'center',
                                         padding: isMobile ? '4px 0' : '8px 0',
                                         backgroundColor: '#f9f9f9',
-                                        height: isMobile ? (isSmallMobile ? '35px' : '40px') : '40px',
+                                        height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
                                     }}
                                 >
                                     <Box sx={{ 
@@ -293,7 +293,10 @@ const DateTimeHeatmap = () => {
                                             borderRight: hour !== hours[hours.length - 1] ? '1px solid #ddd' : 'none',
                                             borderBottom: '1px solid #ddd',
                                             flexShrink: 0,
-                                            height: isMobile ? (isSmallMobile ? '35px' : '40px') : '40px',
+                                            height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
                                         }}
                                     >
                                         <Typography 
@@ -334,48 +337,25 @@ const DateTimeHeatmap = () => {
                                                     sx={{ 
                                                         minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
                                                         width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
-                                                        height: isMobile ? (isSmallMobile ? '35px' : '40px') : '40px',
+                                                        height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
                                                         display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
+                                                        flexDirection: 'column',
                                                         backgroundColor: congestion === 0 ? '#e0e0e0' : getCellColor(congestion),
-                                                        color: congestion === 0 ? '#666' : getTextColor(congestion),
                                                         borderRight: colIndex !== hours.length - 1 ? '1px solid #ddd' : 'none',
                                                         borderBottom: rowIndex !== sortedData.length - 1 ? '1px solid #ddd' : 'none',
                                                         position: 'relative',
                                                         cursor: highlighted ? 'pointer' : 'default',
                                                         flexShrink: 0,
-                                                        // ハイライトエフェクト
-                                                        // ...(highlighted && {
-                                                        //     '&::before': {
-                                                        //         content: '""',
-                                                        //         position: 'absolute',
-                                                        //         top: isMobile ? '2px' : '3px',
-                                                        //         left: isMobile ? '2px' : '3px',
-                                                        //         right: isMobile ? '2px' : '3px',
-                                                        //         bottom: isMobile ? '2px' : '3px',
-                                                        //         borderRadius: '2px',
-                                                        //         border: isMobile ? '1.5px solid rgba(255, 215, 0, 0.8)' : '2px solid rgba(255, 215, 0, 0.8)',
-                                                        //         boxShadow: '0 0 3px rgba(255, 215, 0, 0.8)',
-                                                        //         pointerEvents: 'none',
-                                                        //         zIndex: 1,
-                                                        //         backgroundColor: 'transparent',
-                                                        //     }
-                                                        // }),
                                                     }}
                                                     title={`${formatDate(dateData.date)} ${hour}時 ${congestion === 0 ? '(データなし)' : `(人数: ${count})`}`}
                                                 >
-                                                    {/* セル内容（変更なし） */}
+                                                    {/* メインコンテンツエリア */}
                                                     <Box sx={{ 
-                                                        textAlign: 'center', 
-                                                        padding: isMobile ? (isSmallMobile ? '2px' : '4px') : '10px',
-                                                        position: 'relative',
-                                                        zIndex: 2,
-                                                        width: '100%',
+                                                        flex: 1,
                                                         display: 'flex',
-                                                        flexDirection: 'column',
                                                         alignItems: 'center',
-                                                        justifyContent: 'center'
+                                                        justifyContent: 'center',
+                                                        color: congestion === 0 ? '#666' : getTextColor(congestion),
                                                     }}>
                                                         <Typography 
                                                             variant={isSmallMobile ? "caption" : "bodyXS"} 
@@ -386,24 +366,25 @@ const DateTimeHeatmap = () => {
                                                         >
                                                             {congestion === 0 ? '-' : congestion}
                                                         </Typography>
-                                                        
-                                                        {/* 天気アイコンを右上角にさりげなく表示 */}
-                                                        {hourData && hourData.weather_info && (
-                                                            <Box sx={{
-                                                                position: 'absolute',
-                                                                top: '1px',
-                                                                right: '1px',
-                                                                opacity: 0.7,
-                                                                zIndex: 1
-                                                            }}>
-                                                                <WeatherIcon 
-                                                                    weather={hourData.weather_info.weather}
-                                                                    size="tiny"
-                                                                    showTemp={false}
-                                                                />
-                                                            </Box>
-                                                        )}
                                                     </Box>
+                                                    
+                                                    {/* 天気情報エリア */}
+                                                    {hourData && hourData.weather_info && (
+                                                        <Box sx={{
+                                                            width: '100%',
+                                                            height: isSmallMobile ? '12px' : '14px',
+                                                            backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center'
+                                                        }}>
+                                                            <WeatherIcon 
+                                                                weather={hourData.weather_info.weather}
+                                                                size="tiny"
+                                                                showTemp={false}
+                                                            />
+                                                        </Box>
+                                                    )}
                                                 </Box>
                                             );
                                         })}
