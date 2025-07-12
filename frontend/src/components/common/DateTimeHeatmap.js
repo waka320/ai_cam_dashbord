@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Box, Typography, Paper, CircularProgress, useMediaQuery, Popper, ClickAwayListener } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Box, Typography, CircularProgress, useMediaQuery } from '@mui/material';
+// import { Box, Typography, Paper, CircularProgress, useMediaQuery, Popper, ClickAwayListener } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
 import { useColorPalette } from '../../contexts/ColorPaletteContext'; 
@@ -28,32 +29,32 @@ const DateTimeHeatmap = () => {
     const isSmallMobile = useMediaQuery('(max-width:480px)');
 
     // クリックしたセルの参照とポップオーバーの状態管理
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [popperText, setPopperText] = useState('');
-    const [open, setOpen] = useState(false);
-    const cellRefs = useRef({});
+    // const [anchorEl, setAnchorEl] = useState(null);
+    // const [popperText, setPopperText] = useState('');
+    // const [open, setOpen] = useState(false);
+    // const cellRefs = useRef({});
 
     // セルをタップした時の処理
-    const handleCellClick = (date, hour, highlightReason) => {
-        const cellKey = `${date}-${hour}`;
-        const cellElement = cellRefs.current[cellKey];
-        
-        if (anchorEl === cellElement) {
-            // 同じセルをクリックした場合はポップオーバーを閉じる
-            setOpen(false);
-            setAnchorEl(null);
-        } else {
-            // 新しいセルをクリックした場合はポップオーバーを開く
-            setAnchorEl(cellElement);
-            setPopperText(highlightReason);
-            setOpen(true);
-        }
-    };
+    // const handleCellClick = (date, hour, highlightReason) => {
+    //     const cellKey = `${date}-${hour}`;
+    //     const cellElement = cellRefs.current[cellKey];
+    //     
+    //     if (anchorEl === cellElement) {
+    //         // 同じセルをクリックした場合はポップオーバーを閉じる
+    //         setOpen(false);
+    //         setAnchorEl(null);
+    //     } else {
+    //         // 新しいセルをクリックした場合はポップオーバーを開く
+    //         setAnchorEl(cellElement);
+    //         setPopperText(highlightReason);
+    //         setOpen(true);
+    //     }
+    // };
 
     // ポップオーバー以外の場所をクリックした時に閉じる
-    const handleClickAway = () => {
-        setOpen(false);
-    };
+    // const handleClickAway = () => {
+    //     setOpen(false);
+    // };
 
     // データの詳細をコンソールに出力（コンポーネントがレンダリングされるたびに）
     useEffect(() => {
@@ -149,7 +150,7 @@ const DateTimeHeatmap = () => {
     };
 
     return (
-        <ClickAwayListener onClickAway={handleClickAway}>
+        // <ClickAwayListener onClickAway={handleClickAway}>
             <Box sx={{ 
                 maxWidth: '100%', 
                 margin: '0 auto', 
@@ -324,16 +325,16 @@ const DateTimeHeatmap = () => {
                                             const hourData = dateData.hours.find(h => h.hour === hour);
                                             const congestion = hourData ? hourData.congestion : 0;
                                             const count = hourData ? hourData.count : 0;
-                                            const highlighted = hourData && hourData.highlighted;
-                                            const highlightReason = hourData ? hourData.highlight_reason : '';
-                                            const cellKey = `${dateData.date}-${hour}`;
+                                            // const highlighted = hourData && hourData.highlighted;
+                                            // const highlightReason = hourData ? hourData.highlight_reason : '';
+                                            // const cellKey = `${dateData.date}-${hour}`;
                                             
                                             return (
                                                 <Box 
                                                     key={`${dateData.date}-${hour}`}
-                                                    ref={(el) => cellRefs.current[cellKey] = el}
-                                                    onClick={() => highlighted && highlightReason ? 
-                                                        handleCellClick(dateData.date, hour, highlightReason) : null}
+                                                    // ref={(el) => cellRefs.current[cellKey] = el}
+                                                    // onClick={() => highlighted && highlightReason ? 
+                                                    //     handleCellClick(dateData.date, hour, highlightReason) : null}
                                                     sx={{ 
                                                         minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
                                                         width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
@@ -344,7 +345,8 @@ const DateTimeHeatmap = () => {
                                                         borderRight: colIndex !== hours.length - 1 ? '1px solid #ddd' : 'none',
                                                         borderBottom: rowIndex !== sortedData.length - 1 ? '1px solid #ddd' : 'none',
                                                         position: 'relative',
-                                                        cursor: highlighted ? 'pointer' : 'default',
+                                                        // cursor: highlighted ? 'pointer' : 'default',
+                                                        cursor: 'default',
                                                         flexShrink: 0,
                                                     }}
                                                     title={`${formatDate(dateData.date)} ${hour}時 ${congestion === 0 ? '(データなし)' : `(人数: ${count})`}`}
@@ -396,6 +398,7 @@ const DateTimeHeatmap = () => {
                 </Box>
                 
                 {/* ポッパーとレジェンドは変更なし */}
+                {/*
                 <Popper 
                     open={open} 
                     anchorEl={anchorEl}
@@ -435,6 +438,7 @@ const DateTimeHeatmap = () => {
                         </Typography>
                     </Paper>
                 </Popper>
+                */}
 
                 <Box sx={{ mt: 2 }}>
                     <CongestionLegend 
@@ -443,7 +447,7 @@ const DateTimeHeatmap = () => {
                     />
                 </Box>
             </Box>
-        </ClickAwayListener>
+        // </ClickAwayListener>
     );
 };
 

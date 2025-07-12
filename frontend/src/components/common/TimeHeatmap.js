@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Box, Typography, Paper, CircularProgress, useMediaQuery, Popper, ClickAwayListener } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Box, Typography, CircularProgress, useMediaQuery } from '@mui/material';
+// import { Box, Typography, Paper, CircularProgress, useMediaQuery, Popper, ClickAwayListener } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
@@ -30,30 +31,30 @@ const TimeHeatmap = () => {
   const isSmallMobile = useMediaQuery('(max-width:480px)');
 
   // クリックしたセルの参照とポップオーバーの状態管理
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [popperText, setPopperText] = useState('');
-  const [open, setOpen] = useState(false);
-  const cellRefs = useRef({});
+  // const [anchorEl, setAnchorEl] = useState(null);
+  // const [popperText, setPopperText] = useState('');
+  // const [open, setOpen] = useState(false);
+  // const cellRefs = useRef({});
 
   // セルをタップした時の処理
-  const handleCellClick = (day, hour, highlightReason) => {
-    const cellKey = `${day}-${hour}`;
-    const cellElement = cellRefs.current[cellKey];
-    
-    if (anchorEl === cellElement) {
-      setOpen(false);
-      setAnchorEl(null);
-    } else {
-      setAnchorEl(cellElement);
-      setPopperText(highlightReason);
-      setOpen(true);
-    }
-  };
+  // const handleCellClick = (day, hour, highlightReason) => {
+  //   const cellKey = `${day}-${hour}`;
+  //   const cellElement = cellRefs.current[cellKey];
+  //   
+  //   if (anchorEl === cellElement) {
+  //     setOpen(false);
+  //     setAnchorEl(null);
+  //   } else {
+  //     setAnchorEl(cellElement);
+  //     setPopperText(highlightReason);
+  //     setOpen(true);
+  //   }
+  // };
 
   // ポップオーバー以外の場所をクリックした時に閉じる
-  const handleClickAway = () => {
-    setOpen(false);
-  };
+  // const handleClickAway = () => {
+  //   setOpen(false);
+  // };
 
   // データの詳細をコンソールに出力（開発用）
   useEffect(() => {
@@ -144,7 +145,7 @@ const TimeHeatmap = () => {
   };
 
   return (
-    <ClickAwayListener onClickAway={handleClickAway}>
+    // <ClickAwayListener onClickAway={handleClickAway}>
       <Box sx={{ 
         maxWidth: '100%', 
         margin: '0 auto', 
@@ -310,16 +311,16 @@ const TimeHeatmap = () => {
                     {hours.map((hour, colIndex) => {
                       const hourData = dayData.hours.find(h => h.hour === hour);
                       const congestion = hourData ? hourData.congestion : 0;
-                      const highlighted = hourData && hourData.highlighted;
-                      const highlightReason = hourData ? hourData.highlight_reason : '';
-                      const cellKey = `${dayData.day}-${hour}`;
+                      // const highlighted = hourData && hourData.highlighted;
+                      // const highlightReason = hourData ? hourData.highlight_reason : '';
+                      // const cellKey = `${dayData.day}-${hour}`;
                       
                       return (
                         <Box 
                           key={`${dayData.day}-${hour}`}
-                          ref={(el) => cellRefs.current[cellKey] = el}
-                          onClick={() => highlighted && highlightReason ? 
-                            handleCellClick(dayData.day, hour, highlightReason) : null}
+                          // ref={(el) => cellRefs.current[cellKey] = el}
+                          // onClick={() => highlighted && highlightReason ? 
+                          //   handleCellClick(dayData.day, hour, highlightReason) : null}
                           sx={{ 
                             minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
                             width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
@@ -330,10 +331,11 @@ const TimeHeatmap = () => {
                             borderRight: colIndex !== hours.length - 1 ? '1px solid #ddd' : 'none',
                             borderBottom: rowIndex !== sortedData.length - 1 ? '1px solid #ddd' : 'none',
                             position: 'relative',
-                            cursor: highlighted ? 'pointer' : 'default',
+                            // cursor: highlighted ? 'pointer' : 'default',
+                            cursor: 'default',
                             flexShrink: 0,
                           }}
-                          title={`${getDayNameJa(dayData.day)} ${hour}時 ${congestion === 0 ? '(データなし)' : `(混雑度: ${congestion})`}`}
+                          // title={`${getDayNameJa(dayData.day)} ${hour}時 ${congestion === 0 ? '(データなし)' : `(混雑度: ${congestion})`}`}
                         >
                           {/* メインコンテンツエリア */}
                           <Box sx={{ 
@@ -382,6 +384,7 @@ const TimeHeatmap = () => {
         </Box>
 
         {/* ポッパー */}
+        {/*
         <Popper 
           open={open} 
           anchorEl={anchorEl}
@@ -421,6 +424,7 @@ const TimeHeatmap = () => {
             </Typography>
           </Paper>
         </Popper>
+        */}
 
         <Box sx={{ mt: 2 }}>
           <CongestionLegend 
@@ -429,7 +433,7 @@ const TimeHeatmap = () => {
           />
         </Box>
       </Box>
-    </ClickAwayListener>
+    // </ClickAwayListener>
   );
 };
 

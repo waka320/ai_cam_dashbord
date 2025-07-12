@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { Box, Typography, CircularProgress, Popper, Paper, ClickAwayListener, useMediaQuery } from '@mui/material';
+import React from 'react';
+import { Box, Typography, CircularProgress, useMediaQuery } from '@mui/material';
+// import { Box, Typography, CircularProgress, Popper, Paper, ClickAwayListener, useMediaQuery } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
@@ -17,28 +18,28 @@ const CalendarHeatmap = () => {
     const isSmallMobile = useMediaQuery('(max-width:480px)');
     
     // ポップオーバーの状態
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [popperCell, setPopperCell] = useState(null);
-    const [open, setOpen] = useState(false);
-    const cellRefs = useRef({});
+    // const [anchorEl, setAnchorEl] = useState(null);
+    // const [popperCell, setPopperCell] = useState(null);
+    // const [open, setOpen] = useState(false);
+    // const cellRefs = useRef({});
 
     // クリックしたセルの情報を表示
-    const handleCellClick = (cell, event) => {
-        if (cell && cell.highlighted) {
-            const cellElement = event.currentTarget;
-            
-            if (anchorEl === cellElement) {
-                // 同じセルをクリックした場合はクローズ
-                setOpen(false);
-                setAnchorEl(null);
-            } else {
-                // 別のセルをクリックした場合は表示を更新
-                setAnchorEl(cellElement);
-                setPopperCell(cell);
-                setOpen(true);
-            }
-        }
-    };
+    // const handleCellClick = (cell, event) => {
+    //     if (cell && cell.highlighted) {
+    //         const cellElement = event.currentTarget;
+    //         
+    //         if (anchorEl === cellElement) {
+    //             // 同じセルをクリックした場合はクローズ
+    //             setOpen(false);
+    //             setAnchorEl(null);
+    //         } else {
+    //             // 別のセルをクリックした場合は表示を更新
+    //             setAnchorEl(cellElement);
+    //             setPopperCell(cell);
+    //             setOpen(true);
+    //         }
+    //     }
+    // };
 
     // 場所名の取得（ファイル名部分のみ）
     const getPlaceName = () => {
@@ -80,7 +81,7 @@ const CalendarHeatmap = () => {
     }
 
     return (
-        <ClickAwayListener onClickAway={() => setOpen(false)}>
+        // <ClickAwayListener onClickAway={() => setOpen(false)}>
             <Box>
                 {/* 分析情報ボタンとタイトルの追加 */}
                 <Box sx={{ 
@@ -137,13 +138,13 @@ const CalendarHeatmap = () => {
                     {calendarData.map((week, rowIndex) => (
                         <Box key={rowIndex} sx={{ display: 'flex' }}>
                             {week.map((cell, colIndex) => {
-                                const cellKey = `${rowIndex}-${colIndex}`;
+                                // const cellKey = `${rowIndex}-${colIndex}`;
                                 return (
                                     <Box
                                         key={colIndex}
-                                        ref={(el) => cellRefs.current[cellKey] = el}
-                                        onClick={(event) => cell && cell.highlighted ? 
-                                            handleCellClick(cell, event) : null}
+                                        // ref={(el) => cellRefs.current[cellKey] = el}
+                                        // onClick={(event) => cell && cell.highlighted ? 
+                                        //     handleCellClick(cell, event) : null}
                                         sx={{
                                             flex: 1,
                                             display: 'flex',
@@ -154,7 +155,8 @@ const CalendarHeatmap = () => {
                                             borderRight: colIndex !== 6 ? '1px solid #ddd' : undefined,
                                             borderBottom: rowIndex !== calendarData.length - 1 ? '1px solid #ddd' : undefined,
                                             position: 'relative',
-                                            cursor: cell && cell.highlighted ? 'pointer' : 'default',
+                                            // cursor: cell && cell.highlighted ? 'pointer' : 'default',
+                                            cursor: 'default',
                                             height: isMobile ? (isSmallMobile ? '60px' : '70px') : '80px',
                                             minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '50px',
                                         }}
@@ -238,6 +240,7 @@ const CalendarHeatmap = () => {
                 </Box>
 
                 {/* ハイライト理由のポップオーバー */}
+                {/*
                 <Popper 
                     open={open} 
                     anchorEl={anchorEl}
@@ -277,13 +280,14 @@ const CalendarHeatmap = () => {
                         </Typography>
                     </Paper>
                 </Popper>
+                */}
                 
                 <CongestionLegend 
                     showCalculationNote={shouldShowCalculationNote()} 
                     legendType="calendar" 
                 />
             </Box>
-        </ClickAwayListener>
+        // </ClickAwayListener>
     );
 };
 
