@@ -210,7 +210,8 @@ const CalendarHeatmap = () => {
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
-                                                        gap: '3px'
+                                                        gap: '1px',
+                                                        padding: '1px'
                                                     }}>
                                                         <WeatherIcon 
                                                             weather={cell.weather_info.weather}
@@ -220,9 +221,10 @@ const CalendarHeatmap = () => {
                                                         {cell.weather_info.avg_temperature && (
                                                             <Typography 
                                                                 sx={{ 
-                                                                    fontSize: isSmallMobile ? '7px' : '8px',
+                                                                    fontSize: isSmallMobile ? '13px' : '15px',
                                                                     color: '#333',
-                                                                    fontWeight: '500'
+                                                                    fontWeight: '600',
+                                                                    lineHeight: '1'
                                                                 }}
                                                             >
                                                                 {Math.round(cell.weather_info.avg_temperature)}°

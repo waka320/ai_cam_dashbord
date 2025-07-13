@@ -360,10 +360,11 @@ const DateTimeHeatmap = () => {
                                                         color: congestion === 0 ? '#666' : getTextColor(congestion),
                                                     }}>
                                                         <Typography 
-                                                            variant={isSmallMobile ? "caption" : "bodyXS"} 
-                                                            fontWeight="bold"
                                                             sx={{ 
-                                                                fontSize: isSmallMobile ? '0.65rem' : undefined
+                                                                fontSize: isMobile ? (isSmallMobile ? '18px' : '20px') : '22px',
+                                                                lineHeight: '1',
+                                                                fontWeight: 'bold',
+                                                                textAlign: 'center'
                                                             }}
                                                         >
                                                             {congestion === 0 ? '-' : congestion}
@@ -378,11 +379,12 @@ const DateTimeHeatmap = () => {
                                                             backgroundColor: 'rgba(255, 255, 255, 0.75)',
                                                             display: 'flex',
                                                             alignItems: 'center',
-                                                            justifyContent: 'center'
+                                                            justifyContent: 'center',
+                                                            padding: '1px'
                                                         }}>
                                                             <WeatherIcon 
                                                                 weather={hourData.weather_info.weather}
-                                                                size="tiny"
+                                                                size="small"
                                                                 showTemp={false}
                                                             />
                                                         </Box>
