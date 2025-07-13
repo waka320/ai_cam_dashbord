@@ -13,7 +13,7 @@ const WeatherIcon = ({ weather, size = 'small', showTemp = false, temperature = 
     } else if (weatherLower.includes('曇')) {
       return '☁️';
     } else if (weatherLower.includes('雨')) {
-      return '🌧️';
+      return '☔️';
     } else if (weatherLower.includes('雪')) {
       return '❄️';
     } else if (weatherLower.includes('雷')) {
@@ -66,7 +66,7 @@ const WeatherIcon = ({ weather, size = 'small', showTemp = false, temperature = 
 
 WeatherIcon.propTypes = {
   weather: PropTypes.string,
-  size: PropTypes.oneOf(['tiny', 'small', 'medium', 'large']),
+  size: PropTypes.oneOf(['tiny', 'small', 'medium', 'large', 'xlarge']),
   showTemp: PropTypes.bool,
   temperature: PropTypes.number,
 };

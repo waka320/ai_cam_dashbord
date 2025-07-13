@@ -237,7 +237,7 @@ const TimeHeatmap = () => {
                   {dayData.weather_info && (
                     <WeatherIcon 
                       weather={dayData.weather_info.weather}
-                      size="small"
+                      size="medium"
                       showTemp={false}
                     />
                   )}
@@ -370,7 +370,7 @@ const TimeHeatmap = () => {
                             }}>
                               <WeatherIcon 
                                 weather={hourData.weather_info.weather}
-                                size="small"
+                                size="medium"
                                 showTemp={false}
                               />
                             </Box>

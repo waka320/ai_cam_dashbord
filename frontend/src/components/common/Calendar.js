@@ -215,7 +215,7 @@ const CalendarHeatmap = () => {
                                                     }}>
                                                         <WeatherIcon 
                                                             weather={cell.weather_info.weather}
-                                                            size="tiny"
+                                                            size="medium"
                                                             showTemp={false}
                                                         />
                                                         {cell.weather_info.avg_temperature && (

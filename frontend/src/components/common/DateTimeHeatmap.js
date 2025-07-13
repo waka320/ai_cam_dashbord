@@ -384,7 +384,7 @@ const DateTimeHeatmap = () => {
                                                         }}>
                                                             <WeatherIcon 
                                                                 weather={hourData.weather_info.weather}
-                                                                size="small"
+                                                                size="medium"
                                                                 showTemp={false}
                                                             />
                                                         </Box>
