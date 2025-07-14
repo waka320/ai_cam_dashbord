@@ -172,7 +172,7 @@ const Footer = () => {
               </Typography>
               <Box sx={{ ml: 1 }}>
                 <Typography variant="body2">
-                  最終更新: 2025年5月
+                  最終更新: 2025年7月
                 </Typography>
               </Box>
 
