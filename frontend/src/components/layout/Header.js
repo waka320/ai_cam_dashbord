@@ -211,7 +211,7 @@ function Header() {
                 flexDirection: isMobile ? 'column' : 'row',
                 alignItems: isMobile ? 'stretch' : 'center',
                 width: isMobile ? '100%' : isTablet || isSmallDesktop ? '100%' : 'auto',
-                gap: isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 1 : 1.5),
+                gap: isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 1 : 1.2), // PC版のgapを統一
                 mb: 0,
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
@@ -222,7 +222,7 @@ function Header() {
                     marginRight: isMobile ? 0 : '10px',
                     color: theme.palette.text.white,
                     fontWeight: 'bold',
-                    textAlign: isMobile ? 'center' : 'left',
+                    textAlign: 'left', // モバイルでも左揃えに変更
                     fontSize: isScrolled ? 
                         (isMobile ? '0.75rem' : '0.9rem') : 
                         (isMobile ? '0.9rem' : isTablet || isSmallDesktop ? '1.1rem' : undefined),
@@ -335,26 +335,54 @@ function Header() {
                     {!isScrolled && (
                         <Box sx={{ 
                             display: 'flex', 
-                            justifyContent: 'center', 
+                            justifyContent: 'space-between', 
                             alignItems: 'center',
                             borderBottom: (isMobile || isSpecialPage()) ? 'none' : '1px solid rgba(255,255,255,0.3)',
-                            py: 1,
+                            py: isMobile ? 0.5 : 0.6, // PC版の縦余白をさらに削減
+                            px: isMobile ? 2 : 2.5, // PC版の横余白も調整
                             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                             opacity: isScrolled ? 0 : 1,
                             transform: isScrolled ? 'translateY(-20px)' : 'translateY(0)',
                         }}>
+                            {/* 左側のスペース（モバイルでバランスを取るため） */}
+                            <Box sx={{ width: isMobile ? '40px' : '60px' }} />
+                            
+                            {/* 中央のロゴ */}
                             <RouterLink to="/" aria-label="トップページへ戻る">
                                 <Box
                                     component="img"
                                     src={logo}
                                     alt="目的ベースダッシュボードのロゴ"
                                     sx={{ 
-                                        height: isMobile ? '38px' : '50px',
+                                        height: isMobile ? '34px' : '44px', // ロゴサイズも少し小さく
                                         objectFit: 'contain',
                                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                                     }}
                                 />
                             </RouterLink>
+                            
+                            {/* 右側の共有ボタン */}
+                            {!isSpecialPage() && (
+                                <Box sx={{ 
+                                    '& .MuiButton-root': {
+                                        height: isMobile ? '28px' : '36px', // ロゴに合わせてサイズを調整
+                                        minWidth: isMobile ? '60px' : '80px',
+                                        fontSize: isMobile ? '0.75rem' : '0.85rem',
+                                        padding: isMobile ? '4px 8px' : '6px 12px',
+                                        '& .MuiButton-startIcon': {
+                                            marginRight: isMobile ? '4px' : '6px',
+                                            '& svg': {
+                                                fontSize: isMobile ? '1rem' : '1.1rem'
+                                            }
+                                        }
+                                    }
+                                }}>
+                                    <ShareButton 
+                                        variant='button' 
+                                        size='small'
+                                    />
+                                </Box>
+                            )}
                         </Box>
                     )}
                     
@@ -362,9 +390,9 @@ function Header() {
                     {!isSpecialPage() && (
                         <Paper elevation={0} sx={{
                             backgroundColor: 'transparent',
-                            margin: isScrolled ? (isMobile ? '1px 4px' : '4px 8px') : (isMobile ? '4px 8px' : '12px 16px'),
+                            margin: isScrolled ? (isMobile ? '1px 4px' : '3px 6px') : (isMobile ? '4px 8px' : '8px 12px'), // PC版のマージンを削減
                             borderRadius: '8px',
-                            padding: isScrolled ? (isMobile ? '3px' : '6px') : (isMobile ? '6px' : '12px'),
+                            padding: isScrolled ? (isMobile ? '3px' : '4px') : (isMobile ? '6px' : '8px'), // PC版のパディングを削減
                             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         }}>
                             <Toolbar 
@@ -373,7 +401,7 @@ function Header() {
                                     flexDirection: isMobile ? 'column' : 'row',
                                     justifyContent: 'space-between', 
                                     alignItems: isMobile ? 'stretch' : 'center',
-                                    gap: isScrolled ? (isMobile ? 0.5 : 1) : (isMobile ? 1 : 2),
+                                    gap: isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 1 : 1.2), // PC版のgapを削減
                                     padding: '0 !important',
                                     minHeight: 'auto !important',
                                     flexWrap: isMobile ? 'nowrap' : 'wrap',
@@ -389,7 +417,7 @@ function Header() {
                                         display: 'flex', 
                                         flexDirection: 'column',
                                         alignItems: 'stretch', 
-                                        gap: isScrolled ? 0.5 : 1, 
+                                        gap: isScrolled ? 0.5 : 0.8, // PC版のgapを削減
                                         marginLeft: isMobile ? 0 : '0',
                                         marginTop: isMobile ? 0 : 0,
                                         width: isMobile ? '100%' : 'auto',
@@ -398,13 +426,13 @@ function Header() {
                                     }}
                                 >
                                     {/* データの年・月セクション */}
-                                    <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isScrolled ? (isMobile ? 0.5 : 1) : (isMobile ? 0.8 : 1.5) }}>
+                                    <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 0.8 : 1.2) }}> {/* PC版のgapを統一 */}
                                         <Typography 
                                             variant="labelL" 
                                             sx={{ 
                                                 color: theme.palette.text.white, 
                                                 fontWeight: 'bold',
-                                                textAlign: isMobile ? 'center' : 'left',
+                                                textAlign: 'left', // モバイルでも左揃えに変更
                                                 fontSize: isScrolled ? (isMobile ? '0.7rem' : '0.85rem') : (isMobile ? '0.85rem' : '0.95rem'),
                                                 whiteSpace: 'nowrap',
                                                 textShadow: '0 1px 2px rgba(0,0,0,0.2)',
@@ -671,13 +699,13 @@ function Header() {
                                     </Box>
 
                                     {/* 計測場所セクション */}
-                                    <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isScrolled ? (isMobile ? 0.5 : 1) : (isMobile ? 0.8 : 1.5) }}>
+                                    <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 0.8 : 1.2) }}> {/* PC版のgapを統一 */}
                                         <Typography 
                                             variant="labelL" 
                                             sx={{ 
                                                 color: theme.palette.text.white, 
                                                 fontWeight: 'bold',
-                                                textAlign: isMobile ? 'center' : 'left',
+                                                textAlign: 'left', // モバイルでも左揃えに変更
                                                 fontSize: isScrolled ? (isMobile ? '0.7rem' : '0.85rem') : (isMobile ? '0.85rem' : '0.95rem'),
                                                 whiteSpace: 'nowrap',
                                                 textShadow: '0 1px 2px rgba(0,0,0,0.2)',
@@ -755,21 +783,6 @@ function Header() {
                                     </Box>
                                 </Box>
 
-                                {/* 共有ボタン */}
-                                <Box 
-                                    sx={{ 
-                                        display: 'flex', 
-                                        flexDirection: 'row',
-                                        alignItems: 'center', 
-                                        gap: 1.5, 
-                                        ml: isMobile ? 0 : 1
-                                    }}
-                                >
-                                    <ShareButton 
-                                        variant='button' 
-                                        size={isMobile ? 'small' : 'medium'} 
-                                    />
-                                </Box>
                             </Toolbar>
                         </Paper>
                     )}
