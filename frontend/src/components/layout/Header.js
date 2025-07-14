@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { AppBar, Toolbar, Typography, Select, MenuItem, Box, FormControl, Button, useMediaQuery, IconButton, Tooltip, Paper } from '@mui/material';
+import { AppBar, Toolbar, Typography, Select, MenuItem, Box, FormControl, Button, useMediaQuery, IconButton, Tooltip, Paper, Modal } from '@mui/material';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
@@ -158,6 +158,19 @@ function Header() {
         if (event.target.value) {
             fetchCalendarData();
         }
+    };
+
+    // カメラ画像モーダルの状態管理
+    const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
+
+    // カメラ画像モーダルを開く関数
+    const handleCameraButtonClick = () => {
+        setIsCameraModalOpen(true);
+    };
+
+    // カメラ画像モーダルを閉じる関数
+    const handleCameraModalClose = () => {
+        setIsCameraModalOpen(false);
     };
 
     const handleChange = (event) => {
@@ -417,7 +430,7 @@ function Header() {
                                         display: 'flex', 
                                         flexDirection: 'column',
                                         alignItems: 'stretch', 
-                                        gap: isScrolled ? 0.5 : 0.8, // PC版のgapを削減
+                                        gap: isScrolled ? 0.4 : 0.6, // PC版のセクション間gapを更に削減
                                         marginLeft: isMobile ? 0 : '0',
                                         marginTop: isMobile ? 0 : 0,
                                         width: isMobile ? '100%' : 'auto',
@@ -426,7 +439,7 @@ function Header() {
                                     }}
                                 >
                                     {/* データの年・月セクション */}
-                                    <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 0.8 : 1.2) }}> {/* PC版のgapを統一 */}
+                                    <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isScrolled ? (isMobile ? 0.5 : 0.6) : (isMobile ? 0.8 : 1.0) }}> {/* PC版のgapを更に縮小 */}
                                         <Typography 
                                             variant="labelL" 
                                             sx={{ 
@@ -699,7 +712,7 @@ function Header() {
                                     </Box>
 
                                     {/* 計測場所セクション */}
-                                    <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 0.8 : 1.2) }}> {/* PC版のgapを統一 */}
+                                    <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isScrolled ? (isMobile ? 0.5 : 0.6) : (isMobile ? 0.8 : 1.0) }}> {/* PC版のgapを更に縮小 */}
                                         <Typography 
                                             variant="labelL" 
                                             sx={{ 
@@ -715,71 +728,108 @@ function Header() {
                                             計測場所
                                         </Typography>
                                         
-                                        {/* 計測場所選択 */}
-                                        <FormControl variant="outlined" sx={{ 
-                                            width: isMobile ? '100%' : isSmallDesktop ? 150 : 180,
-                                            '& .MuiOutlinedInput-root': {
-                                                height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
-                                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                            }
-                                        }}>
-                                            <Tooltip title="計測場所を選択">
-                                                <Select
-                                                    value={selectedLocation}
-                                                    onChange={handleLocationChange}
-                                                    disabled={loading}
-                                                    displayEmpty
-                                                    renderValue={(value) => {
-                                                        if (value === "") return "場所未選択";
-                                                        const selectedLoc = locationItems.find((item) => item.value === value);
-                                                        return selectedLoc ? selectedLoc.label : "";
-                                                    }}
-                                                    sx={{
-                                                        backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
-                                                        borderRadius: '8px',
-                                                        '.MuiSelect-icon': { 
-                                                            color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
-                                                            right: isMobile ? '4px' : '8px',
-                                                            fontSize: isMobile ? '1rem' : '1.25rem'
-                                                        },
-                                                        ...theme.typography.bodyM,
-                                                        padding: isMobile ? '4px 4px' : '4px 8px',
-                                                        '& .MuiOutlinedInput-input': {
-                                                            padding: isMobile ? '4px 4px 4px 8px' : isSmallDesktop ? '4px 4px' : '4px 8px',
-                                                        },
-                                                        color:
-                                                            selectedLocation === ""
-                                                                ? theme.palette.text.secondary
-                                                                : theme.palette.text.primary,
-                                                        fontSize: isMobile ? '0.9rem' : '0.95rem',
-                                                        fontWeight: 500,
-                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                                                    }}
-                                                    MenuProps={{
-                                                        PaperProps: {
-                                                            style: {
-                                                                borderRadius: '8px',
-                                                                marginTop: '8px'
+                                        <Box sx={{ display: 'flex', gap: isMobile ? 0.8 : 0.8, alignItems: 'center', width: isMobile ? '100%' : 'auto' }}>
+                                            {/* 計測場所選択 */}
+                                            <FormControl variant="outlined" sx={{ 
+                                                width: 220, // PCの幅を日本語11文字分に拡大
+                                                '& .MuiOutlinedInput-root': {
+                                                    height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
+                                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                }
+                                            }}>
+                                                <Tooltip title="計測場所を選択">
+                                                    <Select
+                                                        value={selectedLocation}
+                                                        onChange={handleLocationChange}
+                                                        disabled={loading}
+                                                        displayEmpty
+                                                        renderValue={(value) => {
+                                                            if (value === "") return "場所未選択";
+                                                            const selectedLoc = locationItems.find((item) => item.value === value);
+                                                            return selectedLoc ? selectedLoc.label : "";
+                                                        }}
+                                                        sx={{
+                                                            backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
+                                                            borderRadius: '8px',
+                                                            '.MuiSelect-icon': { 
+                                                                color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
+                                                                right: isMobile ? '4px' : '8px',
+                                                                fontSize: isMobile ? '1rem' : '1.25rem'
+                                                            },
+                                                            ...theme.typography.bodyM,
+                                                            padding: isMobile ? '4px 4px' : '4px 8px',
+                                                            '& .MuiOutlinedInput-input': {
+                                                                padding: isMobile ? '4px 4px 4px 8px' : isSmallDesktop ? '4px 4px' : '4px 8px',
+                                                            },
+                                                            color:
+                                                                selectedLocation === ""
+                                                                    ? theme.palette.text.secondary
+                                                                    : theme.palette.text.primary,
+                                                            fontSize: isMobile ? '0.9rem' : '0.95rem',
+                                                            fontWeight: 500,
+                                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                                                        }}
+                                                        MenuProps={{
+                                                            PaperProps: {
+                                                                style: {
+                                                                    borderRadius: '8px',
+                                                                    marginTop: '8px'
+                                                                }
                                                             }
-                                                        }
-                                                    }}
-                                                >
-                                                    {locationItems.map((item) => (
-                                                        <MenuItem 
-                                                            key={item.value} 
-                                                            value={item.value} 
-                                                            sx={{
-                                                                ...theme.typography.bodyM,
-                                                                fontSize: isMobile ? '0.9rem' : '0.95rem',
-                                                                minHeight: isMobile ? '40px' : '48px'
-                                                            }}
-                                                        >
-                                                            {item.label}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </Tooltip>
-                                        </FormControl>
+                                                        }}
+                                                    >
+                                                        {locationItems.map((item) => (
+                                                            <MenuItem 
+                                                                key={item.value} 
+                                                                value={item.value} 
+                                                                sx={{
+                                                                    ...theme.typography.bodyM,
+                                                                    fontSize: isMobile ? '0.9rem' : '0.95rem',
+                                                                    minHeight: isMobile ? '40px' : '48px'
+                                                                }}
+                                                            >
+                                                                {item.label}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                </Tooltip>
+                                            </FormControl>
+
+                                            {/* カメラの設置場所ボタン */}
+                                            <Button
+                                                variant="outlined"
+                                                size="small"
+                                                onClick={handleCameraButtonClick}
+                                                sx={{
+                                                    backgroundColor: 'transparent', // 背景を透明に
+                                                    color: 'white', // 文字を白に
+                                                    borderColor: 'white', // 枠を白に
+                                                    borderWidth: '2px', // 枠線を少し太く
+                                                    fontSize: isMobile ? '0.7rem' : '0.8rem',
+                                                    fontWeight: 600,
+                                                    padding: isMobile ? '4px 8px' : '6px 10px',
+                                                    height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
+                                                    minWidth: isMobile ? '100px' : '120px',
+                                                    whiteSpace: 'nowrap',
+                                                    borderRadius: '20px',
+                                                    boxShadow: '0 2px 4px rgba(255, 255, 255, 0.2)',
+                                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                    textTransform: 'none',
+                                                    '&:hover': {
+                                                        backgroundColor: 'rgba(255, 255, 255, 0.1)', // ホバー時は薄い白背景
+                                                        borderColor: 'white',
+                                                        color: 'white',
+                                                        transform: 'translateY(-2px)',
+                                                        boxShadow: '0 4px 8px rgba(255, 255, 255, 0.3)',
+                                                    },
+                                                    '&:active': {
+                                                        transform: 'translateY(0)',
+                                                    },
+                                                }}
+                                            >
+                                                {'カメラの設置場所を見る'}
+                                            </Button>
+                                        </Box>
                                     </Box>
                                 </Box>
 
@@ -788,6 +838,72 @@ function Header() {
                     )}
                 </Box>
             </AppBar>
+            
+            {/* カメラ画像モーダル */}
+            <Modal
+                open={isCameraModalOpen}
+                onClose={handleCameraModalClose}
+                aria-labelledby="camera-image-modal"
+                aria-describedby="camera-places-image"
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 2,
+                }}
+            >
+                <Box
+                    sx={{
+                        position: 'relative',
+                        maxWidth: isMobile ? '95vw' : '80vw', // PCでの最大幅を制限
+                        maxHeight: isMobile ? '90vh' : '85vh',
+                        backgroundColor: 'white',
+                        borderRadius: '12px',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                        overflow: 'hidden',
+                        outline: 'none',
+                    }}
+                >
+                    {/* 閉じるボタン */}
+                    <IconButton
+                        onClick={handleCameraModalClose}
+                        sx={{
+                            position: 'absolute',
+                            top: 12,
+                            right: 12,
+                            width: '32px', // 正円にするため幅と高さを固定
+                            height: '32px',
+                            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                            color: 'white',
+                            zIndex: 1,
+                            fontSize: '18px',
+                            fontWeight: 'bold',
+                            borderRadius: '50%', // 完全な正円
+                            '&:hover': {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                transform: 'scale(1.1)',
+                            },
+                            transition: 'all 0.2s ease',
+                        }}
+                    >
+                        ✕
+                    </IconButton>
+                    
+                    {/* カメラ画像 */}
+                    <Box
+                        component="img"
+                        src="/assets/camera_places.png"
+                        alt="カメラの設置場所"
+                        sx={{
+                            width: '100%',
+                            height: 'auto',
+                            maxHeight: isMobile ? '85vh' : '75vh', // PCでの最大高さを制限
+                            display: 'block',
+                            objectFit: 'contain', // 画像の縦横比を保持
+                        }}
+                    />
+                </Box>
+            </Modal>
         </>
     );
 }
