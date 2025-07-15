@@ -173,16 +173,17 @@ const TodayDetails = () => {
         );
     }
 
-    // 今日のデータを見つける
-    const getTodayHourlyData = () => {
-        if (!todayData || !todayData.data || !todayData.data.recent_week || !todayData.data.recent_week.daily_data) return null;
+    // 今日のデータを見つける → 昨日のデータと去年のデータを取得する
+    const getYesterdayAndLastYearData = () => {
+        if (!todayData || !todayData.data) return { yesterdayEntry: null, lastYearEntry: null };
         
-        const todaysDate = getTodaysDate();
-        const todayEntry = todayData.data.recent_week.daily_data.find(day => day.date === todaysDate);
-        return todayEntry;
+        const yesterdayEntry = todayData.data.yesterday_hourly;
+        const lastYearEntry = todayData.data.last_year_today_hourly;
+        
+        return { yesterdayEntry, lastYearEntry };
     };
 
-    const todayEntry = getTodayHourlyData();
+    const { yesterdayEntry, lastYearEntry } = getYesterdayAndLastYearData();
 
     return (
         <SectionContainer>
@@ -209,106 +210,104 @@ const TodayDetails = () => {
 
             {summaryData && summaryData.data && (
                 <>
-                    {/* 今日の概要 */}
-                    <Box sx={{ mb: 3 }}>
-                        <Typography 
-                            variant={isMobile ? "subtitle1" : "h6"} 
-                            gutterBottom 
-                            sx={{ 
-                                fontWeight: 'bold', 
-                                mb: 2,
-                                color: 'text.primary'
-                            }}
-                        >
-                            {formatDateJapanese(getTodaysDate())} の概要
-                        </Typography>
+                    {/* 今日の概要 - 混雑度が0の場合は非表示 */}
+                    {(() => {
+                        const todaysDate = getTodaysDate();
+                        const todaySummary = summaryData.data.recent_week_daily_summary.find(day => day.date === todaysDate);
                         
-                        <Box sx={{ 
-                            maxWidth: '500px', 
-                            border: '1px solid #ddd', 
-                            borderRadius: '8px', 
-                            overflow: 'hidden',
-                            backgroundColor: '#fff'
-                        }}>
-                            {(() => {
-                                const todaysDate = getTodaysDate();
-                                const todaySummary = summaryData.data.recent_week_daily_summary.find(day => day.date === todaysDate);
+                        // 今日のデータがないか、混雑度が0の場合は表示しない
+                        if (!todaySummary || todaySummary.congestion_level === 0) {
+                            return null;
+                        }
+                        
+                        return (
+                            <Box sx={{ mb: 3 }}>
+                                <Typography 
+                                    variant={isMobile ? "subtitle1" : "h6"} 
+                                    gutterBottom 
+                                    sx={{ 
+                                        fontWeight: 'bold', 
+                                        mb: 2,
+                                        color: 'text.primary'
+                                    }}
+                                >
+                                    {formatDateJapanese(getTodaysDate())} の概要
+                                </Typography>
                                 
-                                if (!todaySummary) {
-                                    return (
-                                        <Box sx={{ p: 3, textAlign: 'center' }}>
-                                            <Typography variant="body2" color="text.secondary">
-                                                本日のデータは利用できません
-                                            </Typography>
-                                        </Box>
-                                    );
-                                }
-                                
-                                const cellColor = getCellColor(todaySummary.congestion_level);
-                                const textColor = getTextColor(todaySummary.congestion_level);
-                                
-                                return (
-                                    <Box sx={{ 
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        p: 2,
-                                        gap: 2
-                                    }}>
-                                        {/* 混雑度セル */}
-                                        <Box
-                                            sx={{
-                                                width: isMobile ? '80px' : '100px',
-                                                height: isMobile ? '80px' : '100px',
-                                                backgroundColor: cellColor,
-                                                color: textColor,
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                border: '1px solid rgba(0,0,0,0.1)',
-                                                borderRadius: '4px',
-                                                gap: '2px'
-                                            }}
-                                        >
-                                            <Typography 
-                                                sx={{
-                                                    fontSize: isMobile ? '12px' : '14px',
-                                                    lineHeight: '1',
-                                                    fontWeight: '500',
-                                                    textAlign: 'center'
-                                                }}
-                                            >
-                                                {formatDateShort(todaySummary.date)}
-                                            </Typography>
-                                            <Typography 
-                                                sx={{ 
-                                                    fontSize: isMobile ? '32px' : '40px',
-                                                    lineHeight: '1',
-                                                    fontWeight: 'bold',
-                                                    textAlign: 'center'
-                                                }}
-                                            >
-                                                {todaySummary.congestion_level}
-                                            </Typography>
-                                        </Box>
+                                <Box sx={{ 
+                                    maxWidth: '500px', 
+                                    border: '1px solid #ddd', 
+                                    borderRadius: '8px', 
+                                    overflow: 'hidden',
+                                    backgroundColor: '#fff'
+                                }}>
+                                    {(() => {
+                                        const cellColor = getCellColor(todaySummary.congestion_level);
+                                        const textColor = getTextColor(todaySummary.congestion_level);
                                         
-                                        {/* 詳細情報 */}
-                                        <Box sx={{ flex: 1 }}>
-                                            <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>
-                                                混雑レベル {todaySummary.congestion_level}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                                        return (
+                                            <Box sx={{ 
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                p: 2,
+                                                gap: 2
+                                            }}>
+                                                {/* 混雑度セル */}
+                                                <Box
+                                                    sx={{
+                                                        width: isMobile ? '80px' : '100px',
+                                                        height: isMobile ? '80px' : '100px',
+                                                        backgroundColor: cellColor,
+                                                        color: textColor,
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        border: '1px solid rgba(0,0,0,0.1)',
+                                                        borderRadius: '4px',
+                                                        gap: '2px'
+                                                    }}
+                                                >
+                                                    <Typography 
+                                                        sx={{
+                                                            fontSize: isMobile ? '12px' : '14px',
+                                                            lineHeight: '1',
+                                                            fontWeight: '500',
+                                                            textAlign: 'center'
+                                                        }}
+                                                    >
+                                                        {formatDateShort(todaySummary.date)}
+                                                    </Typography>
+                                                    <Typography 
+                                                        sx={{ 
+                                                            fontSize: isMobile ? '32px' : '40px',
+                                                            lineHeight: '1',
+                                                            fontWeight: 'bold',
+                                                            textAlign: 'center'
+                                                        }}
+                                                    >
+                                                        {todaySummary.congestion_level}
+                                                    </Typography>
+                                                </Box>
+                                                
+                                                {/* 詳細情報 */}
+                                                <Box sx={{ flex: 1 }}>
+                                                    <Typography variant="body1" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                                        混雑レベル {todaySummary.congestion_level}
+                                                    </Typography>                                            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
                                                 {todaySummary.is_weekend ? "休日" : "平日"}
                                             </Typography>
                                             <Typography variant="caption" color="text.secondary">
                                                 {getDayOfWeekJapanese(todaySummary.day_of_week)}曜日
                                             </Typography>
-                                        </Box>
-                                    </Box>
-                                );
-                            })()}
-                        </Box>
-                    </Box>
+                                                </Box>
+                                            </Box>
+                                        );
+                                    })()}
+                                </Box>
+                            </Box>
+                        );
+                    })()}
 
                     {/* 最近1週間の動向 - Calendar.jsスタイル */}
                     <Box sx={{ mb: 3 }}>
@@ -364,10 +363,92 @@ const TodayDetails = () => {
                             {/* データセル */}
                             <Box sx={{ display: 'flex' }}>
                                 {summaryData.data.recent_week_daily_summary.map((day) => {
-                                    const cellColor = getCellColor(day.congestion_level);
-                                    const textColor = getTextColor(day.congestion_level);
                                     const todaysDate = getTodaysDate();
                                     const isToday = day.date === todaysDate;
+                                    const hasData = day.congestion_level > 0;
+                                    
+                                    // データがない場合のスタイル
+                                    if (!hasData) {
+                                        return (
+                                            <Box 
+                                                key={day.date}
+                                                sx={{ 
+                                                    flex: 1,
+                                                    backgroundColor: '#f5f5f5',
+                                                    borderRight: '1px solid #ddd',
+                                                    '&:last-child': { borderRight: 'none' },
+                                                    height: isMobile ? (isSmallMobile ? '70px' : '80px') : '90px',
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    gap: isSmallMobile ? '1px' : '2px',
+                                                    color: '#999',
+                                                    position: 'relative',
+                                                    border: isToday ? '3px solid #1976d2' : undefined,
+                                                    borderTop: isToday ? '3px solid #1976d2' : undefined,
+                                                    borderBottom: isToday ? '3px solid #1976d2' : undefined
+                                                }}
+                                            >
+                                                {/* 今日のバッジ */}
+                                                {isToday && (
+                                                    <Box 
+                                                        sx={{ 
+                                                            position: 'absolute', 
+                                                            top: '-2px', 
+                                                            right: '-2px',
+                                                            backgroundColor: '#1976d2',
+                                                            color: 'white',
+                                                            padding: '1px 4px',
+                                                            borderRadius: '2px',
+                                                            fontSize: '0.6rem',
+                                                            fontWeight: 'bold'
+                                                        }}
+                                                    >
+                                                        今日
+                                                    </Box>
+                                                )}
+                                                
+                                                {/* 日付 */}
+                                                <Typography 
+                                                    sx={{
+                                                        fontSize: isSmallMobile ? '12px' : isMobile ? '14px' : '16px',
+                                                        lineHeight: '1',
+                                                        fontWeight: '500',
+                                                        textAlign: 'center'
+                                                    }}
+                                                >
+                                                    {formatDateShort(day.date)}
+                                                </Typography>
+                                                
+                                                {/* データなし表示 */}
+                                                <Typography 
+                                                    sx={{ 
+                                                        fontSize: isSmallMobile ? '10px' : '12px',
+                                                        lineHeight: '1',
+                                                        fontWeight: 'bold',
+                                                        textAlign: 'center'
+                                                    }}
+                                                >
+                                                    データ
+                                                </Typography>
+                                                <Typography 
+                                                    sx={{ 
+                                                        fontSize: isSmallMobile ? '10px' : '12px',
+                                                        lineHeight: '1',
+                                                        fontWeight: 'bold',
+                                                        textAlign: 'center'
+                                                    }}
+                                                >
+                                                    なし
+                                                </Typography>
+                                            </Box>
+                                        );
+                                    }
+                                    
+                                    // データがある場合の通常表示
+                                    const cellColor = getCellColor(day.congestion_level);
+                                    const textColor = getTextColor(day.congestion_level);
                                     
                                     return (
                                         <Box 
@@ -432,18 +513,6 @@ const TodayDetails = () => {
                                             >
                                                 {day.congestion_level}
                                             </Typography>
-                                            
-                                            {/* 平日/休日表示 */}
-                                            <Typography 
-                                                sx={{
-                                                    fontSize: isSmallMobile ? '8px' : '10px',
-                                                    lineHeight: '1',
-                                                    textAlign: 'center',
-                                                    opacity: 0.8
-                                                }}
-                                            >
-                                                {day.is_weekend ? '休' : '平'}
-                                            </Typography>
                                         </Box>
                                     );
                                 })}
@@ -506,9 +575,90 @@ const TodayDetails = () => {
                                 {/* データセル */}
                                 <Box sx={{ display: 'flex' }}>
                                     {summaryData.data.historical_daily_summary.slice(0, 8).map((day) => {
+                                        const isReferenceDate = day.days_from_reference === 0;
+                                        const hasData = day.congestion_level > 0;
+                                        
+                                        // データがない場合のスタイル
+                                        if (!hasData) {
+                                            return (
+                                                <Box 
+                                                    key={day.date}
+                                                    sx={{ 
+                                                        flex: 1,
+                                                        backgroundColor: '#f5f5f5',
+                                                        borderRight: '1px solid #ddd',
+                                                        '&:last-child': { borderRight: 'none' },
+                                                        height: isMobile ? (isSmallMobile ? '70px' : '80px') : '90px',
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        gap: isSmallMobile ? '1px' : '2px',
+                                                        color: '#999',
+                                                        position: 'relative',
+                                                        border: isReferenceDate ? '3px solid #ff9800' : undefined,
+                                                        borderTop: isReferenceDate ? '3px solid #ff9800' : undefined,
+                                                        borderBottom: isReferenceDate ? '3px solid #ff9800' : undefined
+                                                    }}
+                                                >
+                                                    {/* 基準日のバッジ */}
+                                                    {isReferenceDate && (
+                                                        <Box 
+                                                            sx={{ 
+                                                                position: 'absolute', 
+                                                                top: '-2px', 
+                                                                right: '-2px',
+                                                                backgroundColor: '#ff9800',
+                                                                color: 'white',
+                                                                padding: '1px 4px',
+                                                                borderRadius: '2px',
+                                                                fontSize: '0.6rem',
+                                                                fontWeight: 'bold'
+                                                            }}
+                                                        >
+                                                            前年
+                                                        </Box>
+                                                    )}
+                                                    
+                                                    {/* 日付 */}
+                                                    <Typography 
+                                                        sx={{
+                                                            fontSize: isSmallMobile ? '12px' : isMobile ? '14px' : '16px',
+                                                            lineHeight: '1',
+                                                            fontWeight: '500',
+                                                            textAlign: 'center'
+                                                        }}
+                                                    >
+                                                        {formatDateShort(day.date)}
+                                                    </Typography>
+                                                    
+                                                    {/* データなし表示 */}
+                                                    <Typography 
+                                                        sx={{ 
+                                                            fontSize: isSmallMobile ? '10px' : '12px',
+                                                            lineHeight: '1',
+                                                            fontWeight: 'bold',
+                                                            textAlign: 'center'
+                                                        }}
+                                                    >
+                                                        データ
+                                                    </Typography>
+                                                    <Typography 
+                                                        sx={{ 
+                                                            fontSize: isSmallMobile ? '10px' : '12px',
+                                                            lineHeight: '1',
+                                                            fontWeight: 'bold',                                                        textAlign: 'center'
+                                                    }}
+                                                >
+                                                    なし
+                                                </Typography>
+                                            </Box>
+                                        );
+                                    }
+                                    
+                                    // データがある場合の通常表示
                                         const cellColor = getCellColor(day.congestion_level);
                                         const textColor = getTextColor(day.congestion_level);
-                                        const isReferenceDate = day.days_from_reference === 0;
                                         
                                         return (
                                             <Box 
@@ -573,18 +723,6 @@ const TodayDetails = () => {
                                                 >
                                                     {day.congestion_level}
                                                 </Typography>
-                                                
-                                                {/* 平日/休日表示 */}
-                                                <Typography 
-                                                    sx={{
-                                                        fontSize: isSmallMobile ? '8px' : '10px',
-                                                        lineHeight: '1',
-                                                        textAlign: 'center',
-                                                        opacity: 0.8
-                                                    }}
-                                                >
-                                                    {day.is_weekend ? '休' : '平'}
-                                                </Typography>
                                             </Box>
                                         );
                                     })}
@@ -595,7 +733,8 @@ const TodayDetails = () => {
                 </>
             )}
 
-            {todayEntry && (
+            {/* 時間別詳細セクション - 昨日と去年のデータを表示 */}
+            {(yesterdayEntry?.data_available || lastYearEntry?.data_available) && (
                 <Box sx={{ mb: 3 }}>
                     <Typography 
                         variant={isMobile ? "subtitle1" : "h6"} 
@@ -606,85 +745,191 @@ const TodayDetails = () => {
                             color: 'text.primary'
                         }}
                     >
-                        {formatDateJapanese(todayEntry.date)} 時間別詳細
+                        時間別詳細データ
                     </Typography>
                     
-                    <Box sx={{ 
-                        maxWidth: '800px', 
-                        border: '1px solid #ddd', 
-                        borderRadius: '8px', 
-                        overflow: 'hidden',
-                        backgroundColor: '#fff'
-                    }}>
-                        <Box sx={{ overflowX: 'auto' }}>
-                            <Grid container sx={{ minWidth: isMobile ? '600px' : 'auto' }}>
-                                {todayEntry.hourly_congestion.map((hourData) => {
-                                    const cellColor = getCellColor(hourData.congestion);
-                                    const textColor = getTextColor(hourData.congestion);
-                                    
-                                    return (
-                                        <Grid item key={hourData.hour} xs={3} sm={2} md={1.5}>
-                                            <Box
-                                                sx={{
-                                                    backgroundColor: cellColor,
-                                                    color: textColor,
-                                                    height: isMobile ? (isSmallMobile ? '70px' : '80px') : '90px',
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    border: '1px solid rgba(0,0,0,0.1)',
-                                                    borderRight: '1px solid #ddd',
-                                                    '&:last-child': { borderRight: 'none' },
-                                                    gap: isSmallMobile ? '1px' : '2px'
-                                                }}
-                                            >
-                                                {/* 時間 */}
-                                                <Typography 
-                                                    sx={{
-                                                        fontSize: isSmallMobile ? '10px' : isMobile ? '12px' : '14px',
-                                                        lineHeight: '1',
-                                                        fontWeight: '500',
-                                                        textAlign: 'center'
-                                                    }}
-                                                >
-                                                    {hourData.hour}時
-                                                </Typography>
-                                                
-                                                {/* 混雑度 */}
-                                                <Typography 
-                                                    sx={{ 
-                                                        fontSize: isMobile ? (isSmallMobile ? '20px' : '24px') : '28px',
-                                                        lineHeight: '1',
-                                                        fontWeight: 'bold',
-                                                        textAlign: 'center'
-                                                    }}
-                                                >
-                                                    {hourData.congestion}
-                                                </Typography>
-                                                
-                                                {/* 人数 */}
-                                                <Typography 
-                                                    sx={{
-                                                        fontSize: isSmallMobile ? '8px' : '10px',
-                                                        lineHeight: '1',
-                                                        textAlign: 'center',
-                                                        opacity: 0.8
-                                                    }}
-                                                >
-                                                    {hourData.count}人
-                                                </Typography>
-                                            </Box>
-                                        </Grid>
-                                    );
-                                })}
-                            </Grid>
+                    {/* 昨日のデータ */}
+                    {yesterdayEntry?.data_available && (
+                        <Box sx={{ mb: 4 }}>
+                            <Typography 
+                                variant="body1"
+                                sx={{ 
+                                    fontWeight: 'bold', 
+                                    mb: 2,
+                                    color: 'text.primary'
+                                }}
+                            >
+                                昨日 - {formatDateJapanese(yesterdayEntry.date)}
+                            </Typography>
+                            
+                            <Box sx={{ 
+                                maxWidth: '800px', 
+                                border: '1px solid #ddd', 
+                                borderRadius: '8px', 
+                                overflow: 'hidden',
+                                backgroundColor: '#fff'
+                            }}>
+                                <Box sx={{ overflowX: 'auto' }}>
+                                    <Grid container sx={{ minWidth: isMobile ? '600px' : 'auto' }}>
+                                        {yesterdayEntry.hourly_congestion.map((hourData) => {
+                                            const cellColor = getCellColor(hourData.congestion);
+                                            const textColor = getTextColor(hourData.congestion);
+                                            
+                                            return (
+                                                <Grid item key={hourData.hour} xs={3} sm={2} md={1.5}>
+                                                    <Box
+                                                        sx={{
+                                                            backgroundColor: cellColor,
+                                                            color: textColor,
+                                                            height: isMobile ? (isSmallMobile ? '70px' : '80px') : '90px',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            border: '1px solid rgba(0,0,0,0.1)',
+                                                            borderRight: '1px solid #ddd',
+                                                            '&:last-child': { borderRight: 'none' },
+                                                            gap: isSmallMobile ? '1px' : '2px'
+                                                        }}
+                                                    >
+                                                        {/* 時間 */}
+                                                        <Typography 
+                                                            sx={{
+                                                                fontSize: isSmallMobile ? '10px' : isMobile ? '12px' : '14px',
+                                                                lineHeight: '1',
+                                                                fontWeight: '500',
+                                                                textAlign: 'center'
+                                                            }}
+                                                        >
+                                                            {hourData.hour}時
+                                                        </Typography>
+                                                        
+                                                        {/* 混雑度 */}
+                                                        <Typography 
+                                                            sx={{ 
+                                                                fontSize: isMobile ? (isSmallMobile ? '20px' : '24px') : '28px',
+                                                                lineHeight: '1',
+                                                                fontWeight: 'bold',
+                                                                textAlign: 'center'
+                                                            }}
+                                                        >
+                                                            {hourData.congestion}
+                                                        </Typography>
+                                                        
+                                                        {/* 人数 */}
+                                                        <Typography 
+                                                            sx={{
+                                                                fontSize: isSmallMobile ? '8px' : '10px',
+                                                                lineHeight: '1',
+                                                                textAlign: 'center',
+                                                                opacity: 0.8
+                                                            }}
+                                                        >
+                                                            {hourData.count}人
+                                                        </Typography>
+                                                    </Box>
+                                                </Grid>
+                                            );
+                                        })}
+                                    </Grid>
+                                </Box>
+                            </Box>
                         </Box>
-                    </Box>
+                    )}
+                    
+                    {/* 去年の同じ日付のデータ */}
+                    {lastYearEntry?.data_available && (
+                        <Box sx={{ mb: 3 }}>
+                            <Typography 
+                                variant="body1"
+                                sx={{ 
+                                    fontWeight: 'bold', 
+                                    mb: 2,
+                                    color: 'text.primary'
+                                }}
+                            >
+                                前年の同じ日 - {formatDateJapanese(lastYearEntry.date)}
+                            </Typography>
+                            
+                            <Box sx={{ 
+                                maxWidth: '800px', 
+                                border: '1px solid #ddd', 
+                                borderRadius: '8px', 
+                                overflow: 'hidden',
+                                backgroundColor: '#fff'
+                            }}>
+                                <Box sx={{ overflowX: 'auto' }}>
+                                    <Grid container sx={{ minWidth: isMobile ? '600px' : 'auto' }}>
+                                        {lastYearEntry.hourly_congestion.map((hourData) => {
+                                            const cellColor = getCellColor(hourData.congestion);
+                                            const textColor = getTextColor(hourData.congestion);
+                                            
+                                            return (
+                                                <Grid item key={hourData.hour} xs={3} sm={2} md={1.5}>
+                                                    <Box
+                                                        sx={{
+                                                            backgroundColor: cellColor,
+                                                            color: textColor,
+                                                            height: isMobile ? (isSmallMobile ? '70px' : '80px') : '90px',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            border: '1px solid rgba(0,0,0,0.1)',
+                                                            borderRight: '1px solid #ddd',
+                                                            '&:last-child': { borderRight: 'none' },
+                                                            gap: isSmallMobile ? '1px' : '2px'
+                                                        }}
+                                                    >
+                                                        {/* 時間 */}
+                                                        <Typography 
+                                                            sx={{
+                                                                fontSize: isSmallMobile ? '10px' : isMobile ? '12px' : '14px',
+                                                                lineHeight: '1',
+                                                                fontWeight: '500',
+                                                                textAlign: 'center'
+                                                            }}
+                                                        >
+                                                            {hourData.hour}時
+                                                        </Typography>
+                                                        
+                                                        {/* 混雑度 */}
+                                                        <Typography 
+                                                            sx={{ 
+                                                                fontSize: isMobile ? (isSmallMobile ? '20px' : '24px') : '28px',
+                                                                lineHeight: '1',
+                                                                fontWeight: 'bold',
+                                                                textAlign: 'center'
+                                                            }}
+                                                        >
+                                                            {hourData.congestion}
+                                                        </Typography>
+                                                        
+                                                        {/* 人数 */}
+                                                        <Typography 
+                                                            sx={{
+                                                                fontSize: isSmallMobile ? '8px' : '10px',
+                                                                lineHeight: '1',
+                                                                textAlign: 'center',
+                                                                opacity: 0.8
+                                                            }}
+                                                        >
+                                                            {hourData.count}人
+                                                        </Typography>
+                                                    </Box>
+                                                </Grid>
+                                            );
+                                        })}
+                                    </Grid>
+                                </Box>
+                            </Box>
+                        </Box>
+                    )}
                 </Box>
             )}
 
-            {!todayEntry && summaryData && summaryData.data && (
+            {/* データがない場合の表示 */}
+            {!yesterdayEntry?.data_available && !lastYearEntry?.data_available && summaryData && summaryData.data && (
                 <Box sx={{ 
                     textAlign: 'center', 
                     py: 4,
@@ -693,7 +938,7 @@ const TodayDetails = () => {
                     border: '1px solid #ddd'
                 }}>
                     <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
-                        {formatDateJapanese(getTodaysDate())} の詳細データは利用できません
+                        時間別の詳細データは利用できません
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                         過去データ（上記の週間動向）をご参照ください

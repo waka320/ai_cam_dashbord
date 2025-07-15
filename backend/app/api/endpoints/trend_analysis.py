@@ -224,7 +224,21 @@ async def get_place_congestion_summary(
                     "is_weekend": day.get("is_weekend"),
                     "days_from_reference": day.get("days_from_reference")
                 } for day in result.get("historical_comparison", {}).get("daily_data", [])
-            ]
+            ],
+            "yesterday_hourly_summary": {
+                "date": result.get("yesterday_hourly", {}).get("date"),
+                "day_of_week": result.get("yesterday_hourly", {}).get("day_of_week"),
+                "congestion_level": result.get("yesterday_hourly", {}).get("congestion_level"),
+                "is_weekend": result.get("yesterday_hourly", {}).get("is_weekend"),
+                "data_available": result.get("yesterday_hourly", {}).get("data_available")
+            },
+            "last_year_today_hourly_summary": {
+                "date": result.get("last_year_today_hourly", {}).get("date"),
+                "day_of_week": result.get("last_year_today_hourly", {}).get("day_of_week"),
+                "congestion_level": result.get("last_year_today_hourly", {}).get("congestion_level"),
+                "is_weekend": result.get("last_year_today_hourly", {}).get("is_weekend"),
+                "data_available": result.get("last_year_today_hourly", {}).get("data_available")
+            }
         }
         
         return {
