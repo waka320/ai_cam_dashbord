@@ -11,7 +11,8 @@ function SectionContainer({ children, title, noPadding, elevation }) {
         borderRadius: '8px',
         overflow: 'hidden',
         border: '1px solid rgba(0, 0, 0, 0.05)',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+        backgroundColor: '#fff'
       }}
     >
       {title && (

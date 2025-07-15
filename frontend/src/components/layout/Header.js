@@ -73,6 +73,7 @@ function Header() {
 
     // モバイル表示用の短縮ラベルを追加
     const menuItems = [
+        { value: "today_details", label: "今日について詳しく知りたい", shortLabel: "今日について詳しく知る" },
         { value: "cal_holiday", label: "店舗の定休日を検討したい", shortLabel: "店舗の定休日を検討" },
         { value: "cal_shoping_holiday", label: "商店街の定休日を検討したい", shortLabel: "商店街の定休日を検討" },
         { value: "cal_long_holiday", label: "長期休暇のタイミングを検討したい", shortLabel: "長期休暇のタイミングを検討" },
@@ -175,7 +176,11 @@ function Header() {
 
     const handleChange = (event) => {
         setSelectedAction(event.target.value);
-        if (event.target.value && selectedYear && selectedAction) {
+        // "today_details"以外のアクションの場合のみ、カレンダーデータを取得
+        if (event.target.value && 
+            event.target.value !== 'today_details' && 
+            selectedYear && 
+            selectedAction) {
             fetchCalendarData();
         }
     };

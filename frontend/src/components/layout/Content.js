@@ -2,6 +2,7 @@ import React from 'react';
 import Calendar from '../common/Calendar';
 import TimeHeatmap from '../common/TimeHeatmap';
 import DateTimeHeatmap from '../common/DateTimeHeatmap';
+import TodayDetails from '../common/TodayDetails';
 import { Box, Typography, Button, useMediaQuery, Fade, CircularProgress } from '@mui/material';
 import AdviceSection from './AdviceSection';
 import { useCalendar } from '../../contexts/CalendarContext';
@@ -66,6 +67,7 @@ function Content() {
     const renderVisualization = () => {
         return (
             <>
+                <TodayDetails />
                 <Calendar />
                 <TimeHeatmap />
                 <DateTimeHeatmap />
