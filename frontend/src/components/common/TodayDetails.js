@@ -109,24 +109,62 @@ const TodayDetails = () => {
                 const apiLocation = getApiLocation(selectedLocation);
                 const todaysDate = getTodaysDate();
                 
-                // 詳細データと要約データを並行して取得
-                const [detailResponse, summaryResponse] = await Promise.all([
-                    fetch(`http://localhost:8000/congestion-data/${apiLocation}?target_date=${todaysDate}`),
-                    fetch(`http://localhost:8000/congestion-data/${apiLocation}/summary?target_date=${todaysDate}`)
-                ]);
+                // CalendarContext.jsと同じベースURL設定を使用
+                const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/';
+                
+                // タイムアウト付きのfetch関数
+                const fetchWithTimeout = (url, options = {}, timeout = 8000) => {
+                    return Promise.race([
+                        fetch(url, options),
+                        new Promise((_, reject) => 
+                            setTimeout(() => reject(new Error('Request timeout')), timeout)
+                        )
+                    ]);
+                };
 
-                if (!detailResponse.ok || !summaryResponse.ok) {
-                    throw new Error('データの取得に失敗しました');
+                // 並行リクエストを順次リクエストに変更（モバイル環境での安定性向上）
+                const detailResponse = await fetchWithTimeout(
+                    `${baseUrl}congestion-data/${apiLocation}?target_date=${todaysDate}`,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    }
+                );
+                
+                if (!detailResponse.ok) {
+                    throw new Error(`詳細データの取得に失敗しました (${detailResponse.status})`);
                 }
-
+                
                 const detailData = await detailResponse.json();
-                const summaryData = await summaryResponse.json();
-
                 setTodayData(detailData);
+
+                // 1つ目が成功してから2つ目を実行
+                const summaryResponse = await fetchWithTimeout(
+                    `${baseUrl}congestion-data/${apiLocation}/summary?target_date=${todaysDate}`,
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    }
+                );
+                
+                if (!summaryResponse.ok) {
+                    throw new Error(`サマリーデータの取得に失敗しました (${summaryResponse.status})`);
+                }
+                
+                const summaryData = await summaryResponse.json();
                 setSummaryData(summaryData);
+                
             } catch (err) {
                 console.error('Error fetching today data:', err);
-                setError('データの取得中にエラーが発生しました');
+                if (err.message.includes('timeout')) {
+                    setError('通信がタイムアウトしました。しばらく待ってから再度お試しください。');
+                } else if (err.message.includes('Failed to fetch')) {
+                    setError('ネットワークエラーが発生しました。インターネット接続を確認してください。');
+                } else {
+                    setError(`データの取得中にエラーが発生しました: ${err.message}`);
+                }
             } finally {
                 setFetchLoading(false);
             }
