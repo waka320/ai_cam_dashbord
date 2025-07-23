@@ -9,7 +9,7 @@ import glob
 CONGESTION_THRESHOLDS = {
     # 場所ごとの(min_threshold, max_threshold)を定義
     'honmachi2': (65, 850),
-    'honmachi3': (35, 750),
+    'honmachi3': (35, 400),
     'honmachi4': (50, 2000),
     'jinnya': (50, 1000),
     'kokubunjidori': (40, 450),
