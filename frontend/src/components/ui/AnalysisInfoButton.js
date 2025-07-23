@@ -29,7 +29,7 @@ const AnalysisInfoButton = ({ analysisType, place = 'default' }) => {
   const getThresholds = () => {
     const thresholds = {
       'honmachi2': analysisType === 'calendar' ? [2300, 9500] : [65, 850],
-      'honmachi3': analysisType === 'calendar' ? [1500, 8500] : [35, 750],
+      'honmachi3': analysisType === 'calendar' ? [1500, 8500] : [35, 400],
       'honmachi4': analysisType === 'calendar' ? [1000, 10000] : [50, 2000],
       'jinnya': analysisType === 'calendar' ? [700, 7000] : [50, 1000],
       'kokubunjidori': analysisType === 'calendar' ? [1600, 5800] : [40, 450],
