@@ -10,7 +10,7 @@ from datetime import datetime
 # ====== ここで取得範囲を指定 ======
 prec_no = '52'      # 地点番号 (例: 甲府)
 block_no = '47617'  # ブロック番号 (例: 甲府)
-output_csv = './backend/app/data/weather/past_weather.csv'
+output_csv = 'app/data/weather/past_weather.csv'
 
 # 今日の日付を取得
 # ▼▼ 修正 ▼▼ import文に合わせて、date.today()で今日の日付を取得します
