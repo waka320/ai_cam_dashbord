@@ -22,17 +22,23 @@
     },
     "files.autoSave": "afterDelay",
     "files.autoSaveDelay": 1000,
-    "terminal.integrated.defaultProfile.linux": "bash",
     "terminal.integrated.defaultProfile.osx": "zsh",
-    "terminal.integrated.defaultProfile.windows": "Command Prompt",
     "terminal.integrated.profiles.osx": {
         "zsh": {
             "path": "/bin/zsh",
             "args": [
                 "-l"
-            ],
-            "source": "source ${workspaceFolder}/backend/.venv/bin/activate"
+            ]
+        },
+        "zsh-venv": {
+            "path": "/bin/zsh",
+            "args": [
+                "-l",
+                "-c",
+                "cd ${workspaceFolder} && source backend/.venv/bin/activate && exec zsh"
+            ]
         }
     },
+    "python.terminal.activateEnvironment": true,
     "terminal.external.osxExec": "iTerm.app"
 }
