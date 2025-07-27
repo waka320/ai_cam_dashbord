@@ -239,5 +239,18 @@ class WeatherService:
             print(f"Error getting weather for date time {year}/{month}: {e}")
             return {}
 
-# サービスのインスタンスを作成
-weather_service = WeatherService()
+# メイン実行時の処理
+if __name__ == "__main__":
+    # 天気データの更新処理
+    print("Starting weather service update...")
+    weather_service = WeatherService()
+    print("Weather service initialized.")
+    
+    if weather_service._weather_df is not None:
+        print(f"Weather data loaded: {len(weather_service._weather_df)} records")
+        print("Weather service update completed successfully.")
+    else:
+        print("Warning: No weather data loaded.")
+else:
+    # モジュールとしてインポートされた場合のサービスインスタンス作成
+    weather_service = WeatherService()
