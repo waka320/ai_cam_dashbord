@@ -14,20 +14,37 @@ class WeatherService:
         if os.path.exists(self.weather_data_path):
             try:
                 self._weather_df = pd.read_csv(self.weather_data_path)
-                # 日付と時刻の変換
+                print(f"CSV columns: {self._weather_df.columns.tolist()}")
+                print(f"CSV shape: {self._weather_df.shape}")
+                
+                # 日付と時刻の変換（実際の列名に合わせて）
                 self._weather_df['datetime'] = pd.to_datetime(
-                    self._weather_df['date'] + ' ' + self._weather_df['time'].str.replace('時', ':00'),
+                    self._weather_df['日付'] + ' ' + self._weather_df['時'].str.replace('時', ':00'),
                     format='%Y-%m-%d %H:%M'
                 )
-                # 温度データのクリーンアップ - 数値変換可能なもののみ保持
-                self._weather_df['tempriture'] = pd.to_numeric(self._weather_df['tempriture'], errors='coerce')
-                # 降水量データのクリーンアップ
+                
+                # 気温データのクリーンアップ
+                self._weather_df['tempriture'] = pd.to_numeric(self._weather_df['気温 (℃)'], errors='coerce')
+                
+                # 降水量データのクリーンアップ（'--'を欠損値として扱う）
+                self._weather_df['rain'] = self._weather_df['降水量 (mm)'].replace('--', None)
                 self._weather_df['rain'] = pd.to_numeric(self._weather_df['rain'], errors='coerce')
-                # 不要な列を削除し、データをクリーンアップ
+                
+                # 日照時間データのクリーンアップ
+                self._weather_df['sun'] = pd.to_numeric(self._weather_df['日照 時間 (h)'], errors='coerce')
+                
+                # 天気データを標準化された列名にコピー
+                self._weather_df['weather'] = self._weather_df['天気']
+                
+                # 天気データが存在する行のみ保持
                 self._weather_df = self._weather_df.dropna(subset=['weather'])
+                
                 print(f"Weather data loaded successfully: {len(self._weather_df)} records")
+                print(f"Date range: {self._weather_df['datetime'].min()} to {self._weather_df['datetime'].max()}")
+                
             except Exception as e:
                 print(f"Error loading weather data: {e}")
+                print(f"Error details: {type(e).__name__}: {str(e)}")
                 self._weather_df = None
         else:
             print(f"Weather data file not found: {self.weather_data_path}")
