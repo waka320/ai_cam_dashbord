@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { Box, Typography, CircularProgress, useMediaQuery } from '@mui/material';
-// import { Box, Typography, Paper, CircularProgress, useMediaQuery, Popper, ClickAwayListener } from '@mui/material';
+import { Box, Typography, CircularProgress, useMediaQuery, LinearProgress } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
 import { useColorPalette } from '../../contexts/ColorPaletteContext'; 
@@ -22,7 +21,16 @@ const getDayOfWeek = (dateStr) => {
 
 // 日付×時間ヒートマップコンポーネント
 const DateTimeHeatmap = () => {
-    const { calendarData, selectedAction, loading, selectedLocation, shouldShowCalculationNote } = useCalendar();
+    const { 
+        calendarData, 
+        selectedAction, 
+        loading, 
+        actionChanging,
+        locationChanging,
+        dateChanging,
+        selectedLocation, 
+        shouldShowCalculationNote 
+    } = useCalendar();
     const { getCellColor, getTextColor } = useColorPalette();
     // レスポンシブ対応のためのメディアクエリ
     const isMobile = useMediaQuery('(max-width:768px)');
@@ -83,10 +91,66 @@ const DateTimeHeatmap = () => {
     }, [calendarData, selectedAction]);
 
     // ローディング中の表示
-    if (loading) {
+    const isLoading = loading || actionChanging || locationChanging || dateChanging;
+    
+    if (isLoading) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
-                <CircularProgress />
+            <Box sx={{ 
+                maxWidth: '100%', 
+                margin: '0 auto', 
+                mt: 2, 
+                px: isMobile ? 1 : 2
+            }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                    <Typography 
+                        variant={isMobile ? "subtitle1" : "h6"} 
+                        sx={{ textAlign: isMobile ? 'center' : 'left' }}
+                    >
+                        日付×時間帯の混雑度
+                    </Typography>
+                </Box>
+                
+                <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    minHeight: '400px',
+                    flexDirection: 'column',
+                    gap: 2,
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                }}>
+                    <CircularProgress 
+                        size={48}
+                        thickness={4}
+                        sx={{ color: '#383947' }}
+                    />
+                    <Typography variant="h6" color="primary" fontWeight="bold">
+                        {actionChanging && "目的を変更中..."}
+                        {locationChanging && "場所を変更中..."}
+                        {dateChanging && "期間を変更中..."}
+                        {loading && "データを読み込み中..."}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        混雑度データを処理しています
+                    </Typography>
+                    
+                    <Box sx={{ width: '300px', mt: 1 }}>
+                        <LinearProgress 
+                            variant="indeterminate"
+                            sx={{
+                                height: 4,
+                                borderRadius: 2,
+                                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                                '& .MuiLinearProgress-bar': {
+                                    borderRadius: 2,
+                                    backgroundColor: '#383947',
+                                }
+                            }}
+                        />
+                    </Box>
+                </Box>
             </Box>
         );
     }
