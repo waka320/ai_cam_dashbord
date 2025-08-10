@@ -1,5 +1,22 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { AppBar, Toolbar, Typography, Select, MenuItem, Box, FormControl, Button, useMediaQuery, IconButton, Tooltip, Paper, Modal } from '@mui/material';
+import { 
+    AppBar, 
+    Toolbar, 
+    Box, 
+    Typography, 
+    Paper, 
+    Button, 
+    Select, 
+    MenuItem, 
+    FormControl, 
+    IconButton, 
+    Modal, 
+    Backdrop, 
+    CircularProgress,
+    LinearProgress,
+    Tooltip,
+    useMediaQuery
+} from '@mui/material';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
@@ -11,15 +28,18 @@ import ShareButton from '../ui/ShareButton';
 function Header() {
     const {
         selectedAction,
-        setSelectedAction,
         selectedYear,
         setSelectedYear,
         selectedMonth,
         setSelectedMonth,
         selectedLocation,
-        setSelectedLocation,
         fetchCalendarData,
         loading,
+        actionChanging,
+        locationChanging,
+        dateChanging,
+        handleActionChange,
+        handleLocationChange,
         updateMonthAndFetch
     } = useCalendar();
     
@@ -154,11 +174,8 @@ function Header() {
         }
     };
 
-    const handleLocationChange = (event) => {
-        setSelectedLocation(event.target.value);
-        if (event.target.value) {
-            fetchCalendarData();
-        }
+    const handleLocationChangeLocal = (event) => {
+        handleLocationChange(event.target.value);
     };
 
     // カメラ画像モーダルの状態管理
@@ -174,19 +191,8 @@ function Header() {
         setIsCameraModalOpen(false);
     };
 
-    const handleChange = (event) => {
-        setSelectedAction(event.target.value);
-        // "today_details"以外のアクションの場合のみ、カレンダーデータを取得
-        if (event.target.value && 
-            event.target.value !== 'today_details' && 
-            selectedYear && 
-            selectedAction) {
-            fetchCalendarData();
-        }
-    };
-
     const handlePreviousMonth = () => {
-        if (!selectedYear || !selectedMonth || loading) return;
+        if (!selectedYear || !selectedMonth || loading || dateChanging) return;
         
         let newMonth = parseInt(selectedMonth) - 1;
         let newYear = parseInt(selectedYear);
@@ -203,7 +209,7 @@ function Header() {
     };
     
     const handleNextMonth = () => {
-        if (!selectedYear || !selectedMonth || loading) return;
+        if (!selectedYear || !selectedMonth || loading || dateChanging) return;
         
         let newMonth = parseInt(selectedMonth) + 1;
         let newYear = parseInt(selectedYear);
@@ -222,87 +228,116 @@ function Header() {
         updateMonthAndFetch(newYear, newMonth);
     };
 
-    const ActionSelectionContent = () => (
-        <Box 
-            sx={{ 
-                display: 'flex', 
-                flexDirection: isMobile ? 'column' : 'row',
-                alignItems: isMobile ? 'stretch' : 'center',
-                width: isMobile ? '100%' : isTablet || isSmallDesktop ? '100%' : 'auto',
-                gap: isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 1 : 1.2), // PC版のgapを統一
-                mb: 0,
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-        >
-            <Typography
-                variant={isMobile ? "bodyL" : "h6"}
-                sx={{
-                    marginRight: isMobile ? 0 : '10px',
-                    color: theme.palette.text.white,
-                    fontWeight: 'bold',
-                    textAlign: 'left', // モバイルでも左揃えに変更
-                    fontSize: isScrolled ? 
-                        (isMobile ? '0.75rem' : '0.9rem') : 
-                        (isMobile ? '0.9rem' : isTablet || isSmallDesktop ? '1.1rem' : undefined),
-                    whiteSpace: 'nowrap',
-                    textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+    const ActionSelectionContent = () => {
+        const handleSelectChange = (event) => {
+            handleActionChange(event.target.value);
+        };
+
+        return (
+            <Box 
+                sx={{ 
+                    display: 'flex', 
+                    flexDirection: isMobile ? 'column' : 'row',
+                    alignItems: isMobile ? 'stretch' : 'center',
+                    width: isMobile ? '100%' : isTablet || isSmallDesktop ? '100%' : 'auto',
+                    gap: isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 1 : 1.2), // PC版のgapを統一
+                    mb: 0,
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
             >
-                やりたいことは...
-            </Typography>
-
-            <FormControl variant="outlined" sx={{ 
-                minWidth: isMobile ? '100%' : isTablet ? '300px' : '350px',
-                maxWidth: isMobile ? 'none' : '400px',
-                flex: isMobile ? 'none' : 1,
-                '& .MuiOutlinedInput-root': {
-                    height: isScrolled ? (isMobile ? '28px' : '34px') : (isMobile ? '32px' : '44px'),
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                }
-            }}>
-                <Select
-                    value={selectedAction}
-                    onChange={handleChange}
-                    disabled={loading}
-                    displayEmpty
-                    renderValue={(value) => {
-                        if (value === "") return "未入力";
-                        const selectedItem = menuItems.find((item) => item.value === value);
-                        return selectedItem ? (isMobile ? selectedItem.shortLabel : selectedItem.label) : "";
-                    }}
+                <Typography
+                    variant={isMobile ? "bodyL" : "h6"}
                     sx={{
-                        backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
-                        borderRadius: '8px',
-                        color:
-                            selectedAction === ""
-                                ? theme.palette.text.secondary
-                                : theme.palette.text.primary,
-                        padding: isMobile ? '4px 8px' : '4px 8px',
-                        '.MuiSelect-icon': { 
-                            color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
-                            right: isMobile ? '8px' : '10px'
-                        },
+                        marginRight: isMobile ? 0 : '10px',
+                        color: theme.palette.text.white,
+                        fontWeight: 'bold',
+                        textAlign: 'left', // モバイルでも左揃えに変更
                         fontSize: isScrolled ? 
-                            (isMobile ? '0.7rem' : '0.85rem') : 
-                            (isMobile ? '0.85rem' : '0.95rem'),
-                        '& .MuiSelect-select': {
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            fontWeight: 500
-                        },
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            (isMobile ? '0.75rem' : '0.9rem') : 
+                            (isMobile ? '0.9rem' : isTablet || isSmallDesktop ? '1.1rem' : undefined),
+                        whiteSpace: 'nowrap',
+                        textShadow: '0 1px 2px rgba(0,0,0,0.2)',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     }}
-                    MenuProps={{
-                        PaperProps: {
-                            style: {
-                                maxHeight: isMobile ? 240 : 320,
-                                width: 'auto',
-                                maxWidth: '85vw',
-                                borderRadius: '8px',
-                                marginTop: '8px'
+                >
+                    やりたいことは...
+                </Typography>
+
+                <FormControl 
+                    variant="outlined" 
+                    sx={{ 
+                        minWidth: isMobile ? '100%' : isTablet ? '300px' : '350px',
+                        maxWidth: isMobile ? 'none' : '400px',
+                        flex: isMobile ? 'none' : 1,
+                        opacity: actionChanging ? 0.7 : 1,
+                        transition: 'opacity 0.3s ease',
+                        position: 'relative',
+                        '& .MuiOutlinedInput-root': {
+                            height: isScrolled ? (isMobile ? '28px' : '34px') : (isMobile ? '32px' : '44px'),
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        }
+                    }}
+                    disabled={actionChanging}
+                >
+                    <Select
+                        value={selectedAction || ''}
+                        onChange={handleSelectChange}
+                        disabled={loading || actionChanging}
+                        displayEmpty
+                        renderValue={(value) => {
+                            if (value === "") return "未入力";
+                            const selectedItem = menuItems.find((item) => item.value === value);
+                            return selectedItem ? (isMobile ? selectedItem.shortLabel : selectedItem.label) : "";
+                        }}
+                        endAdornment={
+                            actionChanging ? (
+                                <CircularProgress 
+                                    size={16} 
+                                    sx={{ 
+                                        marginRight: 2,
+                                        color: 'white'
+                                    }} 
+                                />
+                            ) : null
+                        }
+                        sx={{
+                            backgroundColor: actionChanging ? 'rgba(255, 255, 255, 0.8)' : 'white',
+                            borderRadius: '8px',
+                            '.MuiSelect-icon': { 
+                                color: actionChanging ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
+                                display: actionChanging ? 'none' : 'block',
+                                right: isMobile ? '4px' : '8px',
+                                fontSize: isMobile ? '1rem' : '1.25rem'
+                            },
+                            ...theme.typography.bodyM,
+                            padding: isMobile ? '4px 4px' : '4px 8px',
+                            '& .MuiOutlinedInput-input': {
+                                padding: isMobile ? '4px 4px 4px 8px' : isSmallDesktop ? '4px 4px' : '4px 8px',
+                            },
+                            color:
+                                selectedAction === ""
+                                    ? theme.palette.text.secondary
+                                    : theme.palette.text.primary,
+                            fontSize: isScrolled ? 
+                                (isMobile ? '0.7rem' : '0.85rem') : 
+                                (isMobile ? '0.85rem' : '0.95rem'),
+                            '& .MuiSelect-select': {
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontWeight: 500
+                            },
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        }}
+                        MenuProps={{
+                            PaperProps: {
+                                style: {
+                                    maxHeight: isMobile ? 240 : 320,
+                                    width: 'auto',
+                                    maxWidth: '85vw',
+                                    borderRadius: '8px',
+                                    marginTop: '8px'
                             },
                         },
                     }}
@@ -321,27 +356,101 @@ function Header() {
                         </MenuItem>
                     ))}
                 </Select>
+                
+                {actionChanging && (
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '8px',
+                            zIndex: 10
+                        }}
+                    >
+                        <CircularProgress size={20} />
+                    </Box>
+                )}
             </FormControl>
         </Box>
     );
+};
 
     return (
         <>
-            {/* 元のヘッダー - stickyポジションで滑らかに固定 */}
+            {/* グローバルローディングオーバーレイ */}
+            <Backdrop
+                sx={{ 
+                    color: theme.palette.primary.main, 
+                    zIndex: (theme) => theme.zIndex.drawer + 1,
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    backdropFilter: 'blur(2px)',
+                }}
+                open={actionChanging || locationChanging || dateChanging}
+            >
+                <Box sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    gap: 2,
+                    p: 3,
+                    borderRadius: 2,
+                    backgroundColor: 'white',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+                }}>
+                    <CircularProgress 
+                        color="primary" 
+                        size={40}
+                        thickness={4}
+                    />
+                    <Typography variant="body1" color="primary" fontWeight="bold">
+                        {actionChanging && "目的を変更しています..."}
+                        {locationChanging && "場所を変更しています..."}
+                        {dateChanging && "期間を変更しています..."}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                        データを取得中です
+                    </Typography>
+                    
+                    <Box sx={{ width: '200px', mt: 1 }}>
+                        <LinearProgress 
+                            variant="indeterminate"
+                            sx={{
+                                height: 4,
+                                borderRadius: 2,
+                                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                                '& .MuiLinearProgress-bar': {
+                                    borderRadius: 2,
+                                    backgroundColor: theme.palette.primary.main,
+                                }
+                            }}
+                        />
+                    </Box>
+                </Box>
+            </Backdrop>
+
             <AppBar 
                 position="sticky" 
-                color="primary" 
-                ref={headerRef} 
-                sx={{ 
+                elevation={0}
+                sx={{
                     top: 0,
                     zIndex: 1100,
                     padding: isScrolled ? (isMobile ? '2px 0' : '8px 0') : (isMobile ? '4px 0' : '8px 0'),
+                    background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
                     boxShadow: isScrolled ? '0 4px 10px rgba(0, 0, 0, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
                     borderRadius: isScrolled ? '0' : '0 0 8px 8px',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     transform: isScrolled ? 'scale(0.98)' : 'scale(1)',
                     transformOrigin: 'top center',
-                }}>
+                    opacity: (actionChanging || locationChanging || dateChanging) ? 0.8 : 1,
+                    filter: (actionChanging || locationChanging || dateChanging) ? 'blur(1px)' : 'none',
+                }}
+            >
                 <Box sx={{ 
                     display: 'flex', 
                     flexDirection: 'column', 
@@ -477,7 +586,7 @@ function Header() {
                                                     {isMobile || isTablet ? (
                                                         <IconButton 
                                                             onClick={handlePreviousMonth}
-                                                            disabled={loading || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
+                                                            disabled={loading || dateChanging || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
                                                             sx={{ 
                                                                 width: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
                                                                 height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
@@ -501,7 +610,7 @@ function Header() {
                                                         <Button 
                                                             variant="contained"
                                                             onClick={handlePreviousMonth}
-                                                            disabled={loading || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
+                                                            disabled={loading || dateChanging || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
                                                             sx={{ 
                                                                 minWidth: '40px',
                                                                 maxWidth: isSmallDesktop ? '60px' : '80px',
@@ -542,20 +651,32 @@ function Header() {
                                                         <Select
                                                             value={selectedYear}
                                                             onChange={handleYearChange}
-                                                            disabled={loading}
+                                                            disabled={loading || dateChanging}
                                                             displayEmpty
                                                             renderValue={(value) => {
                                                                 if (value === "") return "----年";
                                                                 const selectedYear = yearItems.find((item) => item.value === value);
                                                                 return selectedYear ? selectedYear.label + "年" : "";
                                                             }}
+                                                            endAdornment={
+                                                                dateChanging ? (
+                                                                    <CircularProgress 
+                                                                        size={14} 
+                                                                        sx={{ 
+                                                                            marginRight: 1,
+                                                                            color: theme.palette.primary.main
+                                                                        }} 
+                                                                    />
+                                                                ) : null
+                                                            }
                                                             sx={{
-                                                                backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
+                                                                backgroundColor: (loading || dateChanging) ? 'rgba(255, 255, 255, 0.7)' : 'white',
                                                                 borderRadius: '8px',
                                                                 '.MuiSelect-icon': { 
-                                                                    color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
+                                                                    color: (loading || dateChanging) ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
                                                                     right: isMobile ? '4px' : '8px',
-                                                                    fontSize: isMobile ? '1rem' : '1.25rem'
+                                                                    fontSize: isMobile ? '1rem' : '1.25rem',
+                                                                    display: dateChanging ? 'none' : 'block'
                                                                 },
                                                                 ...theme.typography.bodyM,
                                                                 padding: isMobile ? '4px 4px' : '4px 8px',
@@ -607,19 +728,31 @@ function Header() {
                                                         <Select
                                                             value={selectedMonth}
                                                             onChange={handleMonthChange}
-                                                            disabled={loading || !selectedYear}
+                                                            disabled={loading || !selectedYear || dateChanging}
                                                             displayEmpty
                                                             renderValue={(value) => {
                                                                 if (value === "") return "--月";
                                                                 return value + "月";
                                                             }}
+                                                            endAdornment={
+                                                                dateChanging ? (
+                                                                    <CircularProgress 
+                                                                        size={14} 
+                                                                        sx={{ 
+                                                                            marginRight: 1,
+                                                                            color: theme.palette.primary.main
+                                                                        }} 
+                                                                    />
+                                                                ) : null
+                                                            }
                                                             sx={{
-                                                                backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
+                                                                backgroundColor: (loading || dateChanging) ? 'rgba(255, 255, 255, 0.7)' : 'white',
                                                                 borderRadius: '8px',
                                                                 '.MuiSelect-icon': { 
-                                                                    color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
+                                                                    color: (loading || dateChanging) ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
                                                                     right: isMobile ? '4px' : '8px',
-                                                                    fontSize: isMobile ? '1rem' : '1.25rem'
+                                                                    fontSize: isMobile ? '1rem' : '1.25rem',
+                                                                    display: dateChanging ? 'none' : 'block'
                                                                 },
                                                                 ...theme.typography.bodyM,
                                                                 padding: isMobile ? '4px 4px' : '4px 8px',
@@ -666,7 +799,7 @@ function Header() {
                                                     {isMobile || isTablet ? (
                                                         <IconButton
                                                             onClick={handleNextMonth}
-                                                            disabled={loading || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
+                                                            disabled={loading || dateChanging || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
                                                             sx={{ 
                                                                 width: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
                                                                 height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
@@ -690,7 +823,7 @@ function Header() {
                                                         <Button 
                                                             variant="contained"
                                                             onClick={handleNextMonth}
-                                                            disabled={loading || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
+                                                            disabled={loading || dateChanging || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
                                                             sx={{ 
                                                                 minWidth: '40px',
                                                                 maxWidth: isSmallDesktop ? '60px' : '80px',
@@ -747,21 +880,32 @@ function Header() {
                                                 <Tooltip title="計測場所を選択">
                                                     <Select
                                                         value={selectedLocation}
-                                                        onChange={handleLocationChange}
-                                                        disabled={loading}
+                                                        onChange={handleLocationChangeLocal}
+                                                        disabled={loading || locationChanging}
                                                         displayEmpty
                                                         renderValue={(value) => {
                                                             if (value === "") return "場所未選択";
                                                             const selectedLoc = locationItems.find((item) => item.value === value);
                                                             return selectedLoc ? selectedLoc.label : "";
                                                         }}
+                                                        endAdornment={
+                                                            locationChanging ? (
+                                                                <CircularProgress 
+                                                                    size={16} 
+                                                                    sx={{ 
+                                                                        marginRight: 2,
+                                                                        color: theme.palette.primary.main
+                                                                    }} 
+                                                                />
+                                                            ) : null
+                                                        }
                                                         sx={{
-                                                            backgroundColor: loading ? 'rgba(255, 255, 255, 0.7)' : 'white',
+                                                            backgroundColor: (loading || locationChanging) ? 'rgba(255, 255, 255, 0.7)' : 'white',
                                                             borderRadius: '8px',
                                                             '.MuiSelect-icon': { 
-                                                                color: loading ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
+                                                                color: (loading || locationChanging) ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
                                                                 right: isMobile ? '4px' : '8px',
-                                                                fontSize: isMobile ? '1rem' : '1.25rem'
+                                                                display: locationChanging ? 'none' : 'block'
                                                             },
                                                             ...theme.typography.bodyM,
                                                             padding: isMobile ? '4px 4px' : '4px 8px',

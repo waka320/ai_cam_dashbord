@@ -6,7 +6,7 @@ from app.services.analyze import get_data_for_week_time250522
 from app.services.analyze import get_data_for_date_time250504
 from app.services.ai_service_debug import analyze_csv_data_debug
 from app.services.highlighter_service import highlight_calendar_data, highlight_week_time_data, highlight_date_time_data
-from app.services.weather_service import weather_service
+from app.services.weather.weather_service import weather_service
 from app.models import GraphRequest, GraphResponse, DayWithHours, WeatherInfo
 import time
 from datetime import datetime, timedelta

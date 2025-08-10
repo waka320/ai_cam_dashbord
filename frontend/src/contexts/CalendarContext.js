@@ -63,7 +63,12 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
   const [selectedYear, setSelectedYearInternal] = useState(initialYear);
   const [selectedMonth, setSelectedMonthInternal] = useState(initialMonth);
   
+  // 各種ローディング状態を追加
   const [loading, setLoading] = useState(false);
+  const [actionChanging, setActionChanging] = useState(false);
+  const [locationChanging, setLocationChanging] = useState(false);
+  const [dateChanging, setDateChanging] = useState(false);
+  
   const [inputsComplete, setInputsComplete] = useState(false);
   const [error, setError] = useState("");
   const [cookiesLoaded, setCookiesLoaded] = useState(false);
@@ -79,35 +84,70 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
   
-  // ラッパー関数で手動変更フラグを設定
-  const setSelectedLocation = useCallback((value) => {
+  // アクション変更時のハンドラー
+  const handleActionChange = useCallback((value) => {
+    setActionChanging(true);
+    actionRef.current.manuallyChanged = true;
+    actionRef.current.value = value;
+    setCalendarData([]);
+    setSelectedActionInternal(value);
+    updateUrlParam('action', value);
+    
+    // ローディング状態をリセット（データ取得完了後に自動的にfalseになる）
+    setTimeout(() => setActionChanging(false), 500);
+  }, [updateUrlParam]);
+
+  // 場所変更時のハンドラー
+  const handleLocationChange = useCallback((value) => {
+    setLocationChanging(true);
     locationRef.current.manuallyChanged = true;
     locationRef.current.value = value;
     setSelectedLocationInternal(value);
     updateUrlParam('location', value);
+    
+    setTimeout(() => setLocationChanging(false), 500);
   }, [updateUrlParam]);
+
+  // 日付変更時のハンドラー
+  const handleDateChange = useCallback((year, month) => {
+    setDateChanging(true);
+    
+    yearRef.current.manuallyChanged = true;
+    yearRef.current.value = year.toString();
+    monthRef.current.manuallyChanged = true;
+    monthRef.current.value = month.toString();
+    
+    setSelectedYearInternal(year.toString());
+    setSelectedMonthInternal(month.toString());
+    
+    setTimeout(() => setDateChanging(false), 500);
+  }, []);
+
+  // 既存のsetSelectedLocation等を更新
+  const setSelectedLocation = useCallback((value) => {
+    handleLocationChange(value);
+  }, [handleLocationChange]);
 
   const setSelectedAction = useCallback((value) => {
-    actionRef.current.manuallyChanged = true;
-    actionRef.current.value = value;
-    // アクションの変更時にはデータをクリア
-    setCalendarData([]);
-    setSelectedActionInternal(value);
-    updateUrlParam('action', value);
-  }, [updateUrlParam]);
+    handleActionChange(value);
+  }, [handleActionChange]);
 
   const setSelectedYear = useCallback((value) => {
+    setDateChanging(true);
     yearRef.current.manuallyChanged = true;
     yearRef.current.value = value;
     setSelectedYearInternal(value);
     updateUrlParam('year', value);
+    setTimeout(() => setDateChanging(false), 500);
   }, [updateUrlParam]);
 
   const setSelectedMonth = useCallback((value) => {
+    setDateChanging(true);
     monthRef.current.manuallyChanged = true;
     monthRef.current.value = value;
     setSelectedMonthInternal(value);
     updateUrlParam('month', value);
+    setTimeout(() => setDateChanging(false), 500);
   }, [updateUrlParam]);
 
   // マウント時にCookieから値を読み込む（一度だけ）
@@ -198,16 +238,14 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
     }
 
     try {
-      // 進行中のリクエストがあればキャンセル
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
       
-      // 新しいAbortControllerを作成
       abortControllerRef.current = new AbortController();
       
-      setLoading(true); // リクエスト開始時にローディング状態をtrueに
-      setError(""); // エラーメッセージをクリア
+      setLoading(true);
+      setError("");
 
       console.log(`Fetching data with params: ${year}年${month}月, location: ${location}, action: ${action}`);
 
@@ -223,7 +261,6 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
           year: parseInt(year),
           month: parseInt(month)
         }),
-        // AbortController のシグナルを設定
         signal: abortControllerRef.current.signal
       });
 
@@ -234,10 +271,8 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
       const data = await response.json();
       console.log(`Successfully received data for: ${year}年${month}月`, data);
       
-      // カレンダーデータを設定
       setCalendarData(data.data || []);
 
-      // AIアドバイスも設定
       if (data.ai_advice) {
         setAiAdvice(data.ai_advice);
       } else {
@@ -255,6 +290,10 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
       setCalendarData([]);
     } finally {
       setLoading(false);
+      // すべてのローディング状態をリセット
+      setActionChanging(false);
+      setLocationChanging(false);
+      setDateChanging(false);
     }
   }, []);
 
@@ -423,6 +462,9 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
       aiAdvice,
       aiResponses,
       loading,
+      actionChanging,
+      locationChanging,
+      dateChanging,
       aiQuestionLoading,
       error,
       selectedLocation,
@@ -433,6 +475,9 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
       setSelectedYear,
       selectedMonth,
       setSelectedMonth,
+      handleActionChange,
+      handleLocationChange,
+      handleDateChange,
       fetchCalendarData,
       askFollowupQuestion,
       resetSelections,

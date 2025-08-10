@@ -1,6 +1,5 @@
 import React from 'react';
-import { Box, Typography, CircularProgress, useMediaQuery } from '@mui/material';
-// import { Box, Typography, CircularProgress, Popper, Paper, ClickAwayListener, useMediaQuery } from '@mui/material';
+import { Box, Typography, CircularProgress, useMediaQuery, LinearProgress } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
 import CongestionLegend from './CongestionLegend';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
@@ -9,7 +8,17 @@ import WeatherIcon from '../ui/WeatherIcon'; // 追加
 
 // カレンダーコンポーネント
 const CalendarHeatmap = () => {
-    const { calendarData, selectedAction, selectedMonth, loading, selectedLocation, shouldShowCalculationNote } = useCalendar();
+    const { 
+        calendarData, 
+        selectedAction, 
+        selectedMonth, 
+        loading, 
+        actionChanging,
+        locationChanging,
+        dateChanging,
+        selectedLocation, 
+        shouldShowCalculationNote 
+    } = useCalendar();
     const { getCellColor, getTextColor } = useColorPalette();
     const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
     
@@ -49,11 +58,68 @@ const CalendarHeatmap = () => {
         return filename.replace('.csv', '');
     };
 
-    // ローディング中の表示
-    if (loading) {
+    // ローディング中の表示を改善
+    const isLoading = loading || actionChanging || locationChanging || dateChanging;
+    
+    if (isLoading) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
-                <CircularProgress />
+            <Box>
+                <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    mb: 1,
+                    px: 1
+                }}>
+                    <Typography 
+                        variant={isMobile ? "subtitle1" : "h5"} 
+                        sx={{ textAlign: isMobile ? 'center' : 'left' }}
+                    >
+                        混雑度カレンダー
+                    </Typography>
+                </Box>
+                
+                <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    minHeight: '400px',
+                    flexDirection: 'column',
+                    gap: 2,
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                }}>
+                    <CircularProgress 
+                        size={48}
+                        thickness={4}
+                        sx={{ color: '#383947' }}
+                    />
+                    <Typography variant="h6" color="primary" fontWeight="bold">
+                        {actionChanging && "目的を変更中..."}
+                        {locationChanging && "場所を変更中..."}
+                        {dateChanging && "期間を変更中..."}
+                        {loading && "データを読み込み中..."}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        カレンダーデータを処理しています
+                    </Typography>
+                    
+                    <Box sx={{ width: '300px', mt: 1 }}>
+                        <LinearProgress 
+                            variant="indeterminate"
+                            sx={{
+                                height: 4,
+                                borderRadius: 2,
+                                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                                '& .MuiLinearProgress-bar': {
+                                    borderRadius: 2,
+                                    backgroundColor: '#383947',
+                                }
+                            }}
+                        />
+                    </Box>
+                </Box>
             </Box>
         );
     }
