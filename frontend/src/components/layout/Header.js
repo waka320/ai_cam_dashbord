@@ -578,7 +578,8 @@ function Header() {
                                                     justifyContent: 'space-between',
                                                     width: isMobile ? '100%' : 'auto',
                                                     gap: isMobile ? 0.8 : 1.2,
-                                                    flexWrap: 'nowrap'
+                                                    flexWrap: 'nowrap',
+                                                    position: 'relative'  // 相対位置を設定
                                                 }}
                                             >
                                                 <Tooltip title="前の月">
@@ -587,6 +588,7 @@ function Header() {
                                                         <IconButton 
                                                             onClick={handlePreviousMonth}
                                                             disabled={loading || dateChanging || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
+                                                            className={dateChanging ? 'button-loading' : ''}
                                                             sx={{ 
                                                                 width: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
                                                                 height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
@@ -638,14 +640,17 @@ function Header() {
                                             <Box sx={{ 
                                                 display: 'flex', 
                                                 flex: isMobile ? 1 : 'none',
-                                                gap: isMobile ? 0.8 : 1
+                                                gap: isMobile ? 0.8 : 1,
+                                                position: 'relative'  // 相対位置を設定
                                             }}>
+                                                {/* 年選択 */}
                                                 <FormControl variant="outlined" sx={{ 
                                                     width: isMobile ? '50%' : isSmallDesktop ? 110 : 140,
                                                     '& .MuiOutlinedInput-root': {
                                                         height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
                                                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                                    }
+                                                    },
+                                                    position: 'relative'  // 追加
                                                 }}>
                                                     <Tooltip title="年を選択">
                                                         <Select
@@ -715,14 +720,23 @@ function Header() {
                                                             ))}
                                                         </Select>
                                                     </Tooltip>
+                                                    
+                                                    {/* 年のローディングオーバーレイ */}
+                                                    {dateChanging && (
+                                                        <Box className="loading-overlay" sx={{ borderRadius: '8px', zIndex: 2 }}>
+                                                            <CircularProgress size={20} />
+                                                        </Box>
+                                                    )}
                                                 </FormControl>
                                                 
+                                                {/* 月選択 */}
                                                 <FormControl variant="outlined" sx={{ 
                                                     width: isMobile ? '50%' : isSmallDesktop ? 100 : 120,
                                                     '& .MuiOutlinedInput-root': {
                                                         height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
                                                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                                    }
+                                                    },
+                                                    position: 'relative'  // 追加
                                                 }}>
                                                     <Tooltip title="月を選択">
                                                         <Select
@@ -791,6 +805,13 @@ function Header() {
                                                             ))}
                                                         </Select>
                                                     </Tooltip>
+                                                    
+                                                    {/* 月のローディングオーバーレイ */}
+                                                    {dateChanging && (
+                                                        <Box className="loading-overlay" sx={{ borderRadius: '8px', zIndex: 2 }}>
+                                                            <CircularProgress size={20} />
+                                                        </Box>
+                                                    )}
                                                 </FormControl>
                                             </Box>
                                             
@@ -800,6 +821,7 @@ function Header() {
                                                         <IconButton
                                                             onClick={handleNextMonth}
                                                             disabled={loading || dateChanging || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
+                                                            className={dateChanging ? 'button-loading' : ''}
                                                             sx={{ 
                                                                 width: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
                                                                 height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),

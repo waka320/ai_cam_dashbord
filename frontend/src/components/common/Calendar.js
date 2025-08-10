@@ -58,9 +58,18 @@ const CalendarHeatmap = () => {
         return filename.replace('.csv', '');
     };
 
-    // ローディング中の表示を改善
-    const isLoading = loading || actionChanging || locationChanging || dateChanging;
+    // このコンポーネントを表示すべきか判断
+    const shouldShowComponent = selectedAction && selectedAction.startsWith('cal');
     
+    // 表示される場合のみローディングを表示する条件
+    const isLoading = shouldShowComponent && (loading || actionChanging || locationChanging || dateChanging);
+
+    // このコンポーネントが表示されない場合は何も返さない
+    if (!shouldShowComponent) {
+        return null;
+    }
+
+    // ローディング表示
     if (isLoading) {
         return (
             <Box>

@@ -90,9 +90,18 @@ const DateTimeHeatmap = () => {
         }
     }, [calendarData, selectedAction]);
 
-    // ローディング中の表示
-    const isLoading = loading || actionChanging || locationChanging || dateChanging;
+    // このコンポーネントを表示すべきか判断
+    const shouldShowComponent = selectedAction && selectedAction.startsWith('dti');
     
+    // 表示される場合のみローディングを表示する条件
+    const isLoading = shouldShowComponent && (loading || actionChanging || locationChanging || dateChanging);
+
+    // このコンポーネントが表示されない場合は何も返さない
+    if (!shouldShowComponent) {
+        return null;
+    }
+
+    // ローディング表示
     if (isLoading) {
         return (
             <Box sx={{ 
