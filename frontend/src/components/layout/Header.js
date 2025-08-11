@@ -11,9 +11,7 @@ import {
     FormControl, 
     IconButton, 
     Modal, 
-    Backdrop, 
     CircularProgress,
-    LinearProgress,
     Tooltip,
     useMediaQuery
 } from '@mui/material';
@@ -383,56 +381,7 @@ function Header() {
 
     return (
         <>
-            {/* グローバルローディングオーバーレイ */}
-            <Backdrop
-                sx={{ 
-                    color: theme.palette.primary.main, 
-                    zIndex: (theme) => theme.zIndex.drawer + 1,
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                    backdropFilter: 'blur(2px)',
-                }}
-                open={actionChanging || locationChanging || dateChanging}
-            >
-                <Box sx={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'center', 
-                    gap: 2,
-                    p: 3,
-                    borderRadius: 2,
-                    backgroundColor: 'white',
-                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-                }}>
-                    <CircularProgress 
-                        color="primary" 
-                        size={40}
-                        thickness={4}
-                    />
-                    <Typography variant="body1" color="primary" fontWeight="bold">
-                        {actionChanging && "目的を変更しています..."}
-                        {locationChanging && "場所を変更しています..."}
-                        {dateChanging && "期間を変更しています..."}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                        データを取得中です
-                    </Typography>
-                    
-                    <Box sx={{ width: '200px', mt: 1 }}>
-                        <LinearProgress 
-                            variant="indeterminate"
-                            sx={{
-                                height: 4,
-                                borderRadius: 2,
-                                backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                                '& .MuiLinearProgress-bar': {
-                                    borderRadius: 2,
-                                    backgroundColor: theme.palette.primary.main,
-                                }
-                            }}
-                        />
-                    </Box>
-                </Box>
-            </Backdrop>
+            {/* グローバルローディングオーバーレイを削除 */}
 
             <AppBar 
                 position="sticky" 
@@ -447,8 +396,9 @@ function Header() {
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     transform: isScrolled ? 'scale(0.98)' : 'scale(1)',
                     transformOrigin: 'top center',
-                    opacity: (actionChanging || locationChanging || dateChanging) ? 0.8 : 1,
-                    filter: (actionChanging || locationChanging || dateChanging) ? 'blur(1px)' : 'none',
+                    // ローディング時のスタイル変更も削除
+                    opacity: 1,
+                    filter: 'none',
                 }}
             >
                 <Box sx={{ 
