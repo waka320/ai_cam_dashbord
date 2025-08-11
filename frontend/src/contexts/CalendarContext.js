@@ -84,6 +84,78 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams]);
   
+  // パラメータを直接指定してデータを取得する関数を先に定義
+  const fetchCalendarDataWithParams = useCallback(async (location, action, year, month) => {
+    if (!location || !action || !year || !month) {
+      // パラメータが不足している場合はローディング状態を解除して終了
+      setDateChanging(false);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // 既存のリクエストをキャンセル
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      
+      // 新しいAbortControllerを作成
+      abortControllerRef.current = new AbortController();
+      
+      // ローディング状態を設定
+      setLoading(true);
+      setError("");
+
+      console.log(`Fetching data with params: ${year}年${month}月, location: ${location}, action: ${action}`);
+
+      const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/';
+      const response = await fetch(`${baseUrl}api/get-graph`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          place: location,
+          action: action,
+          year: parseInt(year),
+          month: parseInt(month)
+        }),
+        signal: abortControllerRef.current.signal
+      });
+
+      if (!response.ok) {
+        throw new Error(`データの取得に失敗しました (${response.status})`);
+      }
+
+      const data = await response.json();
+      console.log(`Successfully received data for: ${year}年${month}月`, data);
+      
+      setCalendarData(data.data || []);
+
+      if (data.ai_advice) {
+        setAiAdvice(data.ai_advice);
+      } else {
+        setAiAdvice(""); 
+      }
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        console.log('リクエストがキャンセルされました');
+        return;
+      }
+      
+      console.error('Error:', error);
+      setError(error.message);
+      setAiAdvice("データの取得中にエラーが発生しました。再度お試しください。");
+      setCalendarData([]);
+    } finally {
+      // すべてのローディング状態をリセット
+      setLoading(false);
+      setActionChanging(false);
+      setLocationChanging(false);
+      setDateChanging(false);
+    }
+  }, []);
+  
   // アクション変更時のハンドラー
   const handleActionChange = useCallback((value) => {
     setActionChanging(true);
@@ -108,8 +180,9 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
     setTimeout(() => setLocationChanging(false), 500);
   }, [updateUrlParam]);
 
-  // 日付変更時のハンドラー
+  // 日付変更時のハンドラー - fetchCalendarDataWithParamsを使用
   const handleDateChange = useCallback((year, month) => {
+    // まずローディング状態をオンにする
     setDateChanging(true);
     
     yearRef.current.manuallyChanged = true;
@@ -120,8 +193,18 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
     setSelectedYearInternal(year.toString());
     setSelectedMonthInternal(month.toString());
     
-    setTimeout(() => setDateChanging(false), 500);
-  }, []);
+    // URLパラメータを更新
+    updateUrlParam('year', year.toString());
+    updateUrlParam('month', month.toString());
+    
+    // データ取得を開始（すべての条件が揃っている場合）
+    if (selectedAction && selectedLocation) {
+      fetchCalendarDataWithParams(selectedLocation, selectedAction, year.toString(), month.toString());
+    } else {
+      // データ取得を行わない場合はローディング状態をリセット
+      setTimeout(() => setDateChanging(false), 500);
+    }
+  }, [selectedAction, selectedLocation, updateUrlParam, fetchCalendarDataWithParams]);
 
   // 既存のsetSelectedLocation等を更新
   const setSelectedLocation = useCallback((value) => {
@@ -132,25 +215,53 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
     handleActionChange(value);
   }, [handleActionChange]);
 
+  // setSelectedYearの改善
   const setSelectedYear = useCallback((value) => {
     setDateChanging(true);
     yearRef.current.manuallyChanged = true;
     yearRef.current.value = value;
     setSelectedYearInternal(value);
     updateUrlParam('year', value);
-    setTimeout(() => setDateChanging(false), 500);
-  }, [updateUrlParam]);
+    
+    // 月が選択済みでアクションと場所も選択されていれば即時データ取得
+    if (selectedMonth && selectedAction && selectedLocation) {
+      // 既存のリクエストをキャンセル
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      
+      // 即時にデータ取得を開始
+      fetchCalendarDataWithParams(selectedLocation, selectedAction, value, selectedMonth);
+    } else {
+      // 条件が揃っていない場合は視覚的フィードバックのためにローディング表示を少し維持
+      setTimeout(() => setDateChanging(false), 500);
+    }
+  }, [selectedMonth, selectedAction, selectedLocation, fetchCalendarDataWithParams, updateUrlParam]);
 
+  // setSelectedMonthの改善
   const setSelectedMonth = useCallback((value) => {
     setDateChanging(true);
     monthRef.current.manuallyChanged = true;
     monthRef.current.value = value;
     setSelectedMonthInternal(value);
     updateUrlParam('month', value);
-    setTimeout(() => setDateChanging(false), 500);
-  }, [updateUrlParam]);
+    
+    // 年が選択済みでアクションと場所も選択されていれば即時データ取得
+    if (selectedYear && selectedAction && selectedLocation) {
+      // 既存のリクエストをキャンセル
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      
+      // 即時にデータ取得を開始
+      fetchCalendarDataWithParams(selectedLocation, selectedAction, selectedYear, value);
+    } else {
+      // 条件が揃っていない場合はローディング状態を解除
+      setTimeout(() => setDateChanging(false), 500);
+    }
+  }, [selectedYear, selectedAction, selectedLocation, fetchCalendarDataWithParams, updateUrlParam]);
 
-  // マウント時にCookieから値を読み込む（一度だけ）
+  //  マウント時にCookieから値を読み込む（一度だけ）
   useEffect(() => {
     if (!cookiesLoaded) {
       const locationFromCookie = getCookie(COOKIE_KEYS.LOCATION);
@@ -231,72 +342,6 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
     }
   }, [selectedLocation, selectedAction, selectedYear, selectedMonth]);
 
-  // パラメータを直接指定してデータを取得する関数
-  const fetchCalendarDataWithParams = useCallback(async (location, action, year, month) => {
-    if (!location || !action || !year || !month) {
-      return;
-    }
-
-    try {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-      
-      abortControllerRef.current = new AbortController();
-      
-      setLoading(true);
-      setError("");
-
-      console.log(`Fetching data with params: ${year}年${month}月, location: ${location}, action: ${action}`);
-
-      const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/';
-      const response = await fetch(`${baseUrl}api/get-graph`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          place: location,
-          action: action,
-          year: parseInt(year),
-          month: parseInt(month)
-        }),
-        signal: abortControllerRef.current.signal
-      });
-
-      if (!response.ok) {
-        throw new Error(`データの取得に失敗しました (${response.status})`);
-      }
-
-      const data = await response.json();
-      console.log(`Successfully received data for: ${year}年${month}月`, data);
-      
-      setCalendarData(data.data || []);
-
-      if (data.ai_advice) {
-        setAiAdvice(data.ai_advice);
-      } else {
-        setAiAdvice(""); 
-      }
-    } catch (error) {
-      if (error.name === 'AbortError') {
-        console.log('リクエストがキャンセルされました');
-        return;
-      }
-      
-      console.error('Error:', error);
-      setError(error.message);
-      setAiAdvice("データの取得中にエラーが発生しました。再度お試しください。");
-      setCalendarData([]);
-    } finally {
-      setLoading(false);
-      // すべてのローディング状態をリセット
-      setActionChanging(false);
-      setLocationChanging(false);
-      setDateChanging(false);
-    }
-  }, []);
-
   // 通常のフェッチ関数（現在選択中の値を使用）
   const fetchCalendarData = useCallback(async () => {
     // 全ての入力が完了していない場合は処理を行わない
@@ -331,8 +376,8 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
 
   // 年月を同時に更新し、その後データを取得する関数
   const updateMonthAndFetch = useCallback((newYear, newMonth) => {
-    // データ変更のログを出力
-    console.log(`Updating from ${selectedYear}年${selectedMonth}月 to ${newYear}年${newMonth}月`);
+    // ローディング状態を即時に設定
+    setDateChanging(true);
     
     // 進行中のリクエストをキャンセル
     if (abortControllerRef.current) {
@@ -350,24 +395,27 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
     monthRef.current.manuallyChanged = true;
     monthRef.current.value = newMonth.toString();
     
-    // 状態を一括更新
+    // 状態を更新
     setSelectedYearInternal(newYear.toString());
     setSelectedMonthInternal(newMonth.toString());
     
-    // 状態更新が完了した後に明示的にデータを取得する
-    // 複数の状態更新後にuseEffectが正しく発火しない場合の対策
-    setTimeout(() => {
-      if (selectedLocation && selectedAction) {
-        // 新しい月のデータを確実に取得するために直接パラメータを指定
-        fetchCalendarDataWithParams(
-          selectedLocation, 
-          selectedAction, 
-          newYear.toString(), 
-          newMonth.toString()
-        );
-      }
-    }, 100);
-  }, [selectedLocation, selectedAction, selectedYear, selectedMonth, fetchCalendarDataWithParams]);
+    // URLパラメータを更新
+    updateUrlParam('year', newYear.toString());
+    updateUrlParam('month', newMonth.toString());
+    
+    // 即時にデータ取得を開始（遅延なし）
+    if (selectedLocation && selectedAction) {
+      fetchCalendarDataWithParams(
+        selectedLocation, 
+        selectedAction, 
+        newYear.toString(), 
+        newMonth.toString()
+      );
+    } else {
+      // データ取得条件が不足している場合はローディング状態を解除
+      setTimeout(() => setDateChanging(false), 500);
+    }
+  }, [selectedLocation, selectedAction, fetchCalendarDataWithParams, updateUrlParam]);
 
   // Cookieを含めた選択値をリセットする関数
   const resetSelections = useCallback(() => {
