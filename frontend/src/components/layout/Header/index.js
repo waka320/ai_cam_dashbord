@@ -7,15 +7,15 @@ import {
   useMediaQuery 
 } from '@mui/material';
 import { useLocation } from 'react-router-dom';
-import theme from '../../theme/theme';
-import { useCalendar } from '../../contexts/CalendarContext';
+import theme from '../../../theme/theme';
+import { useCalendar } from '../../../contexts/CalendarContext';
 
-// 分割されたコンポーネントのインポート
-import HeaderLogo from './Header/HeaderLogo';
-import ActionSelect from './Header/ActionSelect';
-import DateSelect from './Header/DateSelect';
-import LocationSelect from './Header/LocationSelect';
-import CameraModal from './Header/CameraModal';
+// コンポーネントのインポート
+import HeaderLogo from './HeaderLogo';
+import ActionSelect from './ActionSelect';
+import DateSelect from './DateSelect';
+import LocationSelect from './LocationSelect';
+import CameraModal from './CameraModal';
 
 function Header() {
   const {
