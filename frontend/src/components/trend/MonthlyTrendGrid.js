@@ -1,33 +1,79 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Typography, Card, CardContent, Skeleton } from '@mui/material';
+import { Box, Typography, CircularProgress, useMediaQuery, LinearProgress } from '@mui/material';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
-import theme from '../../theme/theme';
+import { useCalendar } from '../../contexts/CalendarContext';
+import AnalysisInfoButton from '../ui/AnalysisInfoButton';
+import CongestionLegend from '../common/CongestionLegend';
 
 function MonthlyTrendGrid({ data, loading, isMobile }) {
-  const colorPaletteContext = useColorPalette();
-  
-  // getColor関数の安全な取得
-  const getColor = colorPaletteContext?.getColor || ((level) => {
-    // フォールバック用のカラーパレット
-    const fallbackColors = {
-      1: '#e4f6d7', 2: '#eff6be', 3: '#f9f5a6', 4: '#ffee90', 5: '#ffd069',
-      6: '#ffbd50', 7: '#feac42', 8: '#f98345', 9: '#f66846', 10: '#f25444'
-    };
-    return fallbackColors[level] || '#cccccc';
-  });
+  const { getCellColor, getTextColor } = useColorPalette();
+  const { selectedLocation, shouldShowCalculationNote } = useCalendar();
+  const isSmallMobile = useMediaQuery('(max-width:480px)');
+
+  // 場所名の取得（ファイル名部分のみ）
+  const getPlaceName = () => {
+    if (!selectedLocation) return 'default';
+    const parts = selectedLocation.split('/');
+    const filename = parts[parts.length - 1];
+    return filename.replace('.csv', '');
+  };
 
   if (loading) {
     return (
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 2, p: 2 }}>
-        {[...Array(12)].map((_, index) => (
-          <Card key={index} sx={{ minHeight: '100px' }}>
-            <CardContent>
-              <Skeleton variant="text" width="60%" height={24} />
-              <Skeleton variant="rectangular" width="100%" height={40} sx={{ mt: 1 }} />
-            </CardContent>
-          </Card>
-        ))}
+      <Box sx={{ 
+        maxWidth: '100%', 
+        margin: '0 auto', 
+        mt: 2, 
+        px: isMobile ? 1 : 2
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Typography 
+            variant={isMobile ? "subtitle1" : "h6"} 
+            sx={{ textAlign: isMobile ? 'center' : 'left' }}
+          >
+            月ごとの混雑度傾向
+          </Typography>
+        </Box>
+        
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '200px',
+          flexDirection: 'column',
+          gap: 2,
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+          backgroundColor: 'rgba(0, 0, 0, 0.02)',
+        }}>
+          <CircularProgress 
+            size={48}
+            thickness={4}
+            sx={{ color: '#383947' }}
+          />
+          <Typography variant="h6" color="primary" fontWeight="bold">
+            データを読み込み中...
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            月ごとの傾向データを処理しています
+          </Typography>
+          
+          <Box sx={{ width: '300px', mt: 1 }}>
+            <LinearProgress 
+              variant="indeterminate"
+              sx={{
+                height: 4,
+                borderRadius: 2,
+                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                '& .MuiLinearProgress-bar': {
+                  borderRadius: 2,
+                  backgroundColor: '#383947',
+                }
+              }}
+            />
+          </Box>
+        </Box>
       </Box>
     );
   }
@@ -35,98 +81,163 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
   if (!data || !Array.isArray(data) || data.length === 0) {
     return (
       <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '200px',
-        p: 3
+        maxWidth: '100%', 
+        margin: '0 auto', 
+        mt: 2, 
+        px: isMobile ? 1 : 2
       }}>
-        <Typography variant="body1" color="text.secondary">
-          月ごとのデータがありません
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Typography 
+            variant={isMobile ? "subtitle1" : "h6"} 
+            sx={{ textAlign: isMobile ? 'center' : 'left' }}
+          >
+            月ごとの混雑度傾向
+          </Typography>
+          <AnalysisInfoButton 
+            analysisType="monthTrend"
+            place={getPlaceName()}
+          />
+        </Box>
+        
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '200px',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+          p: 3
+        }}>
+          <Typography variant="body1" color="text.secondary">
+            月ごとのデータがありません
+          </Typography>
+        </Box>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
-        月ごとの混雑度傾向
-      </Typography>
-      
-      <Box sx={{ 
-        display: 'grid', 
-        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(250px, 1fr))', 
-        gap: 2 
-      }}>
-        {data.map((monthData, index) => {
-          const congestionLevel = monthData.congestion || 1;
-          const backgroundColor = getColor(congestionLevel);
-          
-          return (
-            <Card 
-              key={monthData.month || index}
-              sx={{ 
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: theme.shadows[6],
-                },
-                border: monthData.highlighted ? `2px solid ${theme.palette.warning.main}` : 'none',
-              }}
-            >
-              <CardContent sx={{ p: 2 }}>
-                <Typography variant="h6" component="h3" sx={{ fontWeight: 'bold', mb: 1 }}>
-                  {monthData.month}月
-                </Typography>
+    <Box sx={{ 
+      maxWidth: '100%', 
+      margin: '0 auto', 
+      mt: 2, 
+      px: isMobile ? 1 : 2
+    }}>
+      {/* ヘッダー部分 */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+        <Typography 
+          variant={isMobile ? "subtitle1" : "h6"} 
+          sx={{ textAlign: isMobile ? 'center' : 'left' }}
+        >
+          月ごとの混雑度傾向
+        </Typography>
+        
+        <AnalysisInfoButton 
+          analysisType="monthTrend"
+          place={getPlaceName()}
+        />
+      </Box>
 
-                <Box
+      {/* メインコンテナ */}
+      <Box sx={{ 
+        border: '1px solid #ddd', 
+        borderRadius: '8px', 
+        overflow: 'hidden',
+        width: '100%'
+      }}>
+        {/* データグリッド */}
+        <Box sx={{ p: isMobile ? 1 : 1.5 }}>
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: isMobile ? 
+              (isSmallMobile ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)') : 
+              'repeat(6, 1fr)', 
+            gap: isMobile ? 0.8 : 1
+          }}>
+            {data.map((monthData, index) => {
+              const congestionLevel = monthData.congestion || 1;
+              const backgroundColor = getCellColor(congestionLevel);
+              const textColor = getTextColor(congestionLevel);
+              
+              return (
+                <Box 
+                  key={monthData.month || index}
                   sx={{
-                    width: '100%',
-                    height: '50px',
-                    backgroundColor: backgroundColor,
-                    borderRadius: '8px',
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mb: 1
+                    flexDirection: 'column',
+                    backgroundColor: congestionLevel === 0 ? '#e0e0e0' : backgroundColor,
+                    borderRadius: '4px',
+                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    overflow: 'hidden',
+                    height: isMobile ? (isSmallMobile ? '65px' : '75px') : '85px',
+                    position: 'relative',
+                    cursor: 'default'
                   }}
                 >
-                  <Typography 
-                    variant="h5" 
-                    sx={{ 
-                      color: 'white',
-                      fontWeight: 'bold',
-                      textShadow: '0 1px 2px rgba(0,0,0,0.3)'
-                    }}
-                  >
-                    {congestionLevel}
-                  </Typography>
-                </Box>
-
-                {monthData.total_count && (
-                  <Typography variant="caption" color="text.secondary">
-                    {monthData.total_count.toLocaleString()}人
-                  </Typography>
-                )}
-
-                {monthData.highlighted && monthData.highlight_reason && (
+                  {/* メインコンテンツエリア */}
                   <Box sx={{ 
-                    mt: 1, 
-                    p: 1, 
-                    backgroundColor: theme.palette.warning.light + '20',
-                    borderRadius: 1,
-                    border: `1px solid ${theme.palette.warning.light}`
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: isSmallMobile ? '3px' : '5px',
+                    p: 0.5,
+                    color: congestionLevel === 0 ? '#666' : textColor,
                   }}>
-                    <Typography variant="caption" color="warning.dark">
-                      📍 {monthData.highlight_reason}
+                    {/* 月表示 - Calendar.jsと同じサイズ */}
+                    <Typography 
+                      sx={{
+                        fontSize: isSmallMobile ? '13px' : isMobile ? '15px' : '17px',
+                        lineHeight: '1',
+                        fontWeight: '500',
+                        textAlign: 'center',
+                        color: congestionLevel === 0 ? '#666' : textColor,
+                      }}
+                    >
+                      {monthData.month}月
+                    </Typography>
+                    
+                    {/* 混雑度表示 - Calendar.jsと同じサイズ */}
+                    <Typography 
+                      sx={{ 
+                        fontSize: isMobile ? (isSmallMobile ? '24px' : '28px') : '32px',
+                        lineHeight: '1',
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        color: congestionLevel === 0 ? '#666' : 'inherit',
+                      }}
+                    >
+                      {congestionLevel === 0 ? '-' : congestionLevel}
                     </Typography>
                   </Box>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
+
+                  {/* ハイライト表示 */}
+                  {monthData.highlighted && (
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 1,
+                      right: 1,
+                      width: 6,
+                      height: 6,
+                      backgroundColor: '#ff9800',
+                      borderRadius: '50%',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                    }} />
+                  )}
+                </Box>
+              );
+            })}
+          </Box>
+        </Box>
+      </Box>
+
+      {/* レジェンド */}
+      <Box sx={{ mt: 2 }}>
+        <CongestionLegend 
+          showCalculationNote={shouldShowCalculationNote()} 
+          legendType="trend" 
+        />
       </Box>
     </Box>
   );

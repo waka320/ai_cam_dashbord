@@ -1,212 +1,243 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Typography, Card, CardContent, Skeleton } from '@mui/material';
+import { Box, Typography, CircularProgress, useMediaQuery, LinearProgress } from '@mui/material';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
-import theme from '../../theme/theme';
+import { useCalendar } from '../../contexts/CalendarContext';
+import AnalysisInfoButton from '../ui/AnalysisInfoButton';
+import CongestionLegend from '../common/CongestionLegend';
 
 function YearlyTrendGrid({ data, loading, isMobile }) {
-  const colorPaletteContext = useColorPalette();
-  
-  // コンテキストの存在チェックとデバッグ
-  console.log('ColorPalette Context:', colorPaletteContext);
-  
-  // getColor関数の安全な取得
-  const getColor = colorPaletteContext?.getColor || ((level) => {
-    // フォールバック用のカラーパレット
-    const fallbackColors = {
-      1: '#e4f6d7',
-      2: '#eff6be', 
-      3: '#f9f5a6',
-      4: '#ffee90',
-      5: '#ffd069',
-      6: '#ffbd50',
-      7: '#feac42',
-      8: '#f98345',
-      9: '#f66846',
-      10: '#f25444'
-    };
-    return fallbackColors[level] || '#cccccc';
-  });
+  const { getCellColor, getTextColor } = useColorPalette();
+  const { selectedLocation, shouldShowCalculationNote } = useCalendar();
+  const isSmallMobile = useMediaQuery('(max-width:480px)');
 
-  // デバッグ用のコンソール出力
-  console.log('YearlyTrendGrid Debug:', {
-    data,
-    loading,
-    dataType: typeof data,
-    isArray: Array.isArray(data),
-    dataLength: data?.length,
-    firstItem: data?.[0],
-    getColorFunction: typeof getColor
-  });
+  // 場所名の取得（ファイル名部分のみ）
+  const getPlaceName = () => {
+    if (!selectedLocation) return 'default';
+    const parts = selectedLocation.split('/');
+    const filename = parts[parts.length - 1];
+    return filename.replace('.csv', '');
+  };
 
   if (loading) {
     return (
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 2, p: 2 }}>
-        {[...Array(5)].map((_, index) => (
-          <Card key={index} sx={{ minHeight: '120px' }}>
-            <CardContent>
-              <Skeleton variant="text" width="60%" height={28} />
-              <Skeleton variant="text" width="40%" height={20} sx={{ mt: 1 }} />
-              <Skeleton variant="rectangular" width="100%" height={40} sx={{ mt: 2 }} />
-            </CardContent>
-          </Card>
-        ))}
+      <Box sx={{ 
+        maxWidth: '100%', 
+        margin: '0 auto', 
+        mt: 2, 
+        px: isMobile ? 1 : 2
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Typography 
+            variant={isMobile ? "subtitle1" : "h6"} 
+            sx={{ textAlign: isMobile ? 'center' : 'left' }}
+          >
+            年ごとの混雑度傾向
+          </Typography>
+        </Box>
+        
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '200px',
+          flexDirection: 'column',
+          gap: 2,
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+          backgroundColor: 'rgba(0, 0, 0, 0.02)',
+        }}>
+          <CircularProgress 
+            size={48}
+            thickness={4}
+            sx={{ color: '#383947' }}
+          />
+          <Typography variant="h6" color="primary" fontWeight="bold">
+            データを読み込み中...
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            年ごとの傾向データを処理しています
+          </Typography>
+          
+          <Box sx={{ width: '300px', mt: 1 }}>
+            <LinearProgress 
+              variant="indeterminate"
+              sx={{
+                height: 4,
+                borderRadius: 2,
+                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                '& .MuiLinearProgress-bar': {
+                  borderRadius: 2,
+                  backgroundColor: '#383947',
+                }
+              }}
+            />
+          </Box>
+        </Box>
       </Box>
     );
   }
 
-  // データの存在チェックを修正
   if (!data || !Array.isArray(data) || data.length === 0) {
-    console.log('YearlyTrendGrid: No data available', { data, isArray: Array.isArray(data), length: data?.length });
     return (
       <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '200px',
-        p: 3
+        maxWidth: '100%', 
+        margin: '0 auto', 
+        mt: 2, 
+        px: isMobile ? 1 : 2
       }}>
-        <Typography variant="body1" color="text.secondary">
-          年ごとのデータがありません
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Typography 
+            variant={isMobile ? "subtitle1" : "h6"} 
+            sx={{ textAlign: isMobile ? 'center' : 'left' }}
+          >
+            年ごとの混雑度傾向
+          </Typography>
+          <AnalysisInfoButton 
+            analysisType="yearTrend"
+            place={getPlaceName()}
+          />
+        </Box>
+        
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '200px',
+          border: '1px solid #ddd',
+          borderRadius: '8px',
+          p: 3
+        }}>
+          <Typography variant="body1" color="text.secondary">
+            年ごとのデータがありません
+          </Typography>
+        </Box>
       </Box>
     );
   }
 
-  console.log('YearlyTrendGrid: Rendering with data:', data);
-
   return (
-    <Box sx={{ p: 2 }}>
-      <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
-        年ごとの混雑度傾向
-      </Typography>
-      
-      <Box sx={{ 
-        display: 'grid', 
-        gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))', 
-        gap: 3 
-      }}>
-        {data.map((yearData, index) => {
-          // 混雑度レベルの安全な取得
-          const congestionLevel = yearData.congestion || 1;
-          const backgroundColor = getColor(congestionLevel);
-          
-          return (
-            <Card 
-              key={yearData.year || index}
-              sx={{ 
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: theme.shadows[8],
-                },
-                border: yearData.highlighted ? `2px solid ${theme.palette.warning.main}` : 'none',
-              }}
-            >
-              <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h5" component="h3" sx={{ fontWeight: 'bold' }}>
-                    {yearData.year}年
-                  </Typography>
-                  <Typography 
-                    variant="caption" 
-                    sx={{ 
-                      color: 'text.secondary',
-                      fontSize: '0.8rem'
-                    }}
-                  >
-                    {yearData.total_count?.toLocaleString()}人
-                  </Typography>
-                </Box>
+    <Box sx={{ 
+      maxWidth: '100%', 
+      margin: '0 auto', 
+      mt: 2, 
+      px: isMobile ? 1 : 2
+    }}>
+      {/* ヘッダー部分 - Calendar.jsと同じスタイル */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+        <Typography 
+          variant={isMobile ? "subtitle1" : "h6"} 
+          sx={{ textAlign: isMobile ? 'center' : 'left' }}
+        >
+          年ごとの混雑度傾向
+        </Typography>
+        
+        <AnalysisInfoButton 
+          analysisType="yearTrend"
+          place={getPlaceName()}
+        />
+      </Box>
 
-                {/* 混雑度レベル表示 */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  mb: 2
-                }}>
-                  <Box
-                    sx={{
-                      width: '100%',
-                      height: '60px',
-                      backgroundColor: backgroundColor,
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.1) 75%, rgba(255,255,255,0.1))',
-                        backgroundSize: '20px 20px',
-                      }
-                    }}
-                  >
+      {/* メインコンテナ */}
+      <Box sx={{ 
+        border: '1px solid #ddd', 
+        borderRadius: '8px', 
+        overflow: 'hidden',
+        width: '100%'
+      }}>
+        {/* データグリッド */}
+        <Box sx={{ p: isMobile ? 1 : 1.5 }}>
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: isMobile ? 
+              (isSmallMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)') : 
+              'repeat(auto-fit, minmax(140px, 1fr))', 
+            gap: isMobile ? 1 : 1.5 
+          }}>
+            {data.map((yearData, index) => {
+              const congestionLevel = yearData.congestion || 1;
+              const backgroundColor = getCellColor(congestionLevel);
+              const textColor = getTextColor(congestionLevel);
+              
+              return (
+                <Box 
+                  key={yearData.year || index}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    backgroundColor: congestionLevel === 0 ? '#e0e0e0' : backgroundColor,
+                    borderRadius: '4px',
+                    border: '1px solid rgba(0, 0, 0, 0.1)',
+                    overflow: 'hidden',
+                    height: isMobile ? (isSmallMobile ? '70px' : '80px') : '90px',
+                    position: 'relative',
+                    cursor: 'default'
+                  }}
+                >
+                  {/* メインコンテンツエリア */}
+                  <Box sx={{ 
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: isSmallMobile ? '4px' : '6px',
+                    p: 1,
+                    color: congestionLevel === 0 ? '#666' : textColor,
+                  }}>
+                    {/* 年表示 - Calendar.jsと同じサイズ */}
                     <Typography 
-                      variant="h4" 
-                      sx={{ 
-                        color: 'white',
-                        fontWeight: 'bold',
-                        textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                        zIndex: 1
+                      sx={{
+                        fontSize: isSmallMobile ? '14px' : isMobile ? '16px' : '18px',
+                        lineHeight: '1',
+                        fontWeight: '500',
+                        textAlign: 'center',
+                        color: congestionLevel === 0 ? '#666' : textColor,
                       }}
                     >
-                      {congestionLevel}
+                      {yearData.year}年
+                    </Typography>
+                    
+                    {/* 混雑度表示 - Calendar.jsと同じサイズ */}
+                    <Typography 
+                      sx={{ 
+                        fontSize: isMobile ? (isSmallMobile ? '28px' : '32px') : '36px',
+                        lineHeight: '1',
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        color: congestionLevel === 0 ? '#666' : 'inherit',
+                      }}
+                    >
+                      {congestionLevel === 0 ? '-' : congestionLevel}
                     </Typography>
                   </Box>
+
+                  {/* ハイライト表示 */}
+                  {yearData.highlighted && (
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 2,
+                      right: 2,
+                      width: 8,
+                      height: 8,
+                      backgroundColor: '#ff9800',
+                      borderRadius: '50%',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+                    }} />
+                  )}
                 </Box>
+              );
+            })}
+          </Box>
+        </Box>
+      </Box>
 
-                {/* 天気情報 */}
-                {yearData.weather_info && (
-                  <Box sx={{ mt: 2, p: 2, backgroundColor: 'grey.50', borderRadius: 2 }}>
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>
-                      年間の傾向
-                    </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                      {yearData.weather_info.weather && (
-                        <Typography variant="body2">
-                          主な天気: {yearData.weather_info.weather}
-                        </Typography>
-                      )}
-                      {yearData.weather_info.avg_temperature !== undefined && (
-                        <Typography variant="body2">
-                          平均気温: {yearData.weather_info.avg_temperature}°C
-                        </Typography>
-                      )}
-                    </Box>
-                    {yearData.weather_info.total_rain !== undefined && (
-                      <Typography variant="body2">
-                        年間降水量: {yearData.weather_info.total_rain}mm
-                      </Typography>
-                    )}
-                  </Box>
-                )}
-
-                {/* ハイライト理由 */}
-                {yearData.highlighted && yearData.highlight_reason && (
-                  <Box sx={{ 
-                    mt: 2, 
-                    p: 1.5, 
-                    backgroundColor: theme.palette.warning.light + '20',
-                    borderRadius: 1,
-                    border: `1px solid ${theme.palette.warning.light}`
-                  }}>
-                    <Typography variant="caption" color="warning.dark">
-                      📍 {yearData.highlight_reason}
-                    </Typography>
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
+      {/* レジェンド */}
+      <Box sx={{ mt: 2 }}>
+        <CongestionLegend 
+          showCalculationNote={shouldShowCalculationNote()} 
+          legendType="trend" 
+        />
       </Box>
     </Box>
   );
@@ -216,7 +247,7 @@ YearlyTrendGrid.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({
     year: PropTypes.number.isRequired,
     congestion: PropTypes.number.isRequired,
-    total_count: PropTypes.number.isRequired,
+    total_count: PropTypes.number,
     highlighted: PropTypes.bool,
     highlight_reason: PropTypes.string,
     weather_info: PropTypes.object,
