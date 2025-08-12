@@ -30,7 +30,15 @@ const COOKIE_KEYS = {
 
 const CalendarContext = createContext();
 
-export function CalendarProvider({ children, searchParams, setSearchParams }) {
+export const useCalendar = () => {
+  const context = useContext(CalendarContext);
+  if (!context) {
+    throw new Error('useCalendar must be used within a CalendarProvider');
+  }
+  return context;
+};
+
+export const CalendarProvider = ({ children, searchParams, setSearchParams }) => {
   // 現在の年月を取得
   const today = new Date();
   const currentYear = today.getFullYear().toString();
@@ -50,6 +58,7 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
   const [aiAdvice, setAiAdvice] = useState("");
   const [aiResponses, setAiResponses] = useState([]);
   const [aiQuestionLoading, setAiQuestionLoading] = useState(false);
+  const [weatherData, setWeatherData] = useState([]); // 天気データの状態を追加
   
   // 状態と手動更新フラグを保持するRef（Cookie/URLパラメータ両対応）
   const locationRef = useRef({ value: initialLocation, manuallyChanged: !!initialLocation });
@@ -72,6 +81,10 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
   const [inputsComplete, setInputsComplete] = useState(false);
   const [error, setError] = useState("");
   const [cookiesLoaded, setCookiesLoaded] = useState(false);
+  
+  // 追加の状態
+  const [data, setData] = useState(null);
+  const [responseType, setResponseType] = useState(null);
   
   // URLパラメータ更新関数
   const updateUrlParam = useCallback((key, value) => {
@@ -127,28 +140,41 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
         throw new Error(`データの取得に失敗しました (${response.status})`);
       }
 
-      const data = await response.json();
-      console.log(`Successfully received data for: ${year}年${month}月`, data);
+      const result = await response.json();
+      console.log(`Successfully received data for: ${year}年${month}月`, result);
       
-      setCalendarData(data.data || []);
-
-      if (data.ai_advice) {
-        setAiAdvice(data.ai_advice);
+      // 傾向分析データかどうかを判定
+      const isTrendAnalysis = ['year_trend', 'month_trend', 'week_trend'].includes(action);
+      
+      if (isTrendAnalysis) {
+        // 傾向分析の場合は、dataとresponseTypeに格納
+        setData(result.data);
+        setResponseType(action);
+        setCalendarData([]); // カレンダーデータはクリア
+        console.log('Trend analysis data set:', {
+          action: action,
+          data: result.data,
+          dataLength: result.data?.length
+        });
       } else {
-        setAiAdvice(""); 
+        // 既存の処理（カレンダー、ヒートマップなど）
+        setCalendarData(result.data);
+        setData(null); // 傾向分析データはクリア
+        setResponseType(null);
       }
+
+      setAiAdvice(result.ai_advice || '');
+      setWeatherData(result.weather_data || []);
+
     } catch (error) {
       if (error.name === 'AbortError') {
         console.log('リクエストがキャンセルされました');
         return;
       }
       
-      console.error('Error:', error);
-      setError(error.message);
-      setAiAdvice("データの取得中にエラーが発生しました。再度お試しください。");
-      setCalendarData([]);
+      console.error('Error fetching data:', error);
+      setError('データの取得に失敗しました。再度お試しください。');
     } finally {
-      // すべてのローディング状態をリセット
       setLoading(false);
       setActionChanging(false);
       setLocationChanging(false);
@@ -427,6 +453,7 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
     // データと選択値をクリア
     setCalendarData([]);
     setAiAdvice("");
+    setWeatherData([]); // 天気データもクリア
     
     // 手動更新フラグを設定してから値をリセット
     locationRef.current.manuallyChanged = true;
@@ -504,34 +531,41 @@ export function CalendarProvider({ children, searchParams, setSearchParams }) {
     }
   }, [selectedLocation, selectedAction, selectedYear, selectedMonth, aiResponses]);
 
+  const value = {
+    calendarData,
+    aiAdvice,
+    aiResponses,
+    loading,
+    actionChanging,
+    locationChanging,
+    dateChanging,
+    aiQuestionLoading,
+    error,
+    weatherData, // 天気データを追加
+    selectedLocation,
+    setSelectedLocation,
+    selectedAction,
+    setSelectedAction,
+    selectedYear,
+    setSelectedYear,
+    selectedMonth,
+    setSelectedMonth,
+    handleActionChange,
+    handleLocationChange,
+    handleDateChange,
+    fetchCalendarData,
+    askFollowupQuestion,
+    resetSelections,
+    updateMonthAndFetch,
+    shouldShowCalculationNote,
+    data,
+    setData,
+    responseType,
+    setResponseType
+  };
+
   return (
-    <CalendarContext.Provider value={{
-      calendarData,
-      aiAdvice,
-      aiResponses,
-      loading,
-      actionChanging,
-      locationChanging,
-      dateChanging,
-      aiQuestionLoading,
-      error,
-      selectedLocation,
-      setSelectedLocation,
-      selectedAction,
-      setSelectedAction,
-      selectedYear,
-      setSelectedYear,
-      selectedMonth,
-      setSelectedMonth,
-      handleActionChange,
-      handleLocationChange,
-      handleDateChange,
-      fetchCalendarData,
-      askFollowupQuestion,
-      resetSelections,
-      updateMonthAndFetch,
-      shouldShowCalculationNote
-    }}>
+    <CalendarContext.Provider value={value}>
       {children}
     </CalendarContext.Provider>
   );
@@ -543,7 +577,3 @@ CalendarProvider.propTypes = {
   searchParams: PropTypes.object.isRequired, // URLSearchParamsインスタンス
   setSearchParams: PropTypes.func.isRequired
 };
-
-export function useCalendar() {
-  return useContext(CalendarContext);
-}
