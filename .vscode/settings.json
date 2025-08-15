@@ -40,5 +40,8 @@
         }
     },
     "python.terminal.activateEnvironment": true,
-    "terminal.external.osxExec": "iTerm.app"
+    "terminal.external.osxExec": "iTerm.app",
+    "cursorpyright.analysis.extraPaths": [
+        "${workspaceFolder}/backend"
+    ]
 }

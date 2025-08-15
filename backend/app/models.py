@@ -1,5 +1,5 @@
-from typing import Dict, List, Union, Optional, Any
-from pydantic import BaseModel, Field
+from typing import List, Optional, Any
+from pydantic import BaseModel
 
 
 class WeatherInfo(BaseModel):
@@ -47,3 +47,6 @@ class GraphResponse(BaseModel):
     data: Any
     ai_advice: str
     weather_data: Optional[List[WeatherInfo]] = None
+    # 傾向分析時の追加情報（任意）
+    type: Optional[str] = None
+    highlighted_info: Optional[Any] = None
