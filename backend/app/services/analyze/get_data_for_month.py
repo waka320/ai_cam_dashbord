@@ -51,6 +51,15 @@ def get_data_for_month(
     if df_person.empty:
         return []
 
+    # 7時から22時までのデータのみをフィルタリング
+    df_person = df_person[
+        (df_person[date_col].dt.hour >= 7) & 
+        (df_person[date_col].dt.hour <= 22)
+    ]
+
+    if df_person.empty:
+        return []
+
     # 年月ごとの歩行者数を集計
     df_person = df_person.copy()
     df_person['year_month'] = df_person[date_col].dt.to_period('M')
@@ -90,15 +99,16 @@ def get_data_for_month(
             days_per_month['days_with_data'] / days_per_month['calendar_days']
         )
 
-        # 60%未満のカバレッジは除外
+        # より厳しい基準で欠損データを除外
         monthly_counts = monthly_counts.merge(
-            days_per_month[['year', 'month', 'coverage_ratio']],
+            days_per_month[['year', 'month', 'coverage_ratio', 'days_with_data']],
             on=['year', 'month'],
             how='left'
         )
         monthly_counts = monthly_counts[
-            (monthly_counts['coverage_ratio'].fillna(0) >= 0.6)
-        ].drop(columns=['coverage_ratio'])
+            (monthly_counts['coverage_ratio'].fillna(0) >= 0.7) &  # 70%以上のカバレッジ
+            (monthly_counts['days_with_data'].fillna(0) >= 20)     # 最低20日のデータ
+        ].drop(columns=['coverage_ratio', 'days_with_data'])
 
     if monthly_counts.empty:
         return []

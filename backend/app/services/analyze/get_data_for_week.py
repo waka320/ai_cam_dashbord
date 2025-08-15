@@ -22,13 +22,13 @@ CONGESTION_THRESHOLDS_WEEK = {
 
 def get_data_for_week(
     df: pd.DataFrame,
-    year: int,
-    month: int,
+    year: int = None,  # 互換性のため残すが使用しない
+    month: int = None,  # 互換性のため残すが使用しない
     place: str = 'default',
     weather_data: Dict[int, List[Dict[str, Any]]] = None
 ) -> List[Dict[str, Any]]:
     """
-    DataFrameから歩行者データを取得し、週単位で混雑度を計算する。
+    DataFrameから歩行者データを取得し、全期間の週単位で混雑度を計算する。
     混雑度を10段階で計算する。
     """
     # 人のデータのみをフィルタリング
@@ -39,22 +39,25 @@ def get_data_for_week(
     if not pd.api.types.is_datetime64_any_dtype(df_person[date_col]):
         df_person[date_col] = pd.to_datetime(df_person[date_col])
 
-    # 該当する年月のデータのみにフィルタリング
-    df_month = df_person[
-        (df_person[date_col].dt.year == year) &
-        (df_person[date_col].dt.month == month)
+    if df_person.empty:
+        return []
+
+    # 7時から22時までのデータのみをフィルタリング
+    df_person = df_person[
+        (df_person[date_col].dt.hour >= 7) & 
+        (df_person[date_col].dt.hour <= 22)
     ]
 
-    if df_month.empty:
+    if df_person.empty:
         return []
 
     # 日付のみの列を追加
-    df_month = df_month.copy()
-    df_month['date_only'] = df_month[date_col].dt.date
+    df_person = df_person.copy()
+    df_person['date_only'] = df_person[date_col].dt.date
 
     # 日ごとの歩行者数を集計
     daily_counts = (
-        df_month.groupby('date_only')['count_1_hour']
+        df_person.groupby('date_only')['count_1_hour']
         .sum()
         .reset_index()
     )
@@ -91,9 +94,13 @@ def get_data_for_week(
     weekly_counts['coverage_ratio'] = (
         weekly_counts['days_with_data'] / weekly_counts['calendar_days']
     )
-    coverage_threshold_ratio = 0.6
+    
+    # 7日に満たない週（最新週など）と欠損率が高い週を除外
+    coverage_threshold_ratio = 0.8  # より厳しい基準に変更
     weekly_counts = weekly_counts[
-        weekly_counts['coverage_ratio'] >= coverage_threshold_ratio
+        (weekly_counts['calendar_days'] >= 7) &  # 7日以上の週のみ
+        (weekly_counts['days_with_data'] >= 5) &  # 最低5日はデータが必要
+        (weekly_counts['coverage_ratio'] >= coverage_threshold_ratio)
     ]
     weekly_counts = weekly_counts.drop(
         columns=['days_with_data', 'calendar_days', 'coverage_ratio']
@@ -168,7 +175,8 @@ def get_data_for_week(
     # 結果を整形
     result = []
 
-    weekly_counts = weekly_counts.sort_values(by=['year', 'week'])
+    # 開始日でソート（年月週の順になる）
+    weekly_counts = weekly_counts.sort_values(by=['start_date'])
 
     for _, row in weekly_counts.iterrows():
         # 週の天気データを集計
@@ -210,7 +218,14 @@ def get_data_for_week(
                     )
                 }
 
+        # 週の開始日から年月を取得
+        start_date = row['start_date']
+        year = start_date.year
+        month = start_date.month
+
         item = {
+            "year": year,
+            "month": month,
             "week": int(row['week']),
             "start_date": row['start_date'].strftime('%Y-%m-%d'),
             "end_date": row['end_date'].strftime('%Y-%m-%d'),

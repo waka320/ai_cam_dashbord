@@ -37,7 +37,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
       dataMap[key] = item;
     });
 
-    const years = Array.from(yearsSet).sort((a, b) => a - b);
+    const years = Array.from(yearsSet).sort((a, b) => b - a); // 降順（新しい順）
     const months = Array.from(monthsSet).sort((a, b) => a - b);
 
     return { years, months, matrix: dataMap };
