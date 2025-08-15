@@ -5,6 +5,7 @@ import { useColorPalette } from '../../contexts/ColorPaletteContext';
 import { useCalendar } from '../../contexts/CalendarContext';
 import AnalysisInfoButton from '../ui/AnalysisInfoButton';
 import CongestionLegend from '../common/CongestionLegend';
+import WeatherIcon from '../ui/WeatherIcon';
 
 function WeeklyTrendGrid({ data, loading, isMobile }) {
   const { getCellColor, getTextColor } = useColorPalette();
@@ -17,6 +18,36 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
     const parts = selectedLocation.split('/');
     const filename = parts[parts.length - 1];
     return filename.replace('.csv', '');
+  };
+
+  // 週番号から日付範囲を計算する関数
+  const getWeekDateRange = (weekNumber, year = 2024) => {
+    // 1月1日を基準にして週番号から日付範囲を計算
+    const startOfYear = new Date(year, 0, 1); // 1月1日
+    
+    // 1月1日が何曜日かを取得（0: 日曜日, 1: 月曜日, ..., 6: 土曜日）
+    const dayOfWeek = startOfYear.getDay();
+    
+    // 第1週の開始日を計算（日曜日始まり）
+    const firstWeekStart = new Date(startOfYear);
+    firstWeekStart.setDate(startOfYear.getDate() - dayOfWeek);
+    
+    // 指定された週の開始日を計算
+    const weekStart = new Date(firstWeekStart);
+    weekStart.setDate(firstWeekStart.getDate() + (weekNumber - 1) * 7);
+    
+    // 週の終了日を計算（開始日から6日後）
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    
+    // 日付をフォーマット
+    const formatDate = (date) => {
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      return `${month}/${day}`;
+    };
+    
+    return `${formatDate(weekStart)}~${formatDate(weekEnd)}`;
   };
 
   if (loading) {
@@ -151,13 +182,16 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
             display: 'grid', 
             gridTemplateColumns: isMobile ? 
               (isSmallMobile ? 'repeat(2, 1fr)' : 'repeat(3, 1fr)') : 
-              'repeat(auto-fit, minmax(120px, 1fr))', 
+              'repeat(auto-fit, minmax(140px, 1fr))', 
             gap: isMobile ? 1 : 1.2
           }}>
             {data.map((weekData, index) => {
               const congestionLevel = weekData.congestion || 1;
               const backgroundColor = getCellColor(congestionLevel);
               const textColor = getTextColor(congestionLevel);
+              
+              // 日付範囲を取得（データに含まれていない場合は計算）
+              const dateRange = weekData.date_range || getWeekDateRange(weekData.week);
               
               return (
                 <Box 
@@ -169,7 +203,7 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                     borderRadius: '4px',
                     border: '1px solid rgba(0, 0, 0, 0.1)',
                     overflow: 'hidden',
-                    height: isMobile ? (isSmallMobile ? '80px' : '90px') : '100px',
+                    height: isMobile ? (isSmallMobile ? '85px' : '95px') : '105px',
                     position: 'relative',
                     cursor: 'default'
                   }}
@@ -181,38 +215,36 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: isSmallMobile ? '3px' : '5px',
+                    gap: isSmallMobile ? '2px' : '3px',
                     p: 0.5,
                     color: congestionLevel === 0 ? '#666' : textColor,
                   }}>
-                    {/* 週表示 - Calendar.jsと同じサイズ */}
+                    {/* 年表示 */}
                     <Typography 
                       sx={{
-                        fontSize: isSmallMobile ? '12px' : isMobile ? '14px' : '16px',
+                        fontSize: isSmallMobile ? '10px' : isMobile ? '11px' : '12px',
+                        lineHeight: '1',
+                        fontWeight: '500',
+                        textAlign: 'center',
+                        color: congestionLevel === 0 ? '#666' : textColor,
+                        opacity: 0.8
+                      }}
+                    >
+                      2024年
+                    </Typography>
+
+                    {/* 日付範囲表示 */}
+                    <Typography 
+                      sx={{
+                        fontSize: isSmallMobile ? '11px' : isMobile ? '12px' : '14px',
                         lineHeight: '1',
                         fontWeight: '500',
                         textAlign: 'center',
                         color: congestionLevel === 0 ? '#666' : textColor,
                       }}
                     >
-                      第{weekData.week}週
+                      {dateRange}
                     </Typography>
-
-                    {/* 日付範囲表示 */}
-                    {weekData.date_range && (
-                      <Typography 
-                        sx={{
-                          fontSize: isSmallMobile ? '9px' : '10px',
-                          lineHeight: '1',
-                          textAlign: 'center',
-                          color: congestionLevel === 0 ? '#666' : textColor,
-                          opacity: 0.7,
-                          marginBottom: '2px'
-                        }}
-                      >
-                        {weekData.date_range}
-                      </Typography>
-                    )}
                     
                     {/* 混雑度表示 - Calendar.jsと同じサイズ */}
                     <Typography 
@@ -222,6 +254,7 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                         fontWeight: 'bold',
                         textAlign: 'center',
                         color: congestionLevel === 0 ? '#666' : 'inherit',
+                        mt: '2px'
                       }}
                     >
                       {congestionLevel === 0 ? '-' : congestionLevel}
@@ -240,6 +273,24 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                       borderRadius: '50%',
                       boxShadow: '0 1px 2px rgba(0,0,0,0.3)'
                     }} />
+                  )}
+
+                  {weekData && weekData.weather_info && (
+                    <Box sx={{
+                      width: '100%',
+                      height: isSmallMobile ? '12px' : '14px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '1px'
+                    }}>
+                      <WeatherIcon 
+                        weather={weekData.weather_info.weather}
+                        size="small"
+                        showTemp={false}
+                      />
+                    </Box>
                   )}
                 </Box>
               );

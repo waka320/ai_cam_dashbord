@@ -19,6 +19,30 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
     return filename.replace('.csv', '');
   };
 
+  // データを年×月のマトリックス形式に変換
+  const organizeDataForHeatmap = (rawData) => {
+    if (!rawData || !Array.isArray(rawData) || rawData.length === 0) {
+      return { years: [], months: [], matrix: {} };
+    }
+
+    // 年と月の一覧を取得
+    const yearsSet = new Set();
+    const monthsSet = new Set();
+    const dataMap = {};
+
+    rawData.forEach(item => {
+      yearsSet.add(item.year);
+      monthsSet.add(item.month);
+      const key = `${item.year}-${item.month}`;
+      dataMap[key] = item;
+    });
+
+    const years = Array.from(yearsSet).sort((a, b) => a - b);
+    const months = Array.from(monthsSet).sort((a, b) => a - b);
+
+    return { years, months, matrix: dataMap };
+  };
+
   if (loading) {
     return (
       <Box sx={{ 
@@ -77,6 +101,9 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
       </Box>
     );
   }
+
+  // データをマトリックス形式に変換
+  const { years, months, matrix } = organizeDataForHeatmap(data);
 
   if (!data || !Array.isArray(data) || data.length === 0) {
     return (
@@ -138,96 +165,184 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
         />
       </Box>
 
-      {/* メインコンテナ */}
+      {/* ヒートマップ形式のコンテナ */}
       <Box sx={{ 
         border: '1px solid #ddd', 
         borderRadius: '8px', 
         overflow: 'hidden',
         width: '100%'
       }}>
-        {/* データグリッド */}
-        <Box sx={{ p: isMobile ? 1 : 1.5 }}>
+        {/* スクロール可能なコンテンツエリア */}
+        <Box sx={{ 
+          display: 'flex',
+          position: 'relative',
+        }}>
+          {/* 年ラベル列 - 垂直方向に固定 */}
           <Box sx={{ 
-            display: 'grid', 
-            gridTemplateColumns: isMobile ? 
-              (isSmallMobile ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)') : 
-              'repeat(6, 1fr)', 
-            gap: isMobile ? 0.8 : 1
+            display: 'flex',
+            flexDirection: 'column',
+            width: isMobile ? '50px' : '60px', 
+            minWidth: isMobile ? '50px' : '60px',
+            position: 'sticky',
+            left: 0,
+            zIndex: 2,
+            boxShadow: '2px 0 4px rgba(0,0,0,0.05)'
           }}>
-            {data.map((monthData, index) => {
-              const congestionLevel = monthData.congestion || 1;
-              const backgroundColor = getCellColor(congestionLevel);
-              const textColor = getTextColor(congestionLevel);
-              
-              return (
+            {/* 左上角（年ヘッダー） */}
+            <Box sx={{ 
+              borderRight: '1px solid #ddd',
+              borderBottom: '1px solid #ddd',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: isMobile ? '5px 2px' : '10px 5px',
+              backgroundColor: '#f5f5f5',
+              height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
+            }}>
+              <Typography 
+                variant={isSmallMobile ? "bodyS" : "bodyM"} 
+                fontWeight="bold"
+              >
+               
+              </Typography>
+            </Box>
+
+            {/* 年ラベル */}
+            {years.map((year, rowIndex) => (
+              <Box 
+                key={`year-label-${year}`}
+                sx={{ 
+                  borderRight: '1px solid #ddd',
+                  borderBottom: rowIndex !== years.length - 1 ? '1px solid #ddd' : 'none',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  padding: isMobile ? '4px 0' : '8px 0',
+                  backgroundColor: '#f9f9f9',
+                  height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
+                }}
+              >
+                <Typography 
+                  variant={isSmallMobile ? "bodyS" : "bodyM"} 
+                  fontWeight="bold"
+                >
+                  {year}年
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+          
+          {/* セルとヘッダーのスクロール可能なエリア */}
+          <Box sx={{ 
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            WebkitOverflowScrolling: 'touch',
+            zIndex: 1,
+            '&::-webkit-scrollbar': {
+              height: '8px',
+              width: '8px'
+            },
+            '&::-webkit-scrollbar-track': {
+              backgroundColor: '#f1f1f1',
+              borderRadius: '4px'
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: '#c1c1c1',
+              borderRadius: '4px'
+            }
+          }}>
+            {/* 月ヘッダー */}
+            <Box sx={{ 
+              display: 'flex',
+              backgroundColor: '#f5f5f5',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.08)',
+            }}>
+              {months.map(month => (
                 <Box 
-                  key={monthData.month || index}
-                  sx={{
+                  key={`month-${month}`} 
+                  sx={{ 
+                    minWidth: isMobile ? (isSmallMobile ? '50px' : '60px') : '70px',
+                    width: isMobile ? (isSmallMobile ? '50px' : '60px') : '70px',
+                    textAlign: 'center', 
+                    padding: isMobile ? '4px 2px' : '6px 2px',
+                    borderRight: month !== months[months.length - 1] ? '1px solid #ddd' : 'none',
+                    borderBottom: '1px solid #ddd',
+                    flexShrink: 0,
+                    height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
                     display: 'flex',
-                    flexDirection: 'column',
-                    backgroundColor: congestionLevel === 0 ? '#e0e0e0' : backgroundColor,
-                    borderRadius: '4px',
-                    border: '1px solid rgba(0, 0, 0, 0.1)',
-                    overflow: 'hidden',
-                    height: isMobile ? (isSmallMobile ? '65px' : '75px') : '85px',
-                    position: 'relative',
-                    cursor: 'default'
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
                 >
-                  {/* メインコンテンツエリア */}
-                  <Box sx={{ 
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: isSmallMobile ? '3px' : '5px',
-                    p: 0.5,
-                    color: congestionLevel === 0 ? '#666' : textColor,
-                  }}>
-                    {/* 月表示 - Calendar.jsと同じサイズ */}
-                    <Typography 
-                      sx={{
-                        fontSize: isSmallMobile ? '13px' : isMobile ? '15px' : '17px',
-                        lineHeight: '1',
-                        fontWeight: '500',
-                        textAlign: 'center',
-                        color: congestionLevel === 0 ? '#666' : textColor,
-                      }}
-                    >
-                      {monthData.month}月
-                    </Typography>
-                    
-                    {/* 混雑度表示 - Calendar.jsと同じサイズ */}
-                    <Typography 
-                      sx={{ 
-                        fontSize: isMobile ? (isSmallMobile ? '24px' : '28px') : '32px',
-                        lineHeight: '1',
-                        fontWeight: 'bold',
-                        textAlign: 'center',
-                        color: congestionLevel === 0 ? '#666' : 'inherit',
-                      }}
-                    >
-                      {congestionLevel === 0 ? '-' : congestionLevel}
-                    </Typography>
-                  </Box>
-
-                  {/* ハイライト表示 */}
-                  {monthData.highlighted && (
-                    <Box sx={{
-                      position: 'absolute',
-                      top: 1,
-                      right: 1,
-                      width: 6,
-                      height: 6,
-                      backgroundColor: '#ff9800',
-                      borderRadius: '50%',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.3)'
-                    }} />
-                  )}
+                  <Typography 
+                    variant={isSmallMobile ? "bodyS" : "bodyM"}
+                    fontWeight="bold"
+                  >
+                    {month}月
+                  </Typography>
                 </Box>
-              );
-            })}
+              ))}
+            </Box>
+
+            {/* 年ごとのセル（行） */}
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              {years.map((year, rowIndex) => (
+                <Box 
+                  key={`year-row-${year}`} 
+                  sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'row'
+                  }}
+                >
+                  {/* 月ごとのセル */}
+                  {months.map((month, colIndex) => {
+                    const cellData = matrix[`${year}-${month}`];
+                    const congestion = cellData ? cellData.congestion : 0;
+                    const totalCount = cellData ? cellData.total_count : 0;
+                    
+                    return (
+                      <Box 
+                        key={`${year}-${month}`}
+                        sx={{ 
+                          minWidth: isMobile ? (isSmallMobile ? '50px' : '60px') : '70px',
+                          width: isMobile ? (isSmallMobile ? '50px' : '60px') : '70px',
+                          height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          backgroundColor: congestion === 0 ? '#e0e0e0' : getCellColor(congestion),
+                          borderRight: colIndex !== months.length - 1 ? '1px solid #ddd' : 'none',
+                          borderBottom: rowIndex !== years.length - 1 ? '1px solid #ddd' : 'none',
+                          position: 'relative',
+                          cursor: 'default',
+                          flexShrink: 0,
+                        }}
+                        title={`${year}年${month}月 ${congestion === 0 ? '(データなし)' : `混雑度: ${congestion} (人数: ${totalCount})`}`}
+                      >
+                        {/* メインコンテンツエリア */}
+                        <Box sx={{ 
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: congestion === 0 ? '#666' : getTextColor(congestion),
+                        }}>
+                          <Typography 
+                            sx={{ 
+                              fontSize: isMobile ? (isSmallMobile ? '18px' : '20px') : '22px',
+                              lineHeight: '1',
+                              fontWeight: 'bold',
+                              textAlign: 'center'
+                            }}
+                          >
+                            {congestion === 0 ? '-' : congestion}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              ))}
+            </Box>
           </Box>
         </Box>
       </Box>
@@ -245,11 +360,13 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
 
 MonthlyTrendGrid.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({
+    year: PropTypes.number.isRequired,
     month: PropTypes.number.isRequired,
     congestion: PropTypes.number.isRequired,
     total_count: PropTypes.number,
     highlighted: PropTypes.bool,
     highlight_reason: PropTypes.string,
+    weather_info: PropTypes.object,
   })),
   loading: PropTypes.bool.isRequired,
   isMobile: PropTypes.bool.isRequired,

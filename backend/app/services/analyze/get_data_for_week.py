@@ -1,9 +1,5 @@
 import pandas as pd
-import calendar
-from typing import List, Dict, Optional, Tuple, Any
-from datetime import datetime, timedelta
-import os
-import glob
+from typing import List, Dict, Any
 
 # 各場所の混雑度境界値の定義（週単位用）
 CONGESTION_THRESHOLDS_WEEK = {
@@ -20,24 +16,20 @@ CONGESTION_THRESHOLDS_WEEK = {
     'old-town': (5950, 49000),
     'gyouzinbashi': (2100, 9800),
     'station': (2800, 14700),
-    # デフォルト値
     'default': (16100, 66500)
 }
 
-def get_data_for_week(df: pd.DataFrame, year: int, month: int, place: str = 'default', weather_data: Dict[int, List[Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
+
+def get_data_for_week(
+    df: pd.DataFrame,
+    year: int,
+    month: int,
+    place: str = 'default',
+    weather_data: Dict[int, List[Dict[str, Any]]] = None
+) -> List[Dict[str, Any]]:
     """
     DataFrameから歩行者データを取得し、週単位で混雑度を計算する。
     混雑度を10段階で計算する。
-    
-    Args:
-        df: 分析対象のDataFrame
-        year: 年
-        month: 月
-        place: 場所の名前（CSVファイル名から拡張子を除いたもの）
-        weather_data: 天気データ
-
-    Returns:
-        List[Dict[str, Any]]: [{"week": 週番号, "start_date": 開始日, "end_date": 終了日, "congestion": 混雑度, "total_count": 合計人数}, ...] の形式で返す
     """
     # 人のデータのみをフィルタリング
     df_person = df[df['name'] == 'person']
@@ -61,7 +53,11 @@ def get_data_for_week(df: pd.DataFrame, year: int, month: int, place: str = 'def
     df_month['date_only'] = df_month[date_col].dt.date
 
     # 日ごとの歩行者数を集計
-    daily_counts = df_month.groupby('date_only')['count_1_hour'].sum().reset_index()
+    daily_counts = (
+        df_month.groupby('date_only')['count_1_hour']
+        .sum()
+        .reset_index()
+    )
     daily_counts['datetime'] = pd.to_datetime(daily_counts['date_only'])
 
     # 週番号を追加（ISO週番号）
@@ -69,51 +65,98 @@ def get_data_for_week(df: pd.DataFrame, year: int, month: int, place: str = 'def
     daily_counts['year'] = daily_counts['datetime'].dt.isocalendar().year
 
     # 週ごとの歩行者数を集計
-    weekly_counts = daily_counts.groupby(['year', 'week']).agg({
-        'count_1_hour': 'sum',
-        'datetime': ['min', 'max']
-    }).reset_index()
+    weekly_counts = (
+        daily_counts.groupby(['year', 'week'])
+        .agg({
+            'count_1_hour': 'sum',
+            'datetime': ['min', 'max', 'nunique']
+        })
+        .reset_index()
+    )
 
     # カラム名を平坦化
-    weekly_counts.columns = ['year', 'week', 'total_count', 'start_date', 'end_date']
+    weekly_counts.columns = [
+        'year',
+        'week',
+        'total_count',
+        'start_date',
+        'end_date',
+        'days_with_data'
+    ]
+
+    # 欠損期間（週）を除外
+    weekly_counts['calendar_days'] = (
+        (weekly_counts['end_date'] - weekly_counts['start_date']).dt.days + 1
+    )
+    weekly_counts['coverage_ratio'] = (
+        weekly_counts['days_with_data'] / weekly_counts['calendar_days']
+    )
+    coverage_threshold_ratio = 0.6
+    weekly_counts = weekly_counts[
+        weekly_counts['coverage_ratio'] >= coverage_threshold_ratio
+    ]
+    weekly_counts = weekly_counts.drop(
+        columns=['days_with_data', 'calendar_days', 'coverage_ratio']
+    )
 
     # 場所に応じた混雑度の境界値を取得
-    min_threshold, max_threshold = CONGESTION_THRESHOLDS_WEEK.get(place, CONGESTION_THRESHOLDS_WEEK['default'])
+    min_threshold, max_threshold = CONGESTION_THRESHOLDS_WEEK.get(
+        place, CONGESTION_THRESHOLDS_WEEK['default']
+    )
 
     # データの平均値を計算（混雑度5,6の境界値）
     if not weekly_counts.empty:
-        middle_threshold = weekly_counts['total_count'].mean()
+        middle_raw = weekly_counts['total_count'].mean()
     else:
-        middle_threshold = (min_threshold + max_threshold) / 2
+        middle_raw = (min_threshold + max_threshold) / 2
 
-    # 混雑度1,2〜5,6の間の段階的な境界値を計算
+    # middle を安全な範囲にクランプ（min < middle < max）
+    # 下限・上限と同一/逆転になると bins が単調でなくなるため
+    middle_threshold = max(
+        min(middle_raw, max_threshold - 1),
+        min_threshold + 1
+    )
+
+    # 段階的な境界値（非正の場合は後続で調整）
     step_lower = (middle_threshold - min_threshold) / 4
-
-    # 混雑度5,6〜9,10の間の段階的な境界値を計算
     step_upper = (max_threshold - middle_threshold) / 4
 
-    # 境界値のリストを作成
-    bins = [0, 1]  # 0=データなし, 1以上=データあり
-    bins.append(min_threshold)  # 混雑度1,2の境界
+    # 境界値（厳密に単調増加にする）
+    bins = [0, 1, float(min_threshold)]
 
-    # 混雑度2,3、3,4、4,5の境界値
+    # 下側の中間境界
+    last = bins[-1]
     for i in range(1, 4):
-        bins.append(min_threshold + i * step_lower)
+        val = min_threshold + i * step_lower
+        if val <= last:
+            val = last + 1
+        bins.append(float(val))
+        last = val
 
-    # 混雑度5,6の境界値
-    bins.append(middle_threshold)
+    # middle 境界
+    val = float(middle_threshold)
+    if val <= last:
+        val = last + 1
+    bins.append(val)
+    last = val
 
-    # 混雑度6,7、7,8、8,9の境界値
+    # 上側の中間境界
     for i in range(1, 4):
-        bins.append(middle_threshold + i * step_upper)
+        val = middle_threshold + i * step_upper
+        if val <= last:
+            val = last + 1
+        bins.append(float(val))
+        last = val
 
-    # 混雑度9,10の境界値
-    bins.append(max_threshold)
+    # 上限境界
+    val = float(max_threshold)
+    if val <= last:
+        val = last + 1
+    bins.append(val)
 
-    # 最後に無限大を追加（レベル10の上限）
+    # 最上限
     bins.append(float('inf'))
 
-    # 定義した境界値に基づいて混雑度レベルを割り当て
     weekly_counts['congestion'] = pd.cut(
         weekly_counts['total_count'],
         bins=bins,
@@ -124,6 +167,9 @@ def get_data_for_week(df: pd.DataFrame, year: int, month: int, place: str = 'def
 
     # 結果を整形
     result = []
+
+    weekly_counts = weekly_counts.sort_values(by=['year', 'week'])
+
     for _, row in weekly_counts.iterrows():
         # 週の天気データを集計
         week_weather = None
@@ -134,21 +180,37 @@ def get_data_for_week(df: pd.DataFrame, year: int, month: int, place: str = 'def
             for day in range(start_day, end_day + 1):
                 if day in weather_data:
                     week_weather_data.extend(weather_data[day])
-            
             if week_weather_data:
-                # 最も頻繁に出現する天気を取得
                 weather_list = [wd['weather'] for wd in week_weather_data]
-                most_common = max(set(weather_list), key=weather_list.count) if weather_list else None
-                avg_temp = sum(wd['temperature'] for wd in week_weather_data if wd['temperature'] is not None) / len([wd for wd in week_weather_data if wd['temperature'] is not None]) if any(wd['temperature'] is not None for wd in week_weather_data) else None
-                total_rain = sum(wd['rain'] for wd in week_weather_data if wd['rain'] is not None) if any(wd['rain'] is not None for wd in week_weather_data) else None
-                
+                most_common = (
+                    max(set(weather_list), key=weather_list.count)
+                    if weather_list else None
+                )
+                temps = [
+                    wd['temperature'] for wd in week_weather_data
+                    if wd.get('temperature') is not None
+                ]
+                avg_temp = (sum(temps) / len(temps)) if temps else None
+                rains = [
+                    wd['rain'] for wd in week_weather_data
+                    if wd.get('rain') is not None
+                ]
+                total_rain = sum(rains) if rains else None
                 week_weather = {
                     'weather': most_common,
-                    'avg_temperature': round(avg_temp, 1) if avg_temp is not None else None,
-                    'total_rain': round(total_rain, 1) if total_rain is not None else None
+                    'avg_temperature': (
+                        round(avg_temp, 1)
+                        if avg_temp is not None
+                        else None
+                    ),
+                    'total_rain': (
+                        round(total_rain, 1)
+                        if total_rain is not None
+                        else None
+                    )
                 }
 
-        result.append({
+        item = {
             "week": int(row['week']),
             "start_date": row['start_date'].strftime('%Y-%m-%d'),
             "end_date": row['end_date'].strftime('%Y-%m-%d'),
@@ -156,7 +218,19 @@ def get_data_for_week(df: pd.DataFrame, year: int, month: int, place: str = 'def
             "total_count": int(row['total_count']),
             "highlighted": False,
             "highlight_reason": "",
-            "weather_info": week_weather
-        })
+            "weather_info": week_weather,
+        }
+
+        try:
+            start = row['start_date']
+            end = row['end_date']
+            item['date_range'] = (
+                f"{start.strftime('%-m/%-d')}~"
+                f"{end.strftime('%-m/%-d')}"
+            )
+        except Exception:
+            pass
+
+        result.append(item)
 
     return result

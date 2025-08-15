@@ -70,7 +70,8 @@ function DateSelect({
 
   // 表示する必要がない場合（条件分岐はHooksの後に配置）
   if (selectedAction === 'today_details' || 
-      selectedAction === 'year_trend') {  // 年ごと傾向では年月選択不要
+      selectedAction === 'year_trend' ||
+      selectedAction === 'month_trend') {  // 年ごと傾向・月ごと傾向では年月選択不要
     return null;
   }
 

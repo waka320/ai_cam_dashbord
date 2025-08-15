@@ -1,18 +1,23 @@
 from fastapi import APIRouter, HTTPException
 import os
 import pandas as pd
-from app.services.analyze import get_data_for_calendar250414 as calendar_service
+from app.services.analyze import (
+    get_data_for_calendar250414 as calendar_service,
+)
 from app.services.analyze import get_data_for_week_time250522
 from app.services.analyze import get_data_for_date_time250504
 from app.services.analyze import get_data_for_year
-from app.services.analyze import get_data_for_month  
+from app.services.analyze import get_data_for_month
 from app.services.analyze import get_data_for_week
 from app.services.ai_service_debug import analyze_csv_data_debug
-from app.services.highlighter_service import highlight_calendar_data, highlight_week_time_data, highlight_date_time_data
+from app.services.highlighter_service import (
+    highlight_calendar_data,
+    highlight_week_time_data,
+    highlight_date_time_data,
+)
 from app.services.weather.weather_service import weather_service
-from app.models import GraphRequest, GraphResponse, DayWithHours, WeatherInfo
+from app.models import GraphRequest, GraphResponse, WeatherInfo
 import time
-from datetime import datetime, timedelta
 
 router = APIRouter()
 
@@ -21,16 +26,17 @@ cache = {}
 # キャッシュの有効期限（1日 = 86400秒）
 CACHE_EXPIRY = 86400
 
+
 @router.post("/api/get-graph")
 async def get_graph(request: GraphRequest):
     place = request.place
     year = request.year
     month = request.month
     action = request.action
-    
+
     # キャッシュキーの作成
     cache_key = f"{place}_{year}_{month}_{action}"
-    
+
     # キャッシュが存在し、期限内であれば、キャッシュから返す
     current_time = time.time()
     if cache_key in cache:
@@ -42,13 +48,14 @@ async def get_graph(request: GraphRequest):
             # 期限切れのキャッシュを削除
             del cache[cache_key]
             print(f"Cache expired for {cache_key}")
-    
+
     # キャッシュがない場合、通常の処理を実行
     csv_file_path = f"app/data/meidai/{place}.csv"
     if not os.path.exists(csv_file_path):
         raise HTTPException(
-            status_code=404, detail="CSV file not found for the given place")
-    
+            status_code=404, detail="CSV file not found for the given place"
+        )
+
     try:
         # CSVファイルを読み込む
         df = pd.read_csv(csv_file_path)
@@ -58,8 +65,10 @@ async def get_graph(request: GraphRequest):
         weather_data = None
         if year and month:
             # 既存のメソッドを使用して天気データを取得
-            weather_data = weather_service.get_daily_weather_summary(year, month)
-        
+            weather_data = weather_service.get_daily_weather_summary(
+                year, month
+            )
+
         # アクションに応じてデータを処理
         if action == "year_trend":
             # 年ごとの傾向分析
@@ -74,17 +83,19 @@ async def get_graph(request: GraphRequest):
                     yearly_weather_data[wd['day']].append({
                         'weather': wd['weather'],
                         'temperature': wd['avg_temperature'],
-                        'rain': wd['total_rain']
+                        'rain': wd['total_rain'],
                     })
-            
-            trend_data = get_data_for_year.get_data_for_year(df, place, yearly_weather_data)
+
+            trend_data = get_data_for_year.get_data_for_year(
+                df, place, yearly_weather_data
+            )
             response_data = {
                 "type": "year_trend",
                 "data": trend_data,
                 "ai_analysis": "",
-                "highlighted_info": None
+                "highlighted_info": None,
             }
-            
+
         elif action == "month_trend":
             # 月ごとの傾向分析（指定年の全月）
             # 月単位でも天気データの形式を変更
@@ -97,17 +108,19 @@ async def get_graph(request: GraphRequest):
                     monthly_weather_data[wd['day']].append({
                         'weather': wd['weather'],
                         'temperature': wd['avg_temperature'],
-                        'rain': wd['total_rain']
+                        'rain': wd['total_rain'],
                     })
-            
-            trend_data = get_data_for_month.get_data_for_month(df, year, place, monthly_weather_data)
+
+            trend_data = get_data_for_month.get_data_for_month(
+                df, year, place, monthly_weather_data
+            )
             response_data = {
-                "type": "month_trend", 
+                "type": "month_trend",
                 "data": trend_data,
                 "ai_analysis": "",
-                "highlighted_info": None
+                "highlighted_info": None,
             }
-            
+
         elif action == "week_trend":
             # 週ごとの傾向分析（指定年月の全週）
             # 週単位でも天気データの形式を変更
@@ -120,36 +133,54 @@ async def get_graph(request: GraphRequest):
                     weekly_weather_data[wd['day']].append({
                         'weather': wd['weather'],
                         'temperature': wd['avg_temperature'],
-                        'rain': wd['total_rain']
+                        'rain': wd['total_rain'],
                     })
-            
-            trend_data = get_data_for_week.get_data_for_week(df, year, month, place, weekly_weather_data)
+
+            trend_data = get_data_for_week.get_data_for_week(
+                df, year, month, place, weekly_weather_data
+            )
             response_data = {
                 "type": "week_trend",
-                "data": trend_data, 
+                "data": trend_data,
                 "ai_analysis": "",
-                "highlighted_info": None
+                "highlighted_info": None,
             }
-            
+
         else:
             # 既存のアクション処理
             # アクションに応じたデータ生成とハイライト
             if action[:3] == "cal":
                 # カレンダーデータの作成 - placeをファイル名から抽出して渡す
                 place_name = os.path.splitext(os.path.basename(place))[0]
-                data = calendar_service.get_data_for_calendar(df, year, month, place_name, weather_data)
+                data = calendar_service.get_data_for_calendar(
+                    df, year, month, place_name, weather_data
+                )
                 # ハイライト処理
                 data = highlight_calendar_data(data, action)
             elif action[:3] == "wti":
                 # 曜日×時間帯データの作成
-                week_weather_data = weather_service.get_weather_for_week_time(year, month)
-                data = get_data_for_week_time250522.get_data_for_week_time(csv_file_path, year, month, week_weather_data)
+                week_weather_data = weather_service.get_weather_for_week_time(
+                    year, month
+                )
+                data = get_data_for_week_time250522.get_data_for_week_time(
+                    csv_file_path, year, month, week_weather_data
+                )
                 # ハイライト処理
                 data = highlight_week_time_data(data, action)
             elif action[:3] == "dti":
                 # 日付×時間帯データの作成
-                date_time_weather_data = weather_service.get_weather_for_date_time(year, month)
-                data = get_data_for_date_time250504.get_data_for_date_time(df, year, month, place, date_time_weather_data)
+                date_time_weather_data = (
+                    weather_service.get_weather_for_date_time(
+                        year, month
+                    )
+                )
+                data = get_data_for_date_time250504.get_data_for_date_time(
+                    df,
+                    year,
+                    month,
+                    place,
+                    date_time_weather_data,
+                )
                 # ハイライト処理
                 data = highlight_date_time_data(data, action)
             else:
@@ -158,8 +189,10 @@ async def get_graph(request: GraphRequest):
                 print(f"Warning: Unsupported action: {action}")
 
             # AIアドバイスの生成
-            ai_advice = await analyze_csv_data_debug(csv_file_path, year, month, action)
-            
+            ai_advice = await analyze_csv_data_debug(
+                csv_file_path, year, month, action
+            )
+
             # 天気データの取得
             weather_info_list = [
                 WeatherInfo(
@@ -167,29 +200,34 @@ async def get_graph(request: GraphRequest):
                     date=wd['date'],
                     weather=wd['weather'],
                     avg_temperature=wd['avg_temperature'],
-                    total_rain=wd['total_rain']
-                ) for wd in weather_data or []
+                    total_rain=wd['total_rain'],
+                )
+                for wd in weather_data or []
             ]
-            
+
             response = GraphResponse(
-                graph=f"Graph for {place} in {year}/{month}",
+                graph=(
+                    f"Graph for {place} in {year}/{month}"
+                ),
                 data=data,
                 ai_advice=ai_advice,
-                weather_data=weather_info_list
+                weather_data=weather_info_list,
             )
-            
+
             # キャッシュにレスポンスを保存
             cache[cache_key] = (response, current_time)
             print(f"Cache set for {cache_key}")
-            
+
             return response
-        
+
         # 新しい傾向分析の場合はここで返す
         if action in ["year_trend", "month_trend", "week_trend"]:
             # AIアドバイスの生成
-            ai_advice = await analyze_csv_data_debug(csv_file_path, year, month, action)
+            ai_advice = await analyze_csv_data_debug(
+                csv_file_path, year, month, action
+            )
             response_data["ai_analysis"] = ai_advice
-            
+
             # 天気データの整形
             weather_info_list = []
             if weather_data:
@@ -199,44 +237,48 @@ async def get_graph(request: GraphRequest):
                         date=wd['date'],
                         weather=wd['weather'],
                         avg_temperature=wd['avg_temperature'],
-                        total_rain=wd['total_rain']
-                    ) for wd in weather_data
+                        total_rain=wd['total_rain'],
+                    )
+                    for wd in weather_data
                 ]
-            
+
             response = GraphResponse(
                 graph=f"Trend analysis for {place}",
                 data=response_data["data"],
                 ai_advice=response_data["ai_analysis"],
                 weather_data=weather_info_list,
                 type=response_data["type"],
-                highlighted_info=response_data["highlighted_info"]
+                highlighted_info=response_data["highlighted_info"],
             )
-            
+
             # キャッシュにレスポンスを保存
             cache[cache_key] = (response, current_time)
             print(f"Cache set for {cache_key}")
-            
+
             return response
-        
+
     except Exception as e:
         # エラーが発生した場合はより詳細な情報を提供
         print(f"Error processing request: {str(e)}")
         import traceback
         print(traceback.format_exc())
         raise HTTPException(
-            status_code=500, 
-            detail=f"Error processing data: {str(e)}"
+            status_code=500,
+            detail=f"Error processing data: {str(e)}",
         )
+
 
 # キャッシュのクリーンアップ関数（定期的に実行する場合）
 def cleanup_cache():
     """期限切れのキャッシュエントリを削除します"""
     current_time = time.time()
-    expired_keys = [key for key, (_, timestamp) in cache.items() 
-                   if current_time - timestamp > CACHE_EXPIRY]
-    
+    expired_keys = [
+        key for key, (_, timestamp) in cache.items()
+        if current_time - timestamp > CACHE_EXPIRY
+    ]
+
     for key in expired_keys:
         del cache[key]
-    
+
     if expired_keys:
         print(f"Cleaned up {len(expired_keys)} expired cache entries")
