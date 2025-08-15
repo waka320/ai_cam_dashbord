@@ -49,7 +49,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
         maxWidth: '100%', 
         margin: '0 auto', 
         mt: 2, 
-        px: isMobile ? 1 : 2
+        px: isMobile ? 0.5 : 1 /* パディング削減 */
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
           <Typography 
@@ -111,7 +111,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
         maxWidth: '100%', 
         margin: '0 auto', 
         mt: 2, 
-        px: isMobile ? 1 : 2
+        px: isMobile ? 0.5 : 1 /* パディング削減 */
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
           <Typography 

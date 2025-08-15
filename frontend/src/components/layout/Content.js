@@ -185,7 +185,7 @@ function Content() {
             <Box sx={{
                 backgroundColor: 'rgba(249, 250, 251, 0.6)',
                 borderRadius: isMobile ? '0' : '8px',
-                padding: isMobile ? '8px 8px 16px' : '16px 24px 24px',
+                padding: isMobile ? '6px 4px 12px' : '12px 8px 16px', /* 大幅削減 */
                 boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)',
                 flex: '1 0 auto'
             }}>
@@ -195,13 +195,13 @@ function Content() {
                     sx={{ 
                         display: 'flex', 
                         flexDirection: isMobile ? 'column' : 'row',
-                        gap: isMobile ? 2 : 3
+                        gap: isMobile ? 1 : 1.5 /* gap削減 */
                     }}
                 >
                     <Box sx={{ 
                         flex: isMobile ? 'auto' : '1 1 auto',  // 可能な限り拡大するが
                         width: '100%',
-                        maxWidth: isMobile ? '100%' : 'calc(100% - 340px)', // AIセクション用に幅を確保（余白も含む）
+                        maxWidth: isMobile ? '100%' : 'calc(100% - 325px)', // AIセクション用の幅確保を最小化
                     }}>
                         {renderVisualization()}
                     </Box>

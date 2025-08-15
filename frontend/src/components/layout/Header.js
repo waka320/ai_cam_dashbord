@@ -135,7 +135,7 @@ function Header() {
           {!isSpecialPage() && (
             <Paper elevation={0} sx={{
               backgroundColor: 'transparent',
-              margin: isScrolled ? (isMobile ? '1px 4px' : '3px 6px') : (isMobile ? '4px 8px' : '8px 12px'),
+              margin: isScrolled ? (isMobile ? '1px 2px' : '2px 4px') : (isMobile ? '2px 4px' : '4px 6px'), /* マージン削減 */
               borderRadius: '8px',
               padding: isScrolled ? (isMobile ? '3px' : '4px') : (isMobile ? '6px' : '8px'),
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',

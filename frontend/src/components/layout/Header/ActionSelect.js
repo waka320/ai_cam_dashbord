@@ -35,7 +35,7 @@ function ActionSelect({
     { value: "dti_cog", label: "日時形式の混雑度が見たい", shortLabel: "日時形式混雑度を見る" },
     { value: "wti_cog", label: "曜日形式の混雑度が見たい", shortLabel: "曜日形式混雑度を見る" },
     // 新しい傾向分析オプション
-    { value: "year_trend", label: "年ごとの傾向を見たい", shortLabel: "年ごとの傾向を見る" },
+    // { value: "year_trend", label: "年ごとの傾向を見たい", shortLabel: "年ごとの傾向を見る" },
     { value: "month_trend", label: "月ごとの傾向を見たい", shortLabel: "月ごとの傾向を見る" },
     { value: "week_trend", label: "週ごとの傾向を見たい", shortLabel: "週ごとの傾向を見る" },
   ];

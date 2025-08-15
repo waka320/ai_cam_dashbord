@@ -50,7 +50,8 @@ body {
 /* メディアクエリ - デスクトップ */
 @media (min-width: 992px) {
     .app-container {
-        padding: 0 32px;
+        padding: 0 8px;
+        /* 32px → 8px に削減 */
     }
 }
 

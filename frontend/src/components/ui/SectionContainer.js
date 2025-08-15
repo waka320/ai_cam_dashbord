@@ -7,7 +7,7 @@ function SectionContainer({ children, title, noPadding, elevation }) {
     <Paper 
       elevation={elevation || 1} 
       sx={{ 
-        marginBottom: '16px', 
+        marginBottom: '8px', /* 16px → 8px */
         borderRadius: '8px',
         overflow: 'hidden',
         border: '1px solid rgba(0, 0, 0, 0.05)',
@@ -28,7 +28,7 @@ function SectionContainer({ children, title, noPadding, elevation }) {
           {title}
         </Box>
       )}
-      <Box sx={{ padding: noPadding ? 0 : '16px' }}>
+      <Box sx={{ padding: noPadding ? 0 : '8px' }}>
         {children}
       </Box>
     </Paper>
