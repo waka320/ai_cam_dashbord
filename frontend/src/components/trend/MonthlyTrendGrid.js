@@ -181,8 +181,8 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
           <Box sx={{ 
             display: 'flex',
             flexDirection: 'column',
-            width: isMobile ? '50px' : '60px', 
-            minWidth: isMobile ? '50px' : '60px',
+            width: isMobile ? '30px' : '45px', 
+            minWidth: isMobile ? '30px' : '45px',
             position: 'sticky',
             left: 0,
             zIndex: 2,
@@ -195,7 +195,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              padding: isMobile ? '5px 2px' : '10px 5px',
+              padding: isMobile ? '1px 0' : '2px 1px',
               backgroundColor: '#f5f5f5',
               height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
             }}>
@@ -217,7 +217,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  padding: isMobile ? '4px 0' : '8px 0',
+                  padding: isMobile ? '0' : '1px 0',
                   backgroundColor: '#f9f9f9',
                   height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
                 }}
@@ -225,8 +225,12 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                 <Typography 
                   variant={isSmallMobile ? "bodyS" : "bodyM"} 
                   fontWeight="bold"
+                  sx={{
+                    fontSize: isMobile ? '9px' : '11px',
+                    lineHeight: 0.9
+                  }}
                 >
-                  {year}年
+                  {year}
                 </Typography>
               </Box>
             ))}
@@ -261,10 +265,10 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                 <Box 
                   key={`month-${month}`} 
                   sx={{ 
-                    minWidth: isMobile ? (isSmallMobile ? '50px' : '60px') : '70px',
-                    width: isMobile ? (isSmallMobile ? '50px' : '60px') : '70px',
+                    minWidth: isMobile ? (isSmallMobile ? '28px' : '35px') : '50px',
+                    width: isMobile ? (isSmallMobile ? '28px' : '35px') : '50px',
                     textAlign: 'center', 
-                    padding: isMobile ? '4px 2px' : '6px 2px',
+                    padding: isMobile ? '1px 0' : '2px 1px',
                     borderRight: month !== months[months.length - 1] ? '1px solid #ddd' : 'none',
                     borderBottom: '1px solid #ddd',
                     flexShrink: 0,
@@ -275,10 +279,14 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                   }}
                 >
                   <Typography 
-                    variant={isSmallMobile ? "bodyS" : "bodyM"}
+                    variant={isSmallMobile ? "bodyM" : "h6"}
                     fontWeight="bold"
+                    sx={{
+                      fontSize: isMobile ? (isSmallMobile ? '12px' : '14px') : '11px',
+                      lineHeight: 0.9
+                    }}
                   >
-                    {month}月
+                    {month}
                   </Typography>
                 </Box>
               ))}
@@ -304,8 +312,8 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                       <Box 
                         key={`${year}-${month}`}
                         sx={{ 
-                          minWidth: isMobile ? (isSmallMobile ? '50px' : '60px') : '70px',
-                          width: isMobile ? (isSmallMobile ? '50px' : '60px') : '70px',
+                          minWidth: isMobile ? (isSmallMobile ? '28px' : '35px') : '50px',
+                          width: isMobile ? (isSmallMobile ? '28px' : '35px') : '50px',
                           height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
                           display: 'flex',
                           flexDirection: 'column',

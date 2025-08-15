@@ -201,7 +201,7 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                     variant={isMobile ? "body2" : "h6"}
                     fontWeight="bold"
                     sx={{ 
-                      fontSize: isMobile ? '10px' : '12px',
+                      fontSize: '12px',
                       textAlign: 'center',
                       lineHeight: 0.9,
                       mb: 0,
