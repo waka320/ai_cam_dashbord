@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { Box, Typography, useMediaQuery, CircularProgress, LinearProgress } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
 import SectionContainer from '../ui/SectionContainer';
@@ -15,11 +15,7 @@ const TodayDetails = () => {
     
     const { todayData, summaryData, error, fetchLoading, getTodaysDate } = useTodayData(selectedLocation);
     
-    // スクロール連動のためのRef
-    const currentYearScrollRef = useRef(null);
-    const historicalScrollRef = useRef(null);
-
-    // スクロール連動の処理
+    // スクロール連動のためのRef（時間別詳細で使用）
     const handleScroll = (sourceRef, targetRefs) => {
         if (!sourceRef.current) return;
         
@@ -141,35 +137,66 @@ const TodayDetails = () => {
                 <>
                     {/* 週間動向の比較セクション */}
                     <Box sx={{ mb: 2 }}>
-                        <Typography 
-                            variant={isMobile ? "subtitle2" : "h6"} 
-                            gutterBottom 
-                            sx={{ 
-                                fontWeight: 'bold', 
-                                mb: 1.5,
-                                color: 'text.primary'
-                            }}
-                        >
-                            一週間の比較
-                        </Typography>
-                        
-                        {/* 最近1週間の動向 */}
-                        <WeeklyTrend 
-                            summaryData={summaryData}
-                            getTodaysDate={getTodaysDate}
-                            handleScroll={() => handleScroll(currentYearScrollRef, [historicalScrollRef])}
-                            isHistorical={false}
-                            scrollRef={currentYearScrollRef}
-                        />
+                   
+                        {/* PC表示時は横並び、モバイルは縦並び */}
+                        <Box sx={{ 
+                            display: 'flex', 
+                            flexDirection: isMobile ? 'column' : 'row',
+                            gap: isMobile ? 0.5 : 2,
+                            alignItems: isMobile ? 'stretch' : 'flex-start'
+                        }}>
+                            {/* 今年のデータ */}
+                            <Box sx={{ 
+                                flex: isMobile ? 'none' : 1,
+                                minWidth: 0
+                            }}>
+                                {!isMobile && (
+                                    <Typography 
+                                        variant="body1"
+                                        sx={{ 
+                                            fontWeight: 'bold', 
+                                            mb: 1,
+                                            color: 'text.primary',
+                                            textAlign: 'center'
+                                        }}
+                                    >
+                                        今年
+                                    </Typography>
+                                )}
+                                <WeeklyTrend 
+                                    summaryData={summaryData}
+                                    getTodaysDate={getTodaysDate}
+                                    isHistorical={false}
+                                    isCompact={!isMobile}
+                                />
+                            </Box>
 
-                        {/* 前年の同期間データ */}
-                        <WeeklyTrend 
-                            summaryData={summaryData}
-                            getTodaysDate={getTodaysDate}
-                            handleScroll={() => handleScroll(historicalScrollRef, [currentYearScrollRef])}
-                            isHistorical={true}
-                            scrollRef={historicalScrollRef}
-                        />
+                            {/* 前年のデータ */}
+                            <Box sx={{ 
+                                flex: isMobile ? 'none' : 1,
+                                minWidth: 0
+                            }}>
+                                {!isMobile && (
+                                    <Typography 
+                                        variant="body1"
+                                        sx={{ 
+                                            fontWeight: 'bold', 
+                                            mb: 1,
+                                            color: 'text.primary',
+                                            textAlign: 'center'
+                                        }}
+                                    >
+                                        前年
+                                    </Typography>
+                                )}
+                                <WeeklyTrend 
+                                    summaryData={summaryData}
+                                    getTodaysDate={getTodaysDate}
+                                    isHistorical={true}
+                                    isCompact={!isMobile}
+                                />
+                            </Box>
+                        </Box>
                     </Box>
                 </>
             )}

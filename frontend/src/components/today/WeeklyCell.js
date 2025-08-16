@@ -4,7 +4,7 @@ import { useColorPalette } from '../../contexts/ColorPaletteContext';
 import { formatDateShort } from '../../utils/todayUtils';
 import PropTypes from 'prop-types';
 
-const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = false }) => {
+const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = false, isUltraCompact = false }) => {
     const { getCellColor, getTextColor } = useColorPalette();
     const isMobile = useMediaQuery('(max-width:768px)');
     const isSmallMobile = useMediaQuery('(max-width:480px)');
@@ -54,13 +54,15 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
             >
                 <Typography 
                     sx={{
-                        fontSize: isCompactMode 
-                            ? (isSmallMobile ? '8px' : '9px') 
-                            : (isSmallMobile ? '11px' : isMobile ? '13px' : '15px'),
+                        fontSize: isUltraCompact 
+                            ? (isSmallMobile ? '10px' : '12px')
+                            : (isCompactMode 
+                                ? (isSmallMobile ? '12px' : '14px') 
+                                : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px')),
                         lineHeight: '1',
                         fontWeight: '500',
                         textAlign: 'center',
-                        mb: 0.5
+                        mb: 0
                     }}
                 >
                     {formatDateShort(day.date)}
@@ -68,9 +70,12 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                 
                 <Typography 
                     sx={{ 
-                        fontSize: isCompactMode
-                            ? (isSmallMobile ? '10px' : '11px')
-                            : (isSmallMobile ? '12px' : isMobile ? '14px' : '16px'),
+                        // 相対ラベルは適度なサイズ（はみ出し防止）
+                        fontSize: isUltraCompact
+                            ? (isSmallMobile ? '8px' : '9px')
+                            : (isCompactMode
+                                ? (isSmallMobile ? '10px' : '11px')
+                                : (isSmallMobile ? '12px' : isMobile ? '14px' : '16px')),
                         lineHeight: '1',
                         fontWeight: 'bold',
                         textAlign: 'center',
@@ -83,33 +88,21 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
         );
     }
 
-    // コンパクトモードのサイズ調整
-    const cellWidth = isCompactMode 
-        ? (isMobile ? (isSmallMobile ? '50px' : '60px') : '70px')
-        : (isMobile ? (isSmallMobile ? '70px' : '85px') : '100px');
-    
-    const cellHeight = isCompactMode
-        ? (isMobile ? (isSmallMobile ? '65px' : '75px') : '85px')
-        : (isMobile ? (isSmallMobile ? '75px' : '85px') : '95px');
+    // コンパクトモードのサイズ調整（Calendar.jsスタイルでは外側コンテナが制御）
 
 
 
     const cellStyle = {
-        minWidth: cellWidth,
-        width: cellWidth,
-        borderRight: '1px solid #ddd',
-        '&:last-child': { borderRight: 'none' },
-        height: cellHeight,
+        width: '100%',
+        height: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: isSmallMobile ? '1px' : '2px',
+        gap: isUltraCompact ? '0px' : (isCompactMode ? '1px' : (isSmallMobile ? '1px' : '2px')),
         position: 'relative',
-        border: '1px solid #ddd',
-        borderTop: '1px solid #ddd',
-        borderBottom: '1px solid #ddd',
-        flexShrink: 0
+        flexShrink: 0,
+        padding: isUltraCompact ? (isMobile ? '4px 0px' : '0px') : (isMobile ? '5px 1px' : '2px')
     };
 
     // 今日のデータがない場合の特別表示
@@ -127,13 +120,16 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
             >
                 <Typography 
                     sx={{
-                        fontSize: isCompactMode 
-                            ? (isSmallMobile ? '8px' : '9px') 
-                            : (isSmallMobile ? '11px' : isMobile ? '13px' : '15px'),
+                        // セル上部の日付は拡大
+                        fontSize: isUltraCompact 
+                            ? (isSmallMobile ? '10px' : '12px')
+                            : (isCompactMode 
+                                ? (isSmallMobile ? '12px' : '14px') 
+                                : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px')),
                         lineHeight: '1',
                         fontWeight: '500',
                         textAlign: 'center',
-                        mb: 0.5
+                        mb: 0
                     }}
                 >
                     {formatDateShort(day.date)}
@@ -141,9 +137,12 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                 
                 <Typography 
                     sx={{ 
-                        fontSize: isCompactMode
-                            ? (isSmallMobile ? '10px' : '11px')
-                            : (isSmallMobile ? '12px' : isMobile ? '14px' : '16px'),
+                        // 「今日」表示は適度なサイズ
+                        fontSize: isUltraCompact
+                            ? (isSmallMobile ? '10px' : '12px')
+                            : (isCompactMode
+                                ? (isSmallMobile ? '12px' : '14px')
+                                : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px')),
                         lineHeight: '1',
                         fontWeight: 'bold',
                         textAlign: 'center',
@@ -168,13 +167,16 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
             >
                 <Typography 
                     sx={{
-                        fontSize: isCompactMode 
-                            ? (isSmallMobile ? '8px' : '9px') 
-                            : (isSmallMobile ? '11px' : isMobile ? '13px' : '15px'),
+                        // セル上部の日付は拡大
+                        fontSize: isUltraCompact 
+                            ? (isSmallMobile ? '10px' : '12px')
+                            : (isCompactMode 
+                                ? (isSmallMobile ? '12px' : '14px') 
+                                : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px')),
                         lineHeight: '1',
                         fontWeight: '500',
                         textAlign: 'center',
-                        mb: 0.5
+                        mb: 0
                     }}
                 >
                     {formatDateShort(day.date)}
@@ -182,9 +184,12 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                 
                 <Typography 
                     sx={{ 
-                        fontSize: isCompactMode
-                            ? (isSmallMobile ? '14px' : '16px')
-                            : (isSmallMobile ? '16px' : isMobile ? '20px' : '24px'),
+                        // 相対ラベルは適度なサイズ
+                        fontSize: isUltraCompact
+                            ? (isSmallMobile ? '10px' : '12px')
+                            : (isCompactMode
+                                ? (isSmallMobile ? '12px' : '14px')
+                                : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px')),
                         lineHeight: '1',
                         fontWeight: 'bold',
                         textAlign: 'center'
@@ -200,6 +205,7 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
     const cellColor = getCellColor(day.congestion_level);
     const textColor = getTextColor(day.congestion_level);
     
+    const isRelativeLabel = Boolean(dateLabel);
     return (
         <Box 
             sx={{ 
@@ -210,13 +216,16 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
         >
             <Typography 
                 sx={{
-                    fontSize: isCompactMode 
-                        ? (isSmallMobile ? '8px' : '9px') 
-                        : (isSmallMobile ? '11px' : isMobile ? '13px' : '15px'),
+                    // セル上部の日付は拡大
+                    fontSize: isUltraCompact 
+                        ? (isSmallMobile ? '10px' : '12px')
+                        : (isCompactMode 
+                            ? (isSmallMobile ? '12px' : '14px') 
+                            : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px')),
                     lineHeight: '1',
                     fontWeight: '500',
                     textAlign: 'center',
-                    mb: 0.5
+                    mb: 0
                 }}
             >
                 {formatDateShort(day.date)}
@@ -224,9 +233,12 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
             
             <Typography 
                 sx={{ 
-                    fontSize: isCompactMode
-                        ? (isSmallMobile ? '16px' : '18px')
-                        : (isMobile ? (isSmallMobile ? '22px' : '26px') : '30px'),
+                    // 相対ラベルは適度、数値は適度なサイズ（モバイル版を一回り小さく）
+                    fontSize: isUltraCompact
+                        ? (isRelativeLabel ? (isSmallMobile ? '8px' : '9px') : (isSmallMobile ? '16px' : '20px'))
+                        : (isCompactMode
+                            ? (isRelativeLabel ? (isSmallMobile ? '10px' : '11px') : (isSmallMobile ? '20px' : '24px'))
+                            : (isRelativeLabel ? (isSmallMobile ? '12px' : '14px') : (isMobile ? (isSmallMobile ? '24px' : '28px') : '38px'))),
                     lineHeight: '1',
                     fontWeight: 'bold',
                     textAlign: 'center'
@@ -248,7 +260,8 @@ WeeklyCell.propTypes = {
     }).isRequired,
     isCurrentYear: PropTypes.bool,
     getTodaysDate: PropTypes.func.isRequired,
-    isCompactMode: PropTypes.bool
+    isCompactMode: PropTypes.bool,
+    isUltraCompact: PropTypes.bool
 };
 
 export default WeeklyCell;

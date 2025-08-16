@@ -4,7 +4,9 @@ import WeeklyCell from './WeeklyCell';
 import { getDayOfWeekJapanese } from '../../utils/todayUtils';
 import PropTypes from 'prop-types';
 
-const WeeklyTrend = ({ summaryData, getTodaysDate, handleScroll, isHistorical = false, scrollRef }) => {
+
+
+const WeeklyTrend = ({ summaryData, getTodaysDate, isHistorical = false, isCompact = false }) => {
     const isMobile = useMediaQuery('(max-width:768px)');
     const isSmallMobile = useMediaQuery('(max-width:480px)');
     
@@ -29,8 +31,6 @@ const WeeklyTrend = ({ summaryData, getTodaysDate, handleScroll, isHistorical = 
     
     const title = isHistorical 
         ? "前年" : "今年";
-    
-    const backgroundColor = isHistorical ? '#f0f8ff' : '#f5f5f5';
     
     // 表示するデータを決定（フォールバック対応）
     let displayData = [];
@@ -116,96 +116,88 @@ const WeeklyTrend = ({ summaryData, getTodaysDate, handleScroll, isHistorical = 
     }
 
     return (
-        <Box sx={{ mb: 2 }}>
-            <Typography 
-                variant={isMobile ? "subtitle2" : "h6"} 
-                gutterBottom 
-                sx={{ 
-                    fontWeight: 'bold', 
-                    mb: 1.5,
-                    color: 'text.primary'
-                }}
-            >
-                {title}
-            </Typography>
+        <Box sx={{ mb: isCompact ? 1 : 2 }}>
+            {!isCompact && (
+                <Typography 
+                    variant={isMobile ? "subtitle2" : "h6"} 
+                    gutterBottom 
+                    sx={{ 
+                        fontWeight: 'bold', 
+                        mb: 1.5,
+                        color: 'text.primary'
+                    }}
+                >
+                    {title}
+                </Typography>
+            )}
             <Box sx={{ 
+                maxWidth: isCompact ? '100%' : '800px', 
+                margin: '0 auto', 
                 border: '1px solid #ddd', 
                 borderRadius: '8px', 
                 overflow: 'hidden',
-                backgroundColor: '#fff',
-                width: '100%',
-                maxWidth: '100%'
+                width: '100%'
             }}>
-                <Box 
-                    sx={{ 
-                        overflowX: 'auto',
-                        WebkitOverflowScrolling: 'touch',
-                        '&::-webkit-scrollbar': {
-                            height: '8px',
-                            width: '8px'
-                        },
-                        '&::-webkit-scrollbar-track': {
-                            backgroundColor: '#f1f1f1',
-                            borderRadius: '4px'
-                        },
-                        '&::-webkit-scrollbar-thumb': {
-                            backgroundColor: '#c1c1c1',
-                            borderRadius: '4px'
-                        }
-                    }}
-                    ref={scrollRef}
-                    onScroll={() => handleScroll && handleScroll(scrollRef, [])}
-                >
-                    {/* 曜日ヘッダー（シンプル版） */}
-                    <Box sx={{ 
-                        display: 'flex', 
-                        backgroundColor: backgroundColor, 
-                        borderBottom: '1px solid #ddd',
-                        width: 'fit-content',
-                        minWidth: '100%'
-                    }}>
-                        {displayData.map((day) => (
-                            <Box 
-                                key={day.date}
+                {/* 曜日のヘッダー（実際のデータに基づく曜日表示） */}
+                <Box sx={{ 
+                    display: 'flex', 
+                    backgroundColor: '#f5f5f5', 
+                    borderBottom: '1px solid #ddd'
+                }}>
+                    {displayData.slice(0, 7).map((day, index) => (
+                        <Box key={index} sx={{ 
+                            flex: 1, 
+                            textAlign: 'center', 
+                            padding: isCompact ? '1px' : (isMobile ? '1px' : '4px')
+                        }}>
+                            <Typography 
+                                variant={isSmallMobile ? "bodyS" : "bodyM"} 
+                                fontWeight="bold"
                                 sx={{ 
-                                    minWidth: isMobile ? (isSmallMobile ? '50px' : '60px') : '70px',
-                                    width: isMobile ? (isSmallMobile ? '50px' : '60px') : '70px',
-                                    textAlign: 'center', 
-                                    py: 0.5,
-                                    borderRight: '1px solid #ddd',
-                                    '&:last-child': { borderRight: 'none' },
-                                    flexShrink: 0
+                                    fontSize: isCompact 
+                                        ? (isMobile ? '10px' : '12px') 
+                                        : (isMobile ? '12px' : '14px')
                                 }}
                             >
-                                <Typography 
-                                    variant="body2" 
-                                    sx={{ 
-                                        fontWeight: 'bold',
-                                        fontSize: isMobile ? (isSmallMobile ? '8px' : '9px') : '10px'
+                                {getDayOfWeekJapanese(day.day_of_week)}
+                            </Typography>
+                        </Box>
+                    ))}
+                </Box>
+
+                {/* 週単位でデータを表示（Calendar.jsスタイル） */}
+                {groupedByWeek.map((week, rowIndex) => (
+                    <Box key={rowIndex} sx={{ display: 'flex' }}>
+                        {week.map((day, colIndex) => {
+                            return (
+                                <Box
+                                    key={colIndex}
+                                    sx={{
+                                        flex: 1,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        borderRight: colIndex !== 6 ? '1px solid #ddd' : undefined,
+                                        borderBottom: rowIndex !== groupedByWeek.length - 1 ? '1px solid #ddd' : undefined,
+                                        position: 'relative',
+                                        cursor: 'default',
+                                        height: isCompact 
+                                            ? (isMobile ? (isSmallMobile ? '35px' : '40px') : '60px')
+                                            : (isMobile ? (isSmallMobile ? '35px' : '40px') : '80px'),
+                                        minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '50px',
                                     }}
                                 >
-                                    {getDayOfWeekJapanese(day.day_of_week)}
-                                </Typography>
-                            </Box>
-                        ))}
+                                    <WeeklyCell 
+                                        day={day} 
+                                        isCurrentYear={!isHistorical}
+                                        getTodaysDate={getTodaysDate}
+                                        isCompactMode={true}
+                                        isUltraCompact={isCompact}
+                                    />
+                                </Box>
+                            );
+                        })}
                     </Box>
-                    {/* データセル */}
-                    <Box sx={{ 
-                        display: 'flex',
-                        width: 'fit-content',
-                        minWidth: '100%'
-                    }}>
-                        {displayData.map((day) => (
-                            <WeeklyCell 
-                                key={day.date}
-                                day={day} 
-                                isCurrentYear={!isHistorical}
-                                getTodaysDate={getTodaysDate}
-                                isCompactMode={true}
-                            />
-                        ))}
-                    </Box>
-                </Box>
+                ))}
             </Box>
         </Box>
     );
@@ -228,9 +220,8 @@ WeeklyTrend.propTypes = {
         })
     }),
     getTodaysDate: PropTypes.func.isRequired,
-    handleScroll: PropTypes.func,
     isHistorical: PropTypes.bool,
-    scrollRef: PropTypes.object
+    isCompact: PropTypes.bool
 };
 
 export default WeeklyTrend;

@@ -38,18 +38,6 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
 
     return (
         <Box sx={{ mb: 2 }}>
-            <Typography 
-                variant={isMobile ? "subtitle2" : "h6"} 
-                gutterBottom 
-                sx={{ 
-                    fontWeight: 'bold', 
-                    mb: 1.5,
-                    color: 'text.primary'
-                }}
-            >
-                時間別詳細データ
-            </Typography>
-            
             {/* 昨日のデータ */}
             {yesterdayEntry?.data_available && (
                 <Box sx={{ mb: 3 }}>

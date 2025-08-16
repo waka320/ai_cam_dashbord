@@ -14,9 +14,9 @@ const HourlyCell = ({ hourData, index, totalLength, isGrayCell = false }) => {
     return (
         <Box
             sx={{
-                minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
-                width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
-                height: isMobile ? (isSmallMobile ? '40px' : '45px') : '45px',
+                minWidth: isMobile ? (isSmallMobile ? '28px' : '35px') : '40px',
+                width: isMobile ? (isSmallMobile ? '28px' : '35px') : '40px',
+                height: isMobile ? (isSmallMobile ? '38px' : '42px') : '45px',
                 backgroundColor: cellColor,
                 color: textColor,
                 borderRight: index !== totalLength - 1 ? '1px solid #ddd' : 'none',
@@ -30,7 +30,7 @@ const HourlyCell = ({ hourData, index, totalLength, isGrayCell = false }) => {
         >
             <Typography 
                 sx={{ 
-                    fontSize: isMobile ? (isSmallMobile ? '16px' : '18px') : '20px',
+                    fontSize: isMobile ? (isSmallMobile ? '18px' : '20px') : '22px',
                     lineHeight: '1',
                     fontWeight: 'bold',
                     textAlign: 'center'
@@ -43,10 +43,10 @@ const HourlyCell = ({ hourData, index, totalLength, isGrayCell = false }) => {
             {hourData.weather_info && hourData.weather_info.weather && hourData.weather_info.weather !== '-' && (
                 <Typography 
                     sx={{ 
-                        fontSize: '8px',
+                        fontSize: '7px',
                         lineHeight: '1',
                         position: 'absolute',
-                        bottom: '2px',
+                        bottom: '1px',
                         textAlign: 'center',
                         opacity: 0.8
                     }}
