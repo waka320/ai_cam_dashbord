@@ -6,34 +6,28 @@ import TodayDetails from '../common/TodayDetails';
 import YearlyTrendGrid from '../trend/YearlyTrendGrid';
 import MonthlyTrendGrid from '../trend/MonthlyTrendGrid';
 import WeeklyTrendGrid from '../trend/WeeklyTrendGrid';
-import { Box, Typography, Button, useMediaQuery } from '@mui/material';
+import { Box, Typography, Button, useMediaQuery, Paper } from '@mui/material';
 import AdviceSection from './AdviceSection';
 import { useCalendar } from '../../contexts/CalendarContext';
 import SectionContainer from '../ui/SectionContainer';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import SEOComponent from '../common/SEOComponent';
 
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import theme from '../../theme/theme';
+
 function Content() {
     const { 
         loading, 
         error, 
         selectedAction, 
+        selectedLocation,
         data, 
-        responseType,
-        calendarData  // 既存のカレンダーデータも取得
+        responseType
     } = useCalendar();
     const isMobile = useMediaQuery('(max-width:768px)');
     
-    // デバッグ用コンソール出力
-    console.log('Content Debug:', {
-        selectedAction,
-        responseType,
-        data,
-        calendarData,
-        dataType: typeof data,
-        dataIsArray: Array.isArray(data),
-        dataLength: data?.length
-    });
+    const isInitialState = !selectedAction || (selectedAction && !selectedLocation);
     
     // エラー表示
     const renderError = () => {
@@ -53,6 +47,92 @@ function Content() {
                         {error}
                     </Typography>
                 </Box>
+            </SectionContainer>
+        );
+    };
+    
+    // 初期状態画面の表示
+    const renderInitialState = () => {
+        const needsAction = !selectedAction;
+        const needsLocation = selectedAction && !selectedLocation;
+        
+        return (
+            <SectionContainer>
+                <Paper 
+                    elevation={1} 
+                    sx={{ 
+                        borderRadius: '12px',
+                        border: '1px solid rgba(0, 0, 0, 0.08)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                        p: isMobile ? 2 : 3,
+                        position: 'relative',
+                        zIndex: 1002
+                    }}
+                >
+                    {needsAction ? (
+                        // 「やりたいこと」の選択を促す
+                        <Box sx={{ textAlign: 'center' }}>
+                            <ArrowUpwardIcon 
+                                sx={{ 
+                                    fontSize: isMobile ? '1.5rem' : '2rem',
+                                    color: theme.palette.primary.main,
+                                    mb: 1,
+                                    animation: 'pulse 2s infinite'
+                                }} 
+                            />
+                            <Typography 
+                                variant="h6" 
+                                sx={{ 
+                                    fontWeight: 600,
+                                    color: theme.palette.primary.main,
+                                    mb: 1,
+                                    fontSize: isMobile ? '1rem' : '1.1rem'
+                                }}
+                            >
+                                「やりたいこと」を選んでください
+                            </Typography>
+                        </Box>
+                    ) : needsLocation ? (
+                        // 「計測場所」の選択を促す
+                        <Box sx={{ textAlign: 'center' }}>
+                            <ArrowUpwardIcon 
+                                sx={{ 
+                                    fontSize: isMobile ? '1.5rem' : '2rem',
+                                    color: theme.palette.success.main,
+                                    mb: 1,
+                                    animation: 'pulse 2s infinite'
+                                }} 
+                            />
+                            <Typography 
+                                variant="h6" 
+                                sx={{ 
+                                    fontWeight: 600,
+                                    color: theme.palette.success.main,
+                                    mb: 1,
+                                    fontSize: isMobile ? '1rem' : '1.1rem'
+                                }}
+                            >
+                                「計測場所」を選んでください
+                            </Typography>
+                        </Box>
+                    ) : null}
+                </Paper>
+                
+                {/* アニメーションのCSS */}
+                <style>
+                    {`
+                        @keyframes pulse {
+                            0%, 100% {
+                                transform: scale(1);
+                                opacity: 1;
+                            }
+                            50% {
+                                transform: scale(1.1);
+                                opacity: 0.8;
+                            }
+                        }
+                    `}
+                </style>
             </SectionContainer>
         );
     };
@@ -125,6 +205,11 @@ function Content() {
 
     // ビジュアライゼーションの表示
     const renderVisualization = () => {
+        // 初期状態（やりたいことまたは計測場所が未選択）の場合
+        if (isInitialState) {
+            return renderInitialState();
+        }
+        
         // 傾向分析の場合は専用グリッドを表示
         const trendGrid = renderTrendGrid();
         if (trendGrid) {
@@ -132,7 +217,6 @@ function Content() {
         }
         
         // 既存のビジュアライゼーション
-        // 各コンポーネント内部で表示条件をチェックするため、常に全てのコンポーネントを返す
         return (
             <>
                 <TodayDetails />
@@ -140,37 +224,6 @@ function Content() {
                 <TimeHeatmap />
                 <DateTimeHeatmap />
             </>
-        );
-    };
-
-    // フィードバックボタンの表示
-    const renderFeedbackButton = () => {
-        return (
-            <Box sx={{ mb: 2 }}>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    href="https://docs.google.com/forms/d/e/1FAIpQLSeEalJjup-hR6BN6M8MfETrPn3is0i-5Rskxz_rkEZvI7mvFw/viewform?usp=header"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                        py: 1.5,
-                        borderRadius: '8px',
-                        textTransform: 'none',
-                        fontWeight: 500,
-                        fontSize: '0.9rem',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-                        '&:hover': {
-                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-                            transform: 'translateY(-1px)',
-                        },
-                        transition: 'all 0.2s ease-in-out',
-                    }}
-                >
-                    ここをタップしてご意見をお聞かせください
-                </Button>
-            </Box>
         );
     };
 
@@ -182,12 +235,23 @@ function Content() {
                 keywords="高山市,ダッシュボード,観光,混雑度,混雑状況,データ可視化,オープンデータ,データ分析,事業者支援,飛騨高山,MDG,遠藤・浦田研究室"
                 url="https://ai-camera.lab.mdg-meidai.com"
             />
+            {/* 初期状態時の全画面オーバーレイ（ヘッダーと誘導カード以外を暗く） */}
+            {isInitialState && (
+                <Box sx={{
+                    position: 'fixed',
+                    inset: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                    zIndex: 1000,
+                    pointerEvents: 'none'
+                }} />
+            )}
             <Box sx={{
                 backgroundColor: 'rgba(249, 250, 251, 0.6)',
                 borderRadius: isMobile ? '0' : '8px',
                 padding: isMobile ? '6px 4px 12px' : '12px 8px 16px', /* 大幅削減 */
                 boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)',
-                flex: '1 0 auto'
+                flex: '1 0 auto',
+                position: 'relative'
             }}>
                 {renderError()}
                 
@@ -215,7 +279,32 @@ function Content() {
                         }}
                     >
                         <AdviceSection />
-                        {renderFeedbackButton()}
+                        {/* フィードバックボタン（初期状態では暗く表示される） */}
+                        <Box sx={{ mt: 2 }}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                fullWidth
+                                href="https://docs.google.com/forms/d/e/1FAIpQLSeEalJjup-hR6BN6M8MfETrPn3is0i-5Rskxz_rkEZvI7mvFw/viewform?usp=header"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                sx={{
+                                    py: 1.5,
+                                    borderRadius: '8px',
+                                    textTransform: 'none',
+                                    fontWeight: 500,
+                                    fontSize: '0.9rem',
+                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                                    '&:hover': {
+                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+                                        transform: 'translateY(-1px)',
+                                    },
+                                    transition: 'all 0.2s ease-in-out',
+                                }}
+                            >
+                                ここをタップしてご意見をお聞かせください
+                            </Button>
+                        </Box>
                     </Box>
                 </Box>
             </Box>
