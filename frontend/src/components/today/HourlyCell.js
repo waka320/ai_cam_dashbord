@@ -14,9 +14,9 @@ const HourlyCell = ({ hourData, index, totalLength, isGrayCell = false }) => {
     return (
         <Box
             sx={{
-                minWidth: isMobile ? (isSmallMobile ? '28px' : '35px') : '40px',
-                width: isMobile ? (isSmallMobile ? '28px' : '35px') : '40px',
-                height: isMobile ? (isSmallMobile ? '38px' : '42px') : '45px',
+                minWidth: isMobile ? (isSmallMobile ? '32px' : '42px') : '42px',
+                width: isMobile ? (isSmallMobile ? '32px' : '42px') : '42px',
+                height: isMobile ? (isSmallMobile ? '40px' : '44px') : '47px',
                 backgroundColor: cellColor,
                 color: textColor,
                 borderRight: index !== totalLength - 1 ? '1px solid #ddd' : 'none',

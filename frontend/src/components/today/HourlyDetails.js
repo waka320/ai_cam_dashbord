@@ -92,13 +92,13 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                                     <Box 
                                         key={`hour-header-${hourData.hour}`} 
                                         sx={{ 
-                                            minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
-                                            width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
+                                            minWidth: isMobile ? (isSmallMobile ? '32px' : '42px') : '42px',
+                                            width: isMobile ? (isSmallMobile ? '32px' : '42px') : '42px',
                                             textAlign: 'center', 
                                             padding: isMobile ? '4px 2px' : '6px 2px',
                                             borderRight: index !== yesterdayEntry.hourly_congestion.length - 1 ? '1px solid #ddd' : 'none',
                                             flexShrink: 0,
-                                            height: isMobile ? (isSmallMobile ? '32px' : '36px') : '36px',
+                                            height: isMobile ? (isSmallMobile ? '34px' : '38px') : '38px',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center'
@@ -108,7 +108,7 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                                             variant={isSmallMobile ? "bodyS" : "bodyM"}
                                             fontWeight="bold"
                                             sx={{
-                                                fontSize: isMobile ? (isSmallMobile ? '10px' : '11px') : '13px'
+                                                fontSize: isMobile ? (isSmallMobile ? '12px' : '14px') : '16px'
                                             }}
                                         >
                                             {hourData.hour}
@@ -192,13 +192,13 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                                     <Box 
                                         key={`hour-header-${hourData.hour}`} 
                                         sx={{ 
-                                            minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
-                                            width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
+                                            minWidth: isMobile ? (isSmallMobile ? '32px' : '42px') : '42px',
+                                            width: isMobile ? (isSmallMobile ? '32px' : '42px') : '42px',
                                             textAlign: 'center', 
                                             padding: isMobile ? '4px 2px' : '6px 2px',
                                             borderRight: index !== lastYearEntry.hourly_congestion.length - 1 ? '1px solid #ddd' : 'none',
                                             flexShrink: 0,
-                                            height: isMobile ? (isSmallMobile ? '32px' : '36px') : '36px',
+                                            height: isMobile ? (isSmallMobile ? '34px' : '38px') : '38px',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center'
@@ -208,7 +208,7 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                                             variant={isSmallMobile ? "bodyS" : "bodyM"}
                                             fontWeight="bold"
                                             sx={{
-                                                fontSize: isMobile ? (isSmallMobile ? '10px' : '11px') : '13px'
+                                                fontSize: isMobile ? (isSmallMobile ? '12px' : '14px') : '16px'
                                             }}
                                         >
                                             {hourData.hour}
