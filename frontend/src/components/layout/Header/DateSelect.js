@@ -87,10 +87,16 @@ function DateSelect({
   }, [selectedYear, currentYear, currentMonth, selectedMonth, setSelectedMonth]);
 
   // 表示する必要がない場合（条件分岐はHooksの後に配置）
+  // やりたいことが未選択の場合は非表示
+  if (!selectedAction) {
+    return null;
+  }
+  
+  // 特定のアクションでは年月選択不要
   if (selectedAction === 'today_details' || 
       selectedAction === 'year_trend' ||
       selectedAction === 'month_trend' ||
-      selectedAction === 'week_trend') {  // 年ごと傾向・月ごと傾向・週ごと傾向では年月選択不要
+      selectedAction === 'week_trend') {
     return null;
   }
 

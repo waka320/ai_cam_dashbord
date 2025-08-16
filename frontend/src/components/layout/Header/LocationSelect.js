@@ -118,8 +118,7 @@ function LocationSelect({
                 },
                 color: selectedLocation === "" ? theme.palette.text.secondary : theme.palette.text.primary,
                 fontSize: isMobile ? '0.9rem' : '0.95rem',
-                fontWeight: 500,
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                fontWeight: 500
               }}
               MenuProps={{
                 PaperProps: {
