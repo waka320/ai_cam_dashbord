@@ -194,13 +194,10 @@ const AnalysisInfoButton = ({ analysisType, place = 'default' }) => {
 
 // PropTypesの定義
 AnalysisInfoButton.propTypes = {
-  analysisType: PropTypes.oneOf(['calendar', 'dateTime', 'weekTime']).isRequired,
+  analysisType: PropTypes.oneOf(['calendar', 'dateTime', 'weekTime', 'monthTrend', 'weekTrend', 'yearTrend']).isRequired,
   place: PropTypes.string
 };
 
-// デフォルトprops
-AnalysisInfoButton.defaultProps = {
-  place: 'default'
-};
+
 
 export default AnalysisInfoButton;

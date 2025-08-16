@@ -329,7 +329,7 @@ const CongestionLegend = ({ showCalculationNote = false, legendType = 'calendar'
 // PropTypesの追加
 CongestionLegend.propTypes = {
   showCalculationNote: PropTypes.bool,
-  legendType: PropTypes.oneOf(['calendar', 'heatmap'])
+  legendType: PropTypes.oneOf(['calendar', 'heatmap', 'trend'])
 };
 
 export default CongestionLegend;

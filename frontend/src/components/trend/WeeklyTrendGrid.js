@@ -28,22 +28,51 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
     const yearMonthData = {};
     
     rawData.forEach(item => {
+      // 必要なプロパティの存在チェック
+      if (!item || typeof item.year !== 'number' || typeof item.month !== 'number') {
+        console.warn('Invalid item data:', item);
+        return;
+      }
+      
       const yearMonth = `${item.year}-${String(item.month).padStart(2, '0')}`;
       
       if (!yearMonthData[yearMonth]) {
         yearMonthData[yearMonth] = [];
       }
       
+      // start_dateとend_dateの安全な処理
+      let displayText = item.date_range || '';
+      if (!displayText && item.start_date && item.end_date) {
+        try {
+          const startParts = item.start_date.split('-');
+          const endParts = item.end_date.split('-');
+          displayText = `${startParts.slice(1).join('/')}~${endParts.slice(1).join('/')}`;
+        } catch (error) {
+          console.warn('Error processing dates:', { start_date: item.start_date, end_date: item.end_date, error });
+          displayText = 'データエラー';
+        }
+      }
+      
       yearMonthData[yearMonth].push({
         ...item,
-        weekKey: item.start_date,
-        display: item.date_range || `${item.start_date.split('-').slice(1).join('/')}~${item.end_date.split('-').slice(1).join('/')}`
+        weekKey: item.start_date || `${item.year}-${String(item.month).padStart(2, '0')}-${item.week || 1}`,
+        display: displayText || `${item.year}年${item.month}月 第${item.week || 1}週`
       });
     });
 
     // 各年月内で週をソート
     Object.keys(yearMonthData).forEach(yearMonth => {
-      yearMonthData[yearMonth].sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+      yearMonthData[yearMonth].sort((a, b) => {
+        // start_dateが存在する場合は日付でソート、そうでなければweek番号でソート
+        if (a.start_date && b.start_date) {
+          return new Date(a.start_date) - new Date(b.start_date);
+        } else if (a.week && b.week) {
+          return a.week - b.week;
+        } else {
+          // フォールバック：配列のインデックス順序を維持
+          return 0;
+        }
+      });
     });
 
     // 年月を降順でソート（新しい順）
@@ -239,7 +268,7 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                     
                     // 限界まで大きくした文字サイズ
                     const dynamicFontSize = isMobile ? 22 : 30;
-                    const dynamicDateFontSize = isMobile ? 11 : 14;
+                    const dynamicDateFontSize = isMobile ? 9 : 14;
                     
                     return (
                       <Box
@@ -329,10 +358,12 @@ WeeklyTrendGrid.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({
     year: PropTypes.number.isRequired,
     month: PropTypes.number.isRequired,
-    week: PropTypes.number.isRequired,
+    week: PropTypes.number, // オプショナルに変更
     congestion: PropTypes.number.isRequired,
     total_count: PropTypes.number,
     date_range: PropTypes.string,
+    start_date: PropTypes.string, // 追加
+    end_date: PropTypes.string, // 追加
     highlighted: PropTypes.bool,
     highlight_reason: PropTypes.string,
     weather_info: PropTypes.object,

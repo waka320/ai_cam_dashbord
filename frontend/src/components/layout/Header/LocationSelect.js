@@ -15,6 +15,7 @@ import theme from '../../../theme/theme';
 function LocationSelect({ 
   isMobile, 
   isScrolled,
+  isCompactMode,
   isSmallDesktop,
   selectedLocation, 
   handleLocationChange,
@@ -49,7 +50,7 @@ function LocationSelect({
       display: 'flex', 
       flexDirection: isMobile ? 'column' : 'row', 
       alignItems: isMobile ? 'stretch' : 'center', 
-      gap: isScrolled ? (isMobile ? 0.5 : 0.6) : (isMobile ? 0.8 : 1.0) 
+      gap: isCompactMode ? (isMobile ? 0.3 : 0.6) : (isScrolled ? (isMobile ? 0.5 : 0.6) : (isMobile ? 0.8 : 1.0)) 
     }}>
       <Typography 
         variant="labelL" 
@@ -57,7 +58,7 @@ function LocationSelect({
           color: theme.palette.text.white, 
           fontWeight: 'bold',
           textAlign: 'left',
-          fontSize: isScrolled ? (isMobile ? '0.7rem' : '0.85rem') : (isMobile ? '0.85rem' : '0.95rem'),
+          fontSize: isCompactMode ? (isMobile ? '0.65rem' : '0.85rem') : (isScrolled ? (isMobile ? '0.7rem' : '0.85rem') : (isMobile ? '0.85rem' : '0.95rem')),
           whiteSpace: 'nowrap',
           textShadow: '0 1px 2px rgba(0,0,0,0.2)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -76,7 +77,7 @@ function LocationSelect({
         <FormControl variant="outlined" sx={{ 
           width: 220,
           '& .MuiOutlinedInput-root': {
-            height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
+            height: isCompactMode ? (isMobile ? '24px' : '36px') : (isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px')),
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           },
           position: 'relative'
@@ -181,7 +182,7 @@ function LocationSelect({
             fontSize: isMobile ? '0.7rem' : '0.8rem',
             fontWeight: 600,
             padding: isMobile ? '4px 8px' : '6px 10px',
-            height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
+            height: isCompactMode ? (isMobile ? '24px' : '36px') : (isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px')),
             minWidth: isMobile ? '100px' : '120px',
             whiteSpace: 'nowrap',
             borderRadius: '20px',
@@ -210,6 +211,7 @@ function LocationSelect({
 LocationSelect.propTypes = {
   isMobile: PropTypes.bool.isRequired,
   isScrolled: PropTypes.bool.isRequired,
+  isCompactMode: PropTypes.bool,
   isSmallDesktop: PropTypes.bool.isRequired,
   selectedLocation: PropTypes.string,
   handleLocationChange: PropTypes.func.isRequired,

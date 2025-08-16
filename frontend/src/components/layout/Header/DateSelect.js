@@ -20,14 +20,15 @@ function DateSelect({
   isTablet, 
   isSmallDesktop, 
   isScrolled,
-  selectedAction,
-  selectedYear,
-  setSelectedYear,
-  selectedMonth,
-  setSelectedMonth,
-  loading,
+  isCompactMode, 
+  selectedAction, 
+  selectedYear, 
+  setSelectedYear, 
+  selectedMonth, 
+  setSelectedMonth, 
+  loading, 
   dateChanging,
-  updateMonthAndFetch
+  updateMonthAndFetch 
 }) {
   const today = new Date();
   const currentYear = today.getFullYear();
@@ -154,14 +155,14 @@ function DateSelect({
       display: 'flex', 
       flexDirection: 'column',
       alignItems: 'stretch', 
-      gap: isScrolled ? 0.4 : 0.6,
+      gap: isCompactMode ? 0.3 : (isScrolled ? 0.4 : 0.6),
       width: isMobile ? '100%' : 'auto',
     }}>
       <Box sx={{ 
         display: 'flex', 
         flexDirection: isMobile ? 'column' : 'row', 
         alignItems: isMobile ? 'stretch' : 'center', 
-        gap: isScrolled ? (isMobile ? 0.5 : 0.6) : (isMobile ? 0.8 : 1.0) 
+        gap: isCompactMode ? (isMobile ? 0.3 : 0.6) : (isScrolled ? (isMobile ? 0.5 : 0.6) : (isMobile ? 0.8 : 1.0)) 
       }}>
         <Typography 
           variant="labelL" 
@@ -169,7 +170,7 @@ function DateSelect({
             color: theme.palette.text.white, 
             fontWeight: 'bold',
             textAlign: 'left',
-            fontSize: isScrolled ? (isMobile ? '0.7rem' : '0.85rem') : (isMobile ? '0.85rem' : '0.95rem'),
+            fontSize: isCompactMode ? (isMobile ? '0.65rem' : '0.85rem') : (isScrolled ? (isMobile ? '0.7rem' : '0.85rem') : (isMobile ? '0.85rem' : '0.95rem')),
             whiteSpace: 'nowrap',
             textShadow: '0 1px 2px rgba(0,0,0,0.2)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -199,7 +200,7 @@ function DateSelect({
                   className={dateChanging ? 'button-loading' : ''}
                   sx={{ 
                     width: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
-                    height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
+                    height: isCompactMode ? (isMobile ? '24px' : '36px') : (isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px')),
                     bgcolor: 'white', 
                     color: theme.palette.primary.main,
                     '&:hover': {
@@ -255,7 +256,7 @@ function DateSelect({
             <FormControl variant="outlined" sx={{ 
               width: isMobile ? '50%' : isSmallDesktop ? 110 : 140,
               '& .MuiOutlinedInput-root': {
-                height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
+                height: isCompactMode ? (isMobile ? '24px' : '36px') : (isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px')),
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               },
               position: 'relative'
@@ -352,7 +353,7 @@ function DateSelect({
             <FormControl variant="outlined" sx={{ 
               width: isMobile ? '50%' : isSmallDesktop ? 100 : 120,
               '& .MuiOutlinedInput-root': {
-                height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
+                height: isCompactMode ? (isMobile ? '24px' : '36px') : (isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px')),
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               },
               position: 'relative'
@@ -455,7 +456,7 @@ function DateSelect({
                   className={dateChanging ? 'button-loading' : ''}
                   sx={{ 
                     width: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
-                    height: isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px'),
+                    height: isCompactMode ? (isMobile ? '24px' : '36px') : (isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px')),
                     bgcolor: 'white', 
                     color: theme.palette.primary.main,
                     '&:hover': {
@@ -511,6 +512,7 @@ DateSelect.propTypes = {
   isTablet: PropTypes.bool.isRequired,
   isSmallDesktop: PropTypes.bool.isRequired,
   isScrolled: PropTypes.bool.isRequired,
+  isCompactMode: PropTypes.bool,
   selectedAction: PropTypes.string,
   selectedYear: PropTypes.string,
   setSelectedYear: PropTypes.func.isRequired,

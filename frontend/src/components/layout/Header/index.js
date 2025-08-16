@@ -25,7 +25,7 @@ function Header() {
     selectedMonth,
     setSelectedMonth,
     selectedLocation,
-    fetchCalendarData,
+
     loading,
     actionChanging,
     locationChanging,
@@ -66,37 +66,34 @@ function Header() {
   }, [selectedYear, selectedMonth, currentYear, currentMonth, setSelectedYear, setSelectedMonth]);
   
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isCondensed, setIsCondensed] = useState(false);
+  const [isCompactMode, setIsCompactMode] = useState(false);
   const headerRef = useRef(null);
-
-  // 可視化が表示されているか（初期状態ではない）
-  const hasVisualization = !!(selectedAction && selectedLocation);
   
   useEffect(() => {
     if (isSpecialPage()) return; // 特定のページでは実行しない
     
     const handleScroll = () => {
+      const scrollY = window.scrollY;
+      
+      // 既存のスクロール検知（ヘッダーが画面外に出た時）
       if (headerRef.current) {
         const headerBottom = headerRef.current.getBoundingClientRect().bottom;
         setIsScrolled(headerBottom < 0);
       }
-      // モバイルで可視化が表示されている場合、少しのスクロールでコンパクト化
-      if (isMobile && hasVisualization) {
-        setIsCondensed(window.scrollY > 24);
+      
+      // モバイル用の積極的コンパクト化（少しスクロールしただけで発動）
+      if (isMobile) {
+        setIsCompactMode(scrollY > 50); // 50px以上スクロールでコンパクト化
       } else {
-        setIsCondensed(false);
+        setIsCompactMode(false);
       }
     };
     
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    // 初期評価
-    handleScroll();
+    window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [isSpecialPage, isMobile, hasVisualization]);
-
-  const isCompact = isScrolled || isCondensed;
+  }, [isSpecialPage, isMobile]);
   
   // カメラ画像モーダルの状態管理
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
@@ -120,14 +117,14 @@ function Header() {
         sx={{
           top: 0,
           zIndex: 1100,
-          padding: isCompact ? (isMobile ? '2px 0' : '8px 0') : (isMobile ? '4px 0' : '8px 0'),
+          padding: isCompactMode ? '1px 0' : (isScrolled ? (isMobile ? '2px 0' : '8px 0') : (isMobile ? '4px 0' : '8px 0')),
           background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-          boxShadow: isCompact ? '0 4px 10px rgba(0, 0, 0, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
-          borderRadius: isCompact ? '0' : '0 0 8px 8px',
+          boxShadow: isCompactMode ? '0 2px 8px rgba(0, 0, 0, 0.3)' : (isScrolled ? '0 4px 10px rgba(0, 0, 0, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.1)'),
+          borderRadius: (isScrolled || isCompactMode) ? '0' : '0 0 8px 8px',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          transform: isCompact ? 'scale(0.98)' : 'scale(1)',
+          transform: isCompactMode ? 'scale(0.95)' : (isScrolled ? 'scale(0.98)' : 'scale(1)'),
           transformOrigin: 'top center',
-          opacity: 1,
+          opacity: isCompactMode ? 0.95 : 1,
           filter: 'none',
         }}
       >
@@ -136,22 +133,23 @@ function Header() {
           flexDirection: 'column', 
           width: '100%',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          padding: isCompact ? '4px 0' : '0',
+          padding: isCompactMode ? '1px 0' : (isScrolled ? '4px 0' : '0'),
         }}>
           {/* ロゴとタイトル部分 */}
           <HeaderLogo 
-            isScrolled={isCompact} 
+            isScrolled={isScrolled} 
             isMobile={isMobile} 
             isSpecialPage={isSpecialPage()}
+            isCompactMode={isCompactMode}
           />
           
           {/* コントロール部分 - 特定のページでは表示しない */}
           {!isSpecialPage() && (
             <Paper elevation={0} sx={{
               backgroundColor: 'transparent',
-              margin: isCompact ? (isMobile ? '1px 4px' : '3px 6px') : (isMobile ? '4px 8px' : '8px 12px'),
+              margin: isCompactMode ? (isMobile ? '0px 2px' : '3px 6px') : (isScrolled ? (isMobile ? '1px 4px' : '3px 6px') : (isMobile ? '4px 8px' : '8px 12px')),
               borderRadius: '8px',
-              padding: isCompact ? (isMobile ? '3px' : '4px') : (isMobile ? '6px' : '8px'),
+              padding: isCompactMode ? (isMobile ? '1px' : '4px') : (isScrolled ? (isMobile ? '3px' : '4px') : (isMobile ? '6px' : '8px')),
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             }}>
               <Toolbar 
@@ -160,7 +158,7 @@ function Header() {
                   flexDirection: isMobile ? 'column' : 'row',
                   justifyContent: 'space-between', 
                   alignItems: isMobile ? 'stretch' : 'center',
-                  gap: isCompact ? (isMobile ? 0.5 : 0.8) : (isMobile ? 1 : 1.2),
+                  gap: isCompactMode ? (isMobile ? 0.2 : 0.8) : (isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 1 : 1.2)),
                   padding: '0 !important',
                   minHeight: 'auto !important',
                   flexWrap: isMobile ? 'nowrap' : 'wrap',
@@ -172,7 +170,8 @@ function Header() {
                   isMobile={isMobile}
                   isTablet={isTablet}
                   isSmallDesktop={isSmallDesktop}
-                  isScrolled={isCompact}
+                  isScrolled={isScrolled}
+                  isCompactMode={isCompactMode}
                   selectedAction={selectedAction}
                   handleActionChange={handleActionChange}
                   loading={loading}
@@ -185,7 +184,7 @@ function Header() {
                     display: 'flex', 
                     flexDirection: 'column',
                     alignItems: 'stretch', 
-                    gap: isCompact ? 0.4 : 0.6,
+                    gap: isCompactMode ? 0.2 : (isScrolled ? 0.4 : 0.6),
                     marginLeft: isMobile ? 0 : '0',
                     marginTop: isMobile ? 0 : 0,
                     width: isMobile ? '100%' : 'auto',
@@ -198,7 +197,8 @@ function Header() {
                     isMobile={isMobile}
                     isTablet={isTablet}
                     isSmallDesktop={isSmallDesktop}
-                    isScrolled={isCompact}
+                    isScrolled={isScrolled}
+                    isCompactMode={isCompactMode}
                     selectedAction={selectedAction}
                     selectedYear={selectedYear}
                     setSelectedYear={setSelectedYear}
@@ -213,7 +213,8 @@ function Header() {
                   <LocationSelect 
                     isMobile={isMobile}
                     isSmallDesktop={isSmallDesktop}
-                    isScrolled={isCompact}
+                    isScrolled={isScrolled}
+                    isCompactMode={isCompactMode}
                     selectedLocation={selectedLocation}
                     handleLocationChange={handleLocationChange}
                     loading={loading}

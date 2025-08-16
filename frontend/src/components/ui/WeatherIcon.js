@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './WeatherIcon.css';
 
-const WeatherIcon = ({ weather, size = 'small', showTemp = false, temperature = null }) => {
+const WeatherIcon = ({ weather = null, size = 'small', showTemp = false, temperature = null }) => {
   const getWeatherIcon = (weather) => {
     if (!weather) return '❔';
     
@@ -71,11 +71,6 @@ WeatherIcon.propTypes = {
   temperature: PropTypes.number,
 };
 
-WeatherIcon.defaultProps = {
-  weather: null,
-  size: 'small',
-  showTemp: false,
-  temperature: null,
-};
+
 
 export default WeatherIcon;

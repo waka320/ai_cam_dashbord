@@ -15,6 +15,7 @@ function ActionSelect({
   isTablet, 
   isSmallDesktop, 
   isScrolled, 
+  isCompactMode,
   selectedAction, 
   handleActionChange, 
   loading, 
@@ -51,7 +52,7 @@ function ActionSelect({
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: isMobile ? 'stretch' : 'center',
         width: isMobile ? '100%' : isTablet || isSmallDesktop ? '100%' : 'auto',
-        gap: isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 1 : 1.2),
+        gap: isCompactMode ? (isMobile ? 0.3 : 0.8) : (isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 1 : 1.2)),
         mb: 0,
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       }}
@@ -63,9 +64,11 @@ function ActionSelect({
           color: theme.palette.text.white,
           fontWeight: 'bold',
           textAlign: 'left',
-          fontSize: isScrolled ? 
-            (isMobile ? '0.75rem' : '0.9rem') : 
-            (isMobile ? '0.9rem' : isTablet || isSmallDesktop ? '1.1rem' : undefined),
+          fontSize: isCompactMode ?
+            (isMobile ? '0.7rem' : '0.9rem') :
+            (isScrolled ? 
+              (isMobile ? '0.75rem' : '0.9rem') : 
+              (isMobile ? '0.9rem' : isTablet || isSmallDesktop ? '1.1rem' : undefined)),
           whiteSpace: 'nowrap',
           textShadow: '0 1px 2px rgba(0,0,0,0.2)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -84,7 +87,7 @@ function ActionSelect({
           transition: 'opacity 0.3s ease',
           position: 'relative',
           '& .MuiOutlinedInput-root': {
-            height: isScrolled ? (isMobile ? '28px' : '34px') : (isMobile ? '32px' : '44px'),
+            height: isCompactMode ? (isMobile ? '24px' : '34px') : (isScrolled ? (isMobile ? '28px' : '34px') : (isMobile ? '32px' : '44px')),
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }
         }}
@@ -129,9 +132,11 @@ function ActionSelect({
               selectedAction === ""
                 ? theme.palette.text.secondary
                 : theme.palette.text.primary,
-            fontSize: isScrolled ? 
-              (isMobile ? '0.7rem' : '0.85rem') : 
-              (isMobile ? '0.85rem' : '0.95rem'),
+            fontSize: isCompactMode ?
+              (isMobile ? '0.65rem' : '0.85rem') :
+              (isScrolled ? 
+                (isMobile ? '0.7rem' : '0.85rem') : 
+                (isMobile ? '0.85rem' : '0.95rem')),
             '& .MuiSelect-select': {
               whiteSpace: 'nowrap',
               overflow: 'hidden',
@@ -196,6 +201,7 @@ ActionSelect.propTypes = {
   isTablet: PropTypes.bool.isRequired,
   isSmallDesktop: PropTypes.bool.isRequired,
   isScrolled: PropTypes.bool.isRequired,
+  isCompactMode: PropTypes.bool,
   selectedAction: PropTypes.string,
   handleActionChange: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,

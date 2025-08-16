@@ -5,8 +5,8 @@ import { Link as RouterLink } from 'react-router-dom';
 import logo from '../../../assets/dashbord_logo.png';
 import ShareButton from '../../ui/ShareButton';
 
-function HeaderLogo({ isScrolled, isMobile, isSpecialPage }) {
-  if (isScrolled) return null;
+function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
+  if (isScrolled || isCompactMode) return null;
   
   return (
     <Box sx={{ 
@@ -67,6 +67,7 @@ HeaderLogo.propTypes = {
   isScrolled: PropTypes.bool.isRequired,
   isMobile: PropTypes.bool.isRequired,
   isSpecialPage: PropTypes.bool.isRequired,
+  isCompactMode: PropTypes.bool,
 };
 
 export default HeaderLogo;
