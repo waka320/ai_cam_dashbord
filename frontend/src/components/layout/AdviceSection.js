@@ -9,7 +9,19 @@ import { useCalendar } from '../../contexts/CalendarContext';
 import theme from '../../theme/theme';
 
 function AdviceSection() {
-    const { aiAdvice, loading, selectedLocation, selectedAction, selectedYear, selectedMonth } = useCalendar();
+    const { 
+        aiAdvice, 
+        loading, 
+        actionChanging,
+        locationChanging,
+        dateChanging,
+        selectedLocation, 
+        selectedAction, 
+        selectedYear, 
+        selectedMonth,
+        data,
+        calendarData
+    } = useCalendar();
     const isMobile = useMediaQuery('(max-width:768px)');
     const [conversation, setConversation] = useState([]);
     
@@ -21,6 +33,31 @@ function AdviceSection() {
             ]);
         }
     }, [aiAdvice, conversation]);
+    
+    // AdviceSectionを表示するかどうかの判定
+    const shouldShowAdviceSection = () => {
+        // データ読み込み中は非表示
+        if (loading || actionChanging || locationChanging || dateChanging) {
+            return false;
+        }
+        
+        // 必要な選択項目が揃っていない場合は非表示
+        if (!selectedLocation || !selectedAction || !selectedYear || !selectedMonth) {
+            return false;
+        }
+        
+        // データが存在しない場合は非表示
+        if (!data && (!calendarData || calendarData.length === 0)) {
+            return false;
+        }
+        
+        return true;
+    };
+    
+    // 表示条件を満たさない場合は何も表示しない
+    if (!shouldShowAdviceSection()) {
+        return null;
+    }
     
     // 自動スクロール機能を無効化（関連するコードをコメントアウト）
     /*
