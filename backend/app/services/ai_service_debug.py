@@ -2,24 +2,30 @@ import pandas as pd
 import os
 from typing import Dict, Any, Optional
 
-# 目的のマッピング辞書
+# 目的のマッピング辞書（フロントの ActionSelect.js に合わせて更新）
 PURPOSE_MAPPING = {
+    # フロントの目的
+    "today_details": "今日について詳しく知りたい",
     "cal_holiday": "店舗の定休日を検討したい",
     "cal_shoping_holiday": "商店街の定休日を検討したい",
     "cal_long_holiday": "長期休暇のタイミングを検討したい",
     "cal_event": "イベントの開催日程を検討したい",
     "cal_training": "研修のタイミングを検討したい",
-    "wti_event_effect": "イベントの効果を確認したい",
-    "dti_event_time": "イベントの開催時間を検討したい",
+    "dti_event_time": "イベントの開催時刻を検討したい",
     "wti_shift": "アルバイトのシフトを検討したい",
-    "dti_open_hour": "お店の営業時間を検討したい",
-    "dti_shoping_open_hour": "商店街の営業時間を検討したい",
+    "dti_open_hour": "お店の営業時刻を検討したい",
+    "dti_shoping_open_hour": "商店街の営業時刻を検討したい",
     "cal_cog": "カレンダー形式の混雑度が見たい",
-    "wti_cog": "日時形式の混雑度が見たい",
-    "dti_cog": "曜日と時間帯ごとの混雑度が見たい",
+    "dti_cog": "日時形式の混雑度が見たい",
+    "wti_cog": "曜日形式の混雑度が見たい",
+    "month_trend": "月ごとの傾向を見たい",
+    "week_trend": "週ごとの傾向を見たい",
+
+    # 既存の目的（フロント未使用でも後方互換のため残す）
+    "wti_event_effect": "イベントの効果を確認したい",
 }
 
-# 場所のマッピング辞書
+# 場所のマッピング辞書（フロントの LocationSelect.js に合わせて更新）
 LOCATION_MAPPING = {
     "omotesando": "表参道",
     "yottekan": "よって館しもちょう",
@@ -31,7 +37,7 @@ LOCATION_MAPPING = {
     "jinnya": "高山陣屋前交差点",
     "nakabashi": "中橋",
     "station": "駅前",
-    "gyouzinbashi": "行人ばし",
+    "gyouzinbashi": "行神橋",
     "old-town": "古い町並",
 }
 
