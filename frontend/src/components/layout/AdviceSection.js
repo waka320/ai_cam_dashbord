@@ -59,48 +59,6 @@ function AdviceSection() {
         return null;
     }
     
-    // 自動スクロール機能を無効化（関連するコードをコメントアウト）
-    /*
-    const [shouldScrollToBottom, setShouldScrollToBottom] = useState(false);
-    
-    // 新しいメッセージが追加されたときのみスクロール処理を実行
-    useEffect(() => {
-        // 入力中はスクロールしない
-        if (shouldScrollToBottom && messagesEndRef.current && chatContainerRef.current) {
-            // スクロール処理をタイマーで少し遅らせる
-            const timer = setTimeout(() => {
-                // スクロール位置が下部に近い場合か、自分のメッセージが最後の場合のみスクロール
-                const container = chatContainerRef.current;
-                const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
-                const lastMsg = conversation[conversation.length - 1];
-                
-                if (isNearBottom || lastMsg?.type === 'user' || conversation.length <= 1) {
-                    messagesEndRef.current.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'end'
-                    });
-                }
-                // setShouldScrollToBottom(false);
-            }, 100);
-            
-            return () => clearTimeout(timer);
-        }
-    }, [conversation, shouldScrollToBottom]);
-    */
-    
-    // 未使用関数を削除
-    /*
-    // 質問送信の処理
-    const handleAskQuestion = async () => {
-        // ...関数の中身は省略...
-    };
-    
-    // AIメッセージのレンダリング
-    const renderAIMessage = (text, isError = false) => {
-        // ...関数の中身は省略...
-    };
-    */
-    
     // 会話のないときの初期ガイド表示
     const renderEmptyState = () => {
         if (loading) {
@@ -146,18 +104,32 @@ function AdviceSection() {
 
     // AIメッセージのレンダリング
     const renderAIAdvice = (text) => {
-        if (!text) return null;
+        // null/undefinedは非表示
+        if (text == null) return null;
+
+        // 安全に文字列へ変換
+        let adviceString = '';
+        if (typeof text === 'string') {
+            adviceString = text;
+        } else {
+            try {
+                adviceString = String(text);
+            } catch (e) {
+                return null;
+            }
+        }
+        if (!adviceString) return null;
         
         // セクション分割（■ で始まる行をセクションタイトルとして扱う）
         const sections = [];
         let currentTitle = '';
         let currentContent = [];
-        
-        text.split('\n').forEach(line => {
+
+        const lines = adviceString.split('\n');
+        lines.forEach(rawLine => {
+            const line = String(rawLine ?? '');
             if (line.startsWith('■')) {
-                // 新しいセクションの開始
                 if (currentTitle) {
-                    // 前のセクションを保存
                     sections.push({ title: currentTitle, content: currentContent });
                 }
                 currentTitle = line.replace('■', '').trim();
@@ -166,14 +138,12 @@ function AdviceSection() {
                 currentContent.push(line);
             }
         });
-        
-        // 最後のセクションを追加
         if (currentTitle && currentContent.length > 0) {
             sections.push({ title: currentTitle, content: currentContent });
         }
         
-        // タイトル行（【場所】目的）を抽出
-        const titleLine = text.split('\n')[0] || '';
+        // タイトル行（【場所】目的）
+        const titleLine = lines[0] ? String(lines[0]) : '';
         
         // セクション別のアイコンとスタイルを定義
         const getSectionStyle = (title) => {
