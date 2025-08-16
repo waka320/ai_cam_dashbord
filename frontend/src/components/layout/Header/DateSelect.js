@@ -27,12 +27,20 @@ function DateSelect({
   setSelectedMonth,
   loading,
   dateChanging,
-  fetchCalendarData,
   updateMonthAndFetch
 }) {
   const today = new Date();
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth() + 1;
+  
+  // ページトップへスクロール（矢印クリック時にも即発火）
+  const scrollToTop = () => {
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+      // noop
+    }
+  };
   
   // React Hooksは条件分岐の前に呼び出す必要がある
   const generateYearItems = () => {
@@ -60,11 +68,21 @@ function DateSelect({
       return months;
     };
 
-    setAvailableMonths(generateMonthItems(selectedYear));
+    const newAvailableMonths = generateMonthItems(selectedYear);
+    setAvailableMonths(newAvailableMonths);
     
-    const maxAvailableMonth = selectedYear === currentYear.toString() ? currentMonth.toString() : "12";
-    if (selectedMonth && parseInt(selectedMonth) > parseInt(maxAvailableMonth)) {
-      setSelectedMonth("");
+    // 選択された月が新しい年で利用可能かチェック
+    if (selectedMonth && selectedYear) {
+      const maxAvailableMonth = selectedYear === currentYear.toString() ? currentMonth : 12;
+      const selectedMonthNum = parseInt(selectedMonth);
+      
+      if (selectedMonthNum > maxAvailableMonth) {
+        console.log(`Selected month ${selectedMonth} is out of range for year ${selectedYear}, clearing selection`);
+        setSelectedMonth("");
+      } else if (!newAvailableMonths.find(m => m.value === selectedMonth)) {
+        console.log(`Selected month ${selectedMonth} not found in available months, clearing selection`);
+        setSelectedMonth("");
+      }
     }
   }, [selectedYear, currentYear, currentMonth, selectedMonth, setSelectedMonth]);
 
@@ -78,17 +96,14 @@ function DateSelect({
 
   const handleYearChange = (event) => {
     const newYear = event.target.value;
+    // setSelectedYear関数はCalendarContextで定義され、dateChanging状態を適切に管理する
     setSelectedYear(newYear);
-    if (newYear && selectedMonth && selectedAction) {
-      fetchCalendarData();
-    }
   };
 
   const handleMonthChange = (event) => {
-    setSelectedMonth(event.target.value);
-    if (selectedYear && event.target.value && selectedAction) {
-      fetchCalendarData();
-    }
+    const newMonth = event.target.value;
+    // setSelectedMonth関数はCalendarContextで定義され、dateChanging状態を適切に管理する
+    setSelectedMonth(newMonth);
   };
 
   const handlePreviousMonth = () => {
@@ -104,6 +119,7 @@ function DateSelect({
     }
     
     console.log(`Moving to previous month: ${newYear}年${newMonth}月`);
+    scrollToTop();
     updateMonthAndFetch(newYear, newMonth);
   };
   
@@ -123,6 +139,7 @@ function DateSelect({
     }
     
     console.log(`Moving to next month: ${newYear}年${newMonth}月`);
+    scrollToTop();
     updateMonthAndFetch(newYear, newMonth);
   };
 
@@ -239,7 +256,7 @@ function DateSelect({
             }}>
               <Tooltip title="年を選択">
                 <Select
-                  value={selectedYear || ''}
+                  value={(yearItems.some(y => y.value === selectedYear) ? selectedYear : '')}
                   onChange={handleYearChange}
                   disabled={loading || dateChanging}
                   displayEmpty
@@ -336,7 +353,7 @@ function DateSelect({
             }}>
               <Tooltip title="月を選択">
                 <Select
-                  value={selectedMonth || ''}
+                  value={(selectedMonth && availableMonths.find(m => m.value === selectedMonth)) ? selectedMonth : ''}
                   onChange={handleMonthChange}
                   disabled={loading || !selectedYear || dateChanging}
                   displayEmpty
@@ -495,7 +512,6 @@ DateSelect.propTypes = {
   setSelectedMonth: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
   dateChanging: PropTypes.bool.isRequired,
-  fetchCalendarData: PropTypes.func.isRequired,
   updateMonthAndFetch: PropTypes.func.isRequired,
 };
 

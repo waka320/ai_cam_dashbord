@@ -77,7 +77,7 @@ const TimeHeatmap = () => {
   // このコンポーネントを表示すべきか判断
   const shouldShowComponent = selectedAction && selectedAction.startsWith('wti');
     
-  // 表示される場合のみローディングを表示する条件
+  // 表示される場合のみローディングを表示する条件（dateChangingを優先的にチェック）
   const isLoading = shouldShowComponent && (loading || actionChanging || locationChanging || dateChanging);
 
   // このコンポーネントが表示されない場合は何も返さない
@@ -120,10 +120,7 @@ const TimeHeatmap = () => {
             sx={{ color: '#383947' }}
           />
           <Typography variant="h6" color="primary" fontWeight="bold">
-            {actionChanging && "目的を変更中..."}
-            {locationChanging && "場所を変更中..."}
-            {dateChanging && "期間を変更中..."}
-            {loading && "データを読み込み中..."}
+            データを読み込み中...
           </Typography>
           <Typography variant="body2" color="text.secondary">
             ヒートマップデータを処理しています

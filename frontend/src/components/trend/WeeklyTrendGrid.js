@@ -93,7 +93,7 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
           {shouldShowCalculationNote() && (
             <Box sx={{ width: '80%', maxWidth: 300 }}>
               <LinearProgress />
-            </Box>
+          </Box>
           )}
         </Box>
       </Box>
@@ -174,55 +174,55 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
           const monthWeeks = yearMonthData[yearMonth] || [];
           
           if (monthWeeks.length === 0) return null;
-          
-          return (
+              
+              return (
             <Box key={`yearmonth-${yearMonth}`} sx={{ 
               borderBottom: yearMonthIndex !== yearMonths.length - 1 ? '1px solid #ddd' : 'none',
               mb: yearMonthIndex !== yearMonths.length - 1 ? 1 : 0
             }}>
               {/* 年月ラベル + 週セル */}
               <Box sx={{ 
-                display: 'flex',
+                    display: 'flex',
                 alignItems: 'stretch',
                 minHeight: isMobile ? '40px' : '50px'
               }}>
                 {/* 年月ラベル */}
-                <Box sx={{ 
+                  <Box sx={{ 
                   minWidth: isMobile ? '50px' : '60px',
                   backgroundColor: '#f5f5f5',
                   borderRight: '1px solid #ddd',
-                  display: 'flex',
-                  flexDirection: 'column',
+                    display: 'flex',
+                    flexDirection: 'column',
                   justifyContent: 'center',
-                  alignItems: 'center',
+                    alignItems: 'center',
                   padding: '1px'
-                }}>
-                  <Typography 
+                  }}>
+                    <Typography 
                     variant={isMobile ? "body2" : "h6"}
                     fontWeight="bold"
-                    sx={{ 
+                      sx={{
                       fontSize: '12px',
-                      textAlign: 'center',
+                        textAlign: 'center',
                       lineHeight: 0.9,
                       mb: 0,
                       mt: 0
-                    }}
-                  >
+                      }}
+                    >
                     {formatYearMonth(yearMonth).split('年')[0]}年
-                  </Typography>
-                  <Typography 
+                    </Typography>
+                    <Typography 
                     variant={isMobile ? "h6" : "h5"}
                     fontWeight="bold"
-                    sx={{ 
+                      sx={{
                       fontSize: isMobile ? '16px' : '20px',
-                      textAlign: 'center',
+                        textAlign: 'center',
                       lineHeight: 0.9,
                       mb: 0,
                       mt: 0
-                    }}
-                  >
+                      }}
+                    >
                     {formatYearMonth(yearMonth).split('年')[1]}
-                  </Typography>
+                    </Typography>
                 </Box>
 
                 {/* 週セル */}
@@ -264,11 +264,11 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                         {weekData ? (
                           <>
                             {/* 混雑度の数値 */}
-                            <Typography 
+                    <Typography 
                               variant={isMobile ? "h6" : "h5"}
-                              sx={{ 
+                      sx={{ 
                                 fontSize: `${dynamicFontSize}px`,
-                                fontWeight: 'bold',
+                        fontWeight: 'bold',
                                 lineHeight: 0.9,
                                 mb: 0,
                                 mt: 0
@@ -283,7 +283,7 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                               sx={{ 
                                 fontSize: `${dynamicDateFontSize}px`,
                                 lineHeight: 0.9,
-                                textAlign: 'center',
+                        textAlign: 'center',
                                 opacity: 0.9,
                                 whiteSpace: 'nowrap',
                                 mt: 0,
@@ -302,13 +302,13 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                             }}
                           >
                             -
-                          </Typography>
-                        )}
-                      </Box>
-                    );
-                  })}
+                    </Typography>
+                  )}
                 </Box>
-              </Box>
+              );
+            })}
+          </Box>
+        </Box>
             </Box>
           );
         })}

@@ -86,6 +86,14 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
   const [data, setData] = useState(null);
   const [responseType, setResponseType] = useState(null);
   
+  // ページトップにスクロールする共通関数
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }, []);
+  
   // URLパラメータ更新関数
   const updateUrlParam = useCallback((key, value) => {
     const next = new URLSearchParams(searchParams);
@@ -121,7 +129,7 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
 
       console.log(`Fetching data with params: ${year}年${month}月, location: ${location}, action: ${action}`);
 
-      const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/';
+      const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/'; // eslint-disable-line no-undef
       const response = await fetch(`${baseUrl}api/get-graph`, {
         method: 'POST',
         headers: {
@@ -191,9 +199,12 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
     setSelectedActionInternal(value);
     updateUrlParam('action', value);
     
+    // ページトップにスクロール
+    scrollToTop();
+    
     // ローディング状態をリセット（データ取得完了後に自動的にfalseになる）
     setTimeout(() => setActionChanging(false), 500);
-  }, [updateUrlParam]);
+  }, [updateUrlParam, scrollToTop]);
 
   // 場所変更時のハンドラー
   const handleLocationChange = useCallback((value) => {
@@ -203,8 +214,11 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
     setSelectedLocationInternal(value);
     updateUrlParam('location', value);
     
+    // ページトップにスクロール
+    scrollToTop();
+    
     setTimeout(() => setLocationChanging(false), 500);
-  }, [updateUrlParam]);
+  }, [updateUrlParam, scrollToTop]);
 
   // 日付変更時のハンドラー - fetchCalendarDataWithParamsを使用
   const handleDateChange = useCallback((year, month) => {
@@ -223,6 +237,9 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
     updateUrlParam('year', year.toString());
     updateUrlParam('month', month.toString());
     
+    // ページトップにスクロール
+    scrollToTop();
+    
     // データ取得を開始（すべての条件が揃っている場合）
     if (selectedAction && selectedLocation) {
       fetchCalendarDataWithParams(selectedLocation, selectedAction, year.toString(), month.toString());
@@ -230,7 +247,7 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
       // データ取得を行わない場合はローディング状態をリセット
       setTimeout(() => setDateChanging(false), 500);
     }
-  }, [selectedAction, selectedLocation, updateUrlParam, fetchCalendarDataWithParams]);
+  }, [selectedAction, selectedLocation, updateUrlParam, fetchCalendarDataWithParams, scrollToTop]);
 
   // 既存のsetSelectedLocation等を更新
   const setSelectedLocation = useCallback((value) => {
@@ -249,6 +266,9 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
     setSelectedYearInternal(value);
     updateUrlParam('year', value);
     
+    // ページトップにスクロール
+    scrollToTop();
+    
     // 月が選択済みでアクションと場所も選択されていれば即時データ取得
     if (selectedMonth && selectedAction && selectedLocation) {
       // 既存のリクエストをキャンセル
@@ -259,10 +279,10 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
       // 即時にデータ取得を開始
       fetchCalendarDataWithParams(selectedLocation, selectedAction, value, selectedMonth);
     } else {
-      // 条件が揃っていない場合は視覚的フィードバックのためにローディング表示を少し維持
-      setTimeout(() => setDateChanging(false), 500);
+      // 条件が揃っていない場合でもローディング状態を維持してユーザーフィードバックを提供
+      setTimeout(() => setDateChanging(false), 800);
     }
-  }, [selectedMonth, selectedAction, selectedLocation, fetchCalendarDataWithParams, updateUrlParam]);
+  }, [selectedMonth, selectedAction, selectedLocation, fetchCalendarDataWithParams, updateUrlParam, scrollToTop]);
 
   // setSelectedMonthの改善
   const setSelectedMonth = useCallback((value) => {
@@ -271,6 +291,9 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
     monthRef.current.value = value;
     setSelectedMonthInternal(value);
     updateUrlParam('month', value);
+    
+    // ページトップにスクロール
+    scrollToTop();
     
     // 年が選択済みでアクションと場所も選択されていれば即時データ取得
     if (selectedYear && selectedAction && selectedLocation) {
@@ -282,10 +305,10 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
       // 即時にデータ取得を開始
       fetchCalendarDataWithParams(selectedLocation, selectedAction, selectedYear, value);
     } else {
-      // 条件が揃っていない場合はローディング状態を解除
-      setTimeout(() => setDateChanging(false), 500);
+      // 条件が揃っていない場合でもローディング状態を維持してユーザーフィードバックを提供
+      setTimeout(() => setDateChanging(false), 800);
     }
-  }, [selectedYear, selectedAction, selectedLocation, fetchCalendarDataWithParams, updateUrlParam]);
+  }, [selectedYear, selectedAction, selectedLocation, fetchCalendarDataWithParams, updateUrlParam, scrollToTop]);
 
   //  マウント時にCookieから値を読み込む（一度だけ）
   useEffect(() => {
@@ -429,6 +452,9 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
     updateUrlParam('year', newYear.toString());
     updateUrlParam('month', newMonth.toString());
     
+    // ページトップにスクロール
+    scrollToTop();
+    
     // 即時にデータ取得を開始（遅延なし）
     if (selectedLocation && selectedAction) {
       fetchCalendarDataWithParams(
@@ -441,7 +467,7 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
       // データ取得条件が不足している場合はローディング状態を解除
       setTimeout(() => setDateChanging(false), 500);
     }
-  }, [selectedLocation, selectedAction, fetchCalendarDataWithParams, updateUrlParam]);
+  }, [selectedLocation, selectedAction, fetchCalendarDataWithParams, updateUrlParam, scrollToTop]);
 
   // Cookieを含めた選択値をリセットする関数
   const resetSelections = useCallback(() => {
@@ -486,7 +512,7 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
       setAiQuestionLoading(true);
       
       // この部分は実際のAPIエンドポイントに置き換えてください
-      const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/';
+      const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/'; // eslint-disable-line no-undef
       const response = await fetch(`${baseUrl}api/ask-ai`, {
         method: 'POST',
         headers: {
