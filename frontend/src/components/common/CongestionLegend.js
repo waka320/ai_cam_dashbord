@@ -3,12 +3,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Box, Typography, useMediaQuery } from '@mui/material';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
+import { useCalendar } from '../../contexts/CalendarContext'; // 追加
 import WeatherIcon from '../ui/WeatherIcon'; // 追加
 
 const CongestionLegend = ({ showCalculationNote = false, legendType = 'calendar' }) => {
   const { getCellColor, getTextColor } = useColorPalette(); // getTextColorを追加
+  const { selectedAction } = useCalendar(); // 現在のactionを取得
   const isMobile = useMediaQuery('(max-width:768px)');
   const isSmallMobile = useMediaQuery('(max-width:480px)');
+
+  // 天気表示が必要なactionかどうかを判定
+  const shouldShowWeather = selectedAction && (
+    selectedAction.startsWith('cal_') || 
+    selectedAction.startsWith('dti_') || 
+    selectedAction.startsWith('wti_')
+  );
 
   return (
     <Box sx={{ 
@@ -274,43 +283,45 @@ const CongestionLegend = ({ showCalculationNote = false, legendType = 'calendar'
           </Typography>
         </Box>
       )}
-      {/* 天気情報の説明を追加 */}
-      <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center',
-        gap: 1,
-        my: 1.5,
-        p: 1,
-        backgroundColor: 'rgba(33, 150, 243, 0.08)',
-        borderRadius: '6px',
-        border: '1px solid rgba(33, 150, 243, 0.2)'
-      }}>
-        <Typography 
-          variant={isMobile ? "bodyS" : "bodyM"} 
-          sx={{ 
-            fontWeight: '500',
-            color: 'text.primary',
-            fontSize: isMobile ? '0.8rem' : '0.9rem'
-          }}
-        >
-          天気情報: 
-        </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <WeatherIcon weather="晴れ" size="small" showTemp={false} />
-          <WeatherIcon weather="曇り" size="small" showTemp={false} />
-          <WeatherIcon weather="雨" size="small" showTemp={false} />
-          <WeatherIcon weather="雪" size="small" showTemp={false} />
+      {/* 天気情報の説明を追加（cal_、dti_、wti_のactionの場合のみ表示） */}
+      {shouldShowWeather && (
+        <Box sx={{ 
+          display: 'flex', 
+          alignItems: 'center',
+          gap: 1,
+          my: 1.5,
+          p: 1,
+          backgroundColor: 'rgba(33, 150, 243, 0.08)',
+          borderRadius: '6px',
+          border: '1px solid rgba(33, 150, 243, 0.2)'
+        }}>
+          <Typography 
+            variant={isMobile ? "bodyS" : "bodyM"} 
+            sx={{ 
+              fontWeight: '500',
+              color: 'text.primary',
+              fontSize: isMobile ? '0.8rem' : '0.9rem'
+            }}
+          >
+            天気情報: 
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <WeatherIcon weather="晴れ" size="small" showTemp={false} />
+            <WeatherIcon weather="曇り" size="small" showTemp={false} />
+            <WeatherIcon weather="雨" size="small" showTemp={false} />
+            <WeatherIcon weather="雪" size="small" showTemp={false} />
+          </Box>
+          <Typography 
+            variant={isMobile ? "bodyS" : "bodyM"} 
+            sx={{ 
+              color: 'text.secondary',
+              fontSize: isMobile ? '0.75rem' : '0.85rem'
+            }}
+          >
+            各セルの下部に表示
+          </Typography>
         </Box>
-        <Typography 
-          variant={isMobile ? "bodyS" : "bodyM"} 
-          sx={{ 
-            color: 'text.secondary',
-            fontSize: isMobile ? '0.75rem' : '0.85rem'
-          }}
-        >
-          {legendType === 'calendar' ? '各セルの下部に表示' : '各セルの右上に表示'}
-        </Typography>
-      </Box>
+      )}
     </Box>
   );
 };

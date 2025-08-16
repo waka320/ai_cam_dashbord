@@ -192,7 +192,6 @@ function Header() {
                     setSelectedMonth={setSelectedMonth}
                     loading={loading}
                     dateChanging={dateChanging}
-                    fetchCalendarData={fetchCalendarData}
                     updateMonthAndFetch={updateMonthAndFetch}
                   />
 
