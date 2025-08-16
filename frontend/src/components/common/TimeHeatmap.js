@@ -122,10 +122,6 @@ const TimeHeatmap = () => {
           <Typography variant="h6" color="primary" fontWeight="bold">
             データを読み込み中...
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            ヒートマップデータを処理しています
-          </Typography>
-          
           <Box sx={{ width: '300px', mt: 1 }}>
             <LinearProgress 
               variant="indeterminate"

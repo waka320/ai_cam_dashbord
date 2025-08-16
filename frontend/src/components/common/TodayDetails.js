@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Box, Typography, useMediaQuery } from '@mui/material';
+import { Box, Typography, useMediaQuery, CircularProgress, LinearProgress } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
 import SectionContainer from '../ui/SectionContainer';
 import CongestionLegend from './CongestionLegend';
@@ -10,7 +10,7 @@ import WeeklyTrend from '../today/WeeklyTrend';
 import HourlyDetails from '../today/HourlyDetails';
 
 const TodayDetails = () => {
-    const { selectedAction, selectedLocation, loading } = useCalendar();
+    const { selectedAction, selectedLocation, loading, actionChanging, locationChanging, dateChanging } = useCalendar();
     const isMobile = useMediaQuery('(max-width:768px)');
     
     const { todayData, summaryData, error, fetchLoading, getTodaysDate } = useTodayData(selectedLocation);
@@ -37,14 +37,48 @@ const TodayDetails = () => {
         return null;
     }
 
-    // ローディング中の表示
-    if (loading || fetchLoading) {
+    // ローディング中の表示（他のグラフと同様のホイールアニメーション）
+    const isLoading = selectedAction === 'today_details' && (loading || actionChanging || locationChanging || dateChanging || fetchLoading);
+    if (isLoading) {
         console.log('TodayDetails: Loading state:', { loading, fetchLoading });
         return (
             <SectionContainer>
-                <Typography variant="body1" align="center">
-                    今日のデータを読み込んでいます...
-                </Typography>
+                <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    minHeight: '200px',
+                    flexDirection: 'column',
+                    gap: 2,
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                    px: isMobile ? 1 : 2,
+                    py: isMobile ? 2 : 3
+                }}>
+                    <CircularProgress 
+                        size={48}
+                        thickness={4}
+                        sx={{ color: '#383947' }}
+                    />
+                    <Typography variant="h6" color="primary" fontWeight="bold">
+                        データを読み込み中...
+                    </Typography>
+                    <Box sx={{ width: '300px', mt: 1 }}>
+                        <LinearProgress 
+                            variant="indeterminate"
+                            sx={{
+                                height: 4,
+                                borderRadius: 2,
+                                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                                '& .MuiLinearProgress-bar': {
+                                    borderRadius: 2,
+                                    backgroundColor: '#383947',
+                                }
+                            }}
+                        />
+                    </Box>
+                </Box>
             </SectionContainer>
         );
     }
