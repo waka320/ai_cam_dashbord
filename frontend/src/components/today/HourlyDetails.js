@@ -111,7 +111,7 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                                                 fontSize: isMobile ? (isSmallMobile ? '12px' : '14px') : '16px'
                                             }}
                                         >
-                                            {hourData.hour}
+                                            {hourData.hour}時
                                         </Typography>
                                     </Box>
                                 ))}
@@ -211,7 +211,7 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                                                 fontSize: isMobile ? (isSmallMobile ? '12px' : '14px') : '16px'
                                             }}
                                         >
-                                            {hourData.hour}
+                                            {hourData.hour}時
                                         </Typography>
                                     </Box>
                                 ))}
