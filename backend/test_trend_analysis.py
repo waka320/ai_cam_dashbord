@@ -41,17 +41,17 @@ def test_congestion_data():
                         if daily_data:
                             print(f"最新日の混雑度: {daily_data[-1].get('congestion_level', 'N/A')}")
                     
-                    # 前年データの有無
+                    # 去年データの有無
                     historical = result.get('historical_comparison', {})
                     if historical.get('data_available'):
                         hist_data = historical.get('daily_data', [])
-                        print(f"前年データ: {len(hist_data)}日分利用可能")
+                        print(f"去年データ: {len(hist_data)}日分利用可能")
                         if hist_data:
                             reference_day = next((d for d in hist_data if d.get('days_from_reference') == 0), None)
                             if reference_day:
-                                print(f"前年同日の混雑度: {reference_day.get('congestion_level', 'N/A')}")
+                                print(f"去年同日の混雑度: {reference_day.get('congestion_level', 'N/A')}")
                     else:
-                        print("前年データ: 利用不可")
+                        print("去年データ: 利用不可")
                     
                 else:
                     print(f"❌ データ取得失敗: {place_name} - 結果なし")

@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Typography, useMediaQuery } from '@mui/material';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
 import { formatDateJapanese, formatDateShort, getDayOfWeekJapanese } from '../../utils/todayUtils';
+import WeatherIcon from '../ui/WeatherIcon';
 import PropTypes from 'prop-types';
 
 const TodaySummary = ({ summaryData, getTodaysDate }) => {
@@ -222,6 +223,35 @@ const TodaySummary = ({ summaryData, getTodaysDate }) => {
                         <Typography variant="caption" color="text.secondary">
                             {getDayOfWeekJapanese(todaySummary.day_of_week)}曜日
                         </Typography>
+                        
+                        {/* 天気情報の表示 */}
+                        {todaySummary.weather_info && (
+                            <Box sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 1, 
+                                mt: 1,
+                                flexWrap: 'wrap'
+                            }}>
+                                <WeatherIcon 
+                                    weather={todaySummary.weather_info.weather}
+                                    size="large"
+                                    showTemp={false}
+                                />
+
+                                {todaySummary.weather_info.weather && (
+                                    <Typography 
+                                        variant="body2" 
+                                        sx={{ 
+                                            color: 'text.secondary',
+                                            fontSize: '0.8rem'
+                                        }}
+                                    >
+                                        {todaySummary.weather_info.weather}
+                                    </Typography>
+                                )}
+                            </Box>
+                        )}
                     </Box>
                 </Box>
             </Box>

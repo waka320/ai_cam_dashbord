@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography, useMediaQuery } from '@mui/material';
 import WeeklyCell from './WeeklyCell';
-import { getDayOfWeekJapanese } from '../../utils/todayUtils';
+
 import PropTypes from 'prop-types';
 
 
@@ -9,6 +9,47 @@ import PropTypes from 'prop-types';
 const WeeklyTrend = ({ summaryData, getTodaysDate, isHistorical = false, isCompact = false }) => {
     const isMobile = useMediaQuery('(max-width:768px)');
     const isSmallMobile = useMediaQuery('(max-width:480px)');
+    
+    // 今日から前後2週間の7×2グリッドに調整する関数
+    const adjustToTwoWeekGrid = (data, referenceDate) => {
+        if (!data || data.length === 0) return [];
+        
+        const today = new Date(referenceDate);
+        
+        // 今日を含む2週間のデータを抽出（今日から前1週間 + 今日から後1週間）
+        const twoWeeksData = [];
+        
+        // 今日から1週間前の日曜日を計算
+        const todayDayOfWeek = today.getDay(); // 0=日曜日
+        const startDate = new Date(today);
+        startDate.setDate(today.getDate() - todayDayOfWeek - 7); // 1週間前の日曜日
+        
+        // 2週間分（14日）のデータを作成
+        for (let i = 0; i < 14; i++) {
+            const currentDate = new Date(startDate);
+            currentDate.setDate(startDate.getDate() + i);
+            const dateStr = currentDate.toISOString().split('T')[0];
+            
+            // 該当する日付のデータを検索
+            const dayData = data.find(d => d.date === dateStr);
+            
+            if (dayData) {
+                twoWeeksData.push(dayData);
+            } else {
+                // データがない場合は空のセルを作成
+                twoWeeksData.push({
+                    date: dateStr,
+                    congestion_level: 0,
+                    is_empty: true,
+                    weather_info: null,
+                    is_today: dateStr === referenceDate,
+                    is_future: currentDate > today
+                });
+            }
+        }
+        
+        return twoWeeksData;
+    };
     
     // バックエンドから送られてくるデータ構造に合わせて修正
     const recentWeekData = summaryData?.data?.recent_week_daily_summary || [];
@@ -20,17 +61,8 @@ const WeeklyTrend = ({ summaryData, getTodaysDate, isHistorical = false, isCompa
     
     const weeksCount = summaryData?.data?.weeks_count || 3;
     
-    console.log('WeeklyTrend debug:', {
-        isHistorical,
-        recentWeekData: recentWeekData,
-        historicalData: historicalData,
-        weeksCount: weeksCount,
-        recentWeekLength: recentWeekData.length,
-        historicalLength: historicalData.length,
-    });
-    
     const title = isHistorical 
-        ? "前年" : "今年";
+        ? "去年" : "今年";
     
     // 表示するデータを決定（フォールバック対応）
     let displayData = [];
@@ -43,7 +75,7 @@ const WeeklyTrend = ({ summaryData, getTodaysDate, isHistorical = false, isCompa
                         gutterBottom 
                         sx={{ 
                             fontWeight: 'bold', 
-                            mb: 1.5,
+                            mb: 0.3,
                             color: 'text.primary'
                         }}
                     >
@@ -59,7 +91,7 @@ const WeeklyTrend = ({ summaryData, getTodaysDate, isHistorical = false, isCompa
                         textAlign: 'center'
                     }}>
                         <Typography variant="body2" color="text.secondary">
-                            前年のデータは利用できません
+                            去年のデータは利用できません
                         </Typography>
                     </Box>
                 </Box>
@@ -76,54 +108,76 @@ const WeeklyTrend = ({ summaryData, getTodaysDate, isHistorical = false, isCompa
                 is_future: day.is_future || false
             }));
         }
+    }
+    
+    // 今日から前後2週間の7×2グリッドに調整
+    const todaysDate = getTodaysDate();
+    // 去年データの場合は去年の今日を基準にする
+    const referenceDate = isHistorical 
+        ? new Date(new Date(todaysDate).setFullYear(new Date(todaysDate).getFullYear() - 1)).toISOString().split('T')[0]
+        : todaysDate;
+    const adjustedData = adjustToTwoWeekGrid(displayData, referenceDate);
+    
+    // 調整後のデータを使用
+    const dailyData = adjustedData;
+    
+    console.log('WeeklyTrend debug:', {
+        isHistorical,
+        recentWeekData: recentWeekData,
+        historicalData: historicalData,
+        weeksCount: weeksCount,
+        recentWeekLength: recentWeekData.length,
+        historicalLength: historicalData.length,
+        adjustedDataLength: dailyData.length,
+        referenceDate: referenceDate
+    });
         
-        if (displayData.length === 0) {
-            return (
-                <Box sx={{ mb: 2 }}>
-                    <Typography 
-                        variant={isMobile ? "subtitle2" : "h6"} 
-                        gutterBottom 
-                        sx={{ 
-                            fontWeight: 'bold', 
-                            mb: 1.5,
-                            color: 'text.primary'
-                        }}
-                    >
-                        {title}
+    if (dailyData.length === 0) {
+        return (
+            <Box>
+                <Typography 
+                    variant={isMobile ? "subtitle2" : "h6"} 
+                    gutterBottom 
+                    sx={{ 
+                        fontWeight: 'bold', 
+                        mb: 0.5,
+                        color: 'text.primary'
+                    }}
+                >
+                    {title}
+                </Typography>
+                
+                <Box sx={{ 
+                    border: '1px solid #ddd', 
+                    borderRadius: '8px', 
+                    overflow: 'hidden',
+                    backgroundColor: '#fff',
+                    p: 2,
+                    textAlign: 'center'
+                }}>
+                    <Typography variant="body2" color="text.secondary">
+                        最近の週間データはまだ利用できません
                     </Typography>
-                    
-                    <Box sx={{ 
-                        border: '1px solid #ddd', 
-                        borderRadius: '8px', 
-                        overflow: 'hidden',
-                        backgroundColor: '#fff',
-                        p: 2,
-                        textAlign: 'center'
-                    }}>
-                        <Typography variant="body2" color="text.secondary">
-                            最近の週間データはまだ利用できません
-                        </Typography>
-                    </Box>
                 </Box>
-            );
-        }
+            </Box>
+        );
     }
 
-    // 曜日ごとにグループ化してセクション表示
+    // 曜日ごとにグループ化してセクション表示（7×2グリッド）
     const groupedByWeek = [];
-    for (let i = 0; i < displayData.length; i += 7) {
-        groupedByWeek.push(displayData.slice(i, i + 7));
+    for (let i = 0; i < dailyData.length; i += 7) {
+        groupedByWeek.push(dailyData.slice(i, i + 7));
     }
 
     return (
-        <Box sx={{ mb: isCompact ? 1 : 2 }}>
+        <Box>
             {!isCompact && (
                 <Typography 
                     variant={isMobile ? "subtitle2" : "h6"} 
                     gutterBottom 
                     sx={{ 
                         fontWeight: 'bold', 
-                        mb: 1.5,
+                        mb: 0.5,
                         color: 'text.primary'
                     }}
                 >
@@ -136,15 +190,16 @@ const WeeklyTrend = ({ summaryData, getTodaysDate, isHistorical = false, isCompa
                 border: '1px solid #ddd', 
                 borderRadius: '8px', 
                 overflow: 'hidden',
-                width: '100%'
+                width: '100%',
+                position: 'relative'
             }}>
-                {/* 曜日のヘッダー（実際のデータに基づく曜日表示） */}
+                {/* 曜日のヘッダー（日曜日始まり固定） */}
                 <Box sx={{ 
                     display: 'flex', 
                     backgroundColor: '#f5f5f5', 
                     borderBottom: '1px solid #ddd'
                 }}>
-                    {displayData.slice(0, 7).map((day, index) => (
+                    {['日', '月', '火', '水', '木', '金', '土'].map((dayName, index) => (
                         <Box key={index} sx={{ 
                             flex: 1, 
                             textAlign: 'center', 
@@ -159,7 +214,7 @@ const WeeklyTrend = ({ summaryData, getTodaysDate, isHistorical = false, isCompa
                                         : (isMobile ? '12px' : '14px')
                                 }}
                             >
-                                {getDayOfWeekJapanese(day.day_of_week)}
+                                {dayName}
                             </Typography>
                         </Box>
                     ))}
@@ -181,8 +236,8 @@ const WeeklyTrend = ({ summaryData, getTodaysDate, isHistorical = false, isCompa
                                         position: 'relative',
                                         cursor: 'default',
                                         height: isCompact 
-                                            ? (isMobile ? (isSmallMobile ? '35px' : '40px') : '60px')
-                                            : (isMobile ? (isSmallMobile ? '35px' : '40px') : '80px'),
+                                            ? (isMobile ? (isSmallMobile ? '45px' : '50px') : '70px')
+                                            : (isMobile ? (isSmallMobile ? '50px' : '55px') : '90px'),
                                         minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '50px',
                                     }}
                                 >

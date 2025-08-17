@@ -117,7 +117,6 @@ const TodayDetails = () => {
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'space-between',
-                mb: 2,
                 px: 1
             }}>
                 <Typography 
@@ -136,7 +135,7 @@ const TodayDetails = () => {
             {summaryData && summaryData.data && (
                 <>
                     {/* 週間動向の比較セクション */}
-                    <Box sx={{ mb: 2 }}>
+                    <Box sx={{ mb: 0.5 }}>
                    
                         {/* PC表示時は横並び、モバイルは縦並び */}
                         <Box sx={{ 
@@ -171,7 +170,7 @@ const TodayDetails = () => {
                                 />
                             </Box>
 
-                            {/* 前年のデータ */}
+                            {/* 去年のデータ */}
                             <Box sx={{ 
                                 flex: isMobile ? 'none' : 1,
                                 minWidth: 0
@@ -181,12 +180,11 @@ const TodayDetails = () => {
                                         variant="body1"
                                         sx={{ 
                                             fontWeight: 'bold', 
-                                            mb: 1,
                                             color: 'text.primary',
                                             textAlign: 'center'
                                         }}
                                     >
-                                        前年
+                                        去年
                                     </Typography>
                                 )}
                                 <WeeklyTrend 
@@ -200,6 +198,17 @@ const TodayDetails = () => {
                     </Box>
                 </>
             )}
+
+            {/* セクション間の境界線 */}
+            <Box sx={{ 
+                width: '100%', 
+                height: '1.5px', 
+                backgroundColor: '#bbb', 
+                position: 'relative',
+                my: 2.3
+            }}>
+                
+            </Box>
 
             {/* 時間別詳細セクション */}
             <HourlyDetails 

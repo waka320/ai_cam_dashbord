@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, useMediaQuery } from '@mui/material';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
+import WeatherIcon from '../ui/WeatherIcon';
 import PropTypes from 'prop-types';
 
 const HourlyCell = ({ hourData, index, totalLength, isGrayCell = false }) => {
@@ -16,7 +17,7 @@ const HourlyCell = ({ hourData, index, totalLength, isGrayCell = false }) => {
             sx={{
                 minWidth: isMobile ? (isSmallMobile ? '32px' : '42px') : '42px',
                 width: isMobile ? (isSmallMobile ? '32px' : '42px') : '42px',
-                height: isMobile ? (isSmallMobile ? '40px' : '44px') : '47px',
+                height: isMobile ? (isSmallMobile ? '44px' : '48px') : '52px',
                 backgroundColor: cellColor,
                 color: textColor,
                 borderRight: index !== totalLength - 1 ? '1px solid #ddd' : 'none',
@@ -28,31 +29,46 @@ const HourlyCell = ({ hourData, index, totalLength, isGrayCell = false }) => {
                 position: 'relative'
             }}
         >
-            <Typography 
-                sx={{ 
-                    fontSize: isMobile ? (isSmallMobile ? '18px' : '20px') : '22px',
-                    lineHeight: '1',
-                    fontWeight: 'bold',
-                    textAlign: 'center'
-                }}
-            >
-                {hourData.congestion === 0 ? '-' : hourData.congestion}
-            </Typography>
-            
-            {/* 天気情報を下部に表示 */}
-            {hourData.weather_info && hourData.weather_info.weather && hourData.weather_info.weather !== '-' && (
+            {/* メインコンテンツエリア */}
+            <Box sx={{ 
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
                 <Typography 
                     sx={{ 
-                        fontSize: '7px',
+                        fontSize: isMobile ? (isSmallMobile ? '18px' : '20px') : '22px',
                         lineHeight: '1',
-                        position: 'absolute',
-                        bottom: '1px',
-                        textAlign: 'center',
-                        opacity: 0.8
+                        fontWeight: 'bold',
+                        textAlign: 'center'
                     }}
                 >
-                    {hourData.weather_info.weather}
+                    {hourData.congestion === 0 ? '-' : hourData.congestion}
                 </Typography>
+            </Box>
+            
+            {/* 天気情報エリア */}
+            {hourData.weather_info && hourData.weather_info.weather && hourData.weather_info.weather !== '-' && (
+                <Box sx={{
+                    width: '100%',
+                    height: isSmallMobile ? '12px' : isMobile ? '14px' : '16px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0px',
+                    padding: '0px',
+                    mt: '0px',
+                    overflow: 'visible'
+                }}>
+                    <WeatherIcon 
+                        weather={hourData.weather_info.weather}
+                        size={isSmallMobile ? "medium" : "large"}
+                        showTemp={false}
+                    />
+
+                </Box>
             )}
         </Box>
     );
