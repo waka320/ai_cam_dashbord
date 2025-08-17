@@ -5,7 +5,7 @@ import { formatDateShort } from '../../utils/todayUtils';
 import WeatherIcon from '../ui/WeatherIcon';
 import PropTypes from 'prop-types';
 
-const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = false, isUltraCompact = false }) => {
+const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = false, isUltraCompact = false, events = [] }) => {
     const { getCellColor, getTextColor } = useColorPalette();
     const isMobile = useMediaQuery('(max-width:768px)');
     const isSmallMobile = useMediaQuery('(max-width:480px)');
@@ -60,6 +60,7 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
         else displayText = `${daysDiff}日後`;
         
         const labelColor = daysDiff <= 2 ? '#4caf50' : '#9e9e9e';
+        const hasEvents = events && events.length > 0;
         
         return (
             <Box 
@@ -81,21 +82,50 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                     justifyContent: 'center',
                     gap: '0px'
                 }}>
-                    <Typography 
-                        sx={{
-                            fontSize: isUltraCompact 
-                                ? (isSmallMobile ? '12px' : '14px')
-                                : (isCompactMode 
-                                    ? (isSmallMobile ? '14px' : '16px') 
-                                    : (isSmallMobile ? '16px' : isMobile ? '18px' : '20px')),
-                            lineHeight: '1',
-                            fontWeight: '500',
-                            textAlign: 'center',
-                            mb: 0
-                        }}
-                    >
-                        {formatDateShort(day.date)}
-                    </Typography>
+                    {/* 日付と天気を同じ行に表示 */}
+                    <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '2px',
+                        width: '100%'
+                    }}>
+                        <Typography 
+                            sx={{
+                                fontSize: isUltraCompact 
+                                    ? (isSmallMobile ? '12px' : '14px')
+                                    : (isCompactMode 
+                                        ? (isSmallMobile ? '14px' : '16px') 
+                                        : (isSmallMobile ? '16px' : isMobile ? '18px' : '20px')),
+                                lineHeight: '1',
+                                fontWeight: '500',
+                                textAlign: 'center',
+                                mb: 0
+                            }}
+                        >
+                            {formatDateShort(day.date)}
+                        </Typography>
+                        
+                        {/* 天気アイコンを日付の横に表示 */}
+                        {day.weather_info && (
+                            <Box sx={{
+                                width: isUltraCompact ? '12px' : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px'),
+                                height: isUltraCompact ? '12px' : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px'),
+                                backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                                borderRadius: '2px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                            }}>
+                                <WeatherIcon 
+                                    weather={day.weather_info.weather}
+                                    size="small"
+                                    showTemp={false}
+                                />
+                            </Box>
+                        )}
+                    </Box>
                     
                     <Typography 
                         sx={{ 
@@ -114,37 +144,37 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                     </Typography>
                 </Box>
                 
-                {/* 天気情報エリア */}
-                {day.weather_info && (
+                {/* イベント情報エリア */}
+                {hasEvents && (
                     <Box sx={{
                         width: '100%',
-                        height: isUltraCompact ? '12px' : (isMobile ? '16px' : '20px'),
+                        minHeight: isUltraCompact ? '12px' : (isSmallMobile ? '14px' : '16px'),
                         backgroundColor: 'rgba(255, 255, 255, 0.75)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '2px',
-                        padding: '1px'
+                        padding: '1px 2px',
+                        overflow: 'visible'
                     }}>
-                        <WeatherIcon 
-                            weather={day.weather_info.weather}
-                            size="medium"
-                            showTemp={false}
-                        />
-                        {day.weather_info.avg_temperature && (
-                            <Typography 
-                                sx={{ 
-                                    fontSize: isUltraCompact ? '8px' : '10px',
-                                    color: '#333',
-                                    fontWeight: '600',
-                                    lineHeight: '1'
-                                }}
-                            >
-                                {Math.round(day.weather_info.avg_temperature)}°
-                            </Typography>
-                        )}
+                        <Typography 
+                            sx={{ 
+                                fontSize: isUltraCompact ? '9px' : (isSmallMobile ? '11px' : '12px'),
+                                color: '#333',
+                                fontWeight: '600',
+                                lineHeight: '1.1',
+                                textAlign: 'center',
+                                whiteSpace: 'normal',
+                                wordBreak: 'break-word',
+                                hyphens: 'auto',
+                                maxWidth: '100%'
+                            }}
+                            title={events.map(e => e.title).join(', ')}
+                        >
+                            {events.length > 1 ? `${events.length}件` : events[0]?.title?.substring(0, 4)}
+                        </Typography>
                     </Box>
                 )}
+
             </Box>
         );
     }
@@ -168,6 +198,8 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
 
     // 今日のデータがない場合の特別表示
     if (isToday && !hasData) {
+        const hasEvents = events && events.length > 0;
+        
         return (
             <Box 
                 sx={{ 
@@ -188,21 +220,50 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                     justifyContent: 'center',
                     gap: '0px'
                 }}>
-                    <Typography 
-                        sx={{
-                            fontSize: isUltraCompact 
-                                ? (isSmallMobile ? '12px' : '14px')
-                                : (isCompactMode 
-                                    ? (isSmallMobile ? '14px' : '16px') 
-                                    : (isSmallMobile ? '16px' : isMobile ? '18px' : '20px')),
-                            lineHeight: '1',
-                            fontWeight: '500',
-                            textAlign: 'center',
-                            mb: 0
-                        }}
-                    >
-                        {formatDateShort(day.date)}
-                    </Typography>
+                    {/* 日付と天気を同じ行に表示 */}
+                    <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '2px',
+                        width: '100%'
+                    }}>
+                        <Typography 
+                            sx={{
+                                fontSize: isUltraCompact 
+                                    ? (isSmallMobile ? '12px' : '14px')
+                                    : (isCompactMode 
+                                        ? (isSmallMobile ? '14px' : '16px') 
+                                        : (isSmallMobile ? '16px' : isMobile ? '18px' : '20px')),
+                                lineHeight: '1',
+                                fontWeight: '500',
+                                textAlign: 'center',
+                                mb: 0
+                            }}
+                        >
+                            {formatDateShort(day.date)}
+                        </Typography>
+                        
+                        {/* 天気アイコンを日付の横に表示 */}
+                        {day.weather_info && (
+                            <Box sx={{
+                                width: isUltraCompact ? '12px' : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px'),
+                                height: isUltraCompact ? '12px' : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px'),
+                                backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                                borderRadius: '2px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                            }}>
+                                <WeatherIcon 
+                                    weather={day.weather_info.weather}
+                                    size="small"
+                                    showTemp={false}
+                                />
+                            </Box>
+                        )}
+                    </Box>
                     
                     <Typography 
                         sx={{ 
@@ -217,37 +278,48 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                             color: '#1976d2'
                         }}
                     >
-                        今日
+                                            今日
+                </Typography>
+            </Box>
+            
+            {/* イベント情報エリア */}
+            {hasEvents && (
+                <Box sx={{
+                    width: '100%',
+                    minHeight: isUltraCompact ? '10px' : (isSmallMobile ? '12px' : '14px'),
+                    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '1px 2px',
+                    overflow: 'visible'
+                }}>
+                    <Typography 
+                        sx={{ 
+                            fontSize: isUltraCompact ? '7px' : (isSmallMobile ? '8px' : '9px'),
+                            color: '#333',
+                            fontWeight: '600',
+                            lineHeight: '1.1',
+                            textAlign: 'center',
+                            whiteSpace: 'normal',
+                            wordBreak: 'break-word',
+                            hyphens: 'auto',
+                            maxWidth: '100%'
+                        }}
+                        title={events.map(e => e.title).join(', ')}
+                    >
+                        {events.length > 1 ? `${events.length}件` : events[0]?.title?.substring(0, 4)}
                     </Typography>
                 </Box>
-                
-                {/* 天気情報エリア */}
-                {day.weather_info && (
-                    <Box sx={{
-                        width: '100%',
-                        height: isUltraCompact ? '12px' : (isSmallMobile ? '14px' : isMobile ? '16px' : '20px'),
-                        backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: isUltraCompact ? '1px' : '2px',
-                        padding: '1px',
-                        mt: isUltraCompact ? '1px' : '2px'
-                    }}>
-                        <WeatherIcon 
-                            weather={day.weather_info.weather}
-                            size={isUltraCompact ? "small" : "medium"}
-                            showTemp={false}
-                        />
-
-                    </Box>
-                )}
+            )}
             </Box>
         );
     }
 
     // データがない場合のスタイル（未来の日付以外）
     if (!hasData && !isFuture) {
+        const hasEvents = events && events.length > 0;
+        
         return (
             <Box 
                 sx={{ 
@@ -265,21 +337,50 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                     justifyContent: 'center',
                     gap: '0px'
                 }}>
-                    <Typography 
-                        sx={{
-                            fontSize: isUltraCompact 
-                                ? (isSmallMobile ? '12px' : '14px')
-                                : (isCompactMode 
-                                    ? (isSmallMobile ? '14px' : '16px') 
-                                    : (isSmallMobile ? '16px' : isMobile ? '18px' : '20px')),
-                            lineHeight: '1',
-                            fontWeight: '500',
-                            textAlign: 'center',
-                            mb: 0
-                        }}
-                    >
-                        {formatDateShort(day.date)}
-                    </Typography>
+                    {/* 日付と天気を同じ行に表示 */}
+                    <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '2px',
+                        width: '100%'
+                    }}>
+                        <Typography 
+                            sx={{
+                                fontSize: isUltraCompact 
+                                    ? (isSmallMobile ? '12px' : '14px')
+                                    : (isCompactMode 
+                                        ? (isSmallMobile ? '14px' : '16px') 
+                                        : (isSmallMobile ? '16px' : isMobile ? '18px' : '20px')),
+                                lineHeight: '1',
+                                fontWeight: '500',
+                                textAlign: 'center',
+                                mb: 0
+                            }}
+                        >
+                            {formatDateShort(day.date)}
+                        </Typography>
+                        
+                        {/* 天気アイコンを日付の横に表示 */}
+                        {day.weather_info && (
+                            <Box sx={{
+                                width: isUltraCompact ? '12px' : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px'),
+                                height: isUltraCompact ? '12px' : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px'),
+                                backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                                borderRadius: '2px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                            }}>
+                                <WeatherIcon 
+                                    weather={day.weather_info.weather}
+                                    size="small"
+                                    showTemp={false}
+                                />
+                            </Box>
+                        )}
+                    </Box>
                     
                     <Typography 
                         sx={{ 
@@ -293,31 +394,40 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                             textAlign: 'center'
                         }}
                     >
-                        {dateLabel || '-'}
+                                            {dateLabel || '-'}
+                </Typography>
+            </Box>
+            
+            {/* イベント情報エリア */}
+            {hasEvents && (
+                <Box sx={{
+                    width: '100%',
+                    minHeight: isUltraCompact ? '10px' : (isSmallMobile ? '12px' : '14px'),
+                    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '1px 2px',
+                    overflow: 'visible'
+                }}>
+                    <Typography 
+                        sx={{ 
+                            fontSize: isUltraCompact ? '7px' : (isSmallMobile ? '8px' : '9px'),
+                            color: '#333',
+                            fontWeight: '600',
+                            lineHeight: '1.1',
+                            textAlign: 'center',
+                            whiteSpace: 'normal',
+                            wordBreak: 'break-word',
+                            hyphens: 'auto',
+                            maxWidth: '100%'
+                        }}
+                        title={events.map(e => e.title).join(', ')}
+                    >
+                        {events.length > 1 ? `${events.length}件` : events[0]?.title?.substring(0, 4)}
                     </Typography>
                 </Box>
-                
-                {/* 天気情報エリア */}
-                {day.weather_info && (
-                    <Box sx={{
-                        width: '100%',
-                        height: isUltraCompact ? '12px' : (isSmallMobile ? '14px' : isMobile ? '16px' : '20px'),
-                        backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: isUltraCompact ? '1px' : '2px',
-                        padding: '1px',
-                        mt: isUltraCompact ? '1px' : '2px'
-                    }}>
-                        <WeatherIcon 
-                            weather={day.weather_info.weather}
-                            size={isUltraCompact ? "small" : "medium"}
-                            showTemp={false}
-                        />
-
-                    </Box>
-                )}
+            )}
             </Box>
         );
     }
@@ -325,6 +435,7 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
     // データがある場合の通常表示
     const cellColor = getCellColor(day.congestion_level);
     const textColor = getTextColor(day.congestion_level);
+    const hasEvents = events && events.length > 0;
     
     const isRelativeLabel = Boolean(dateLabel);
     return (
@@ -344,21 +455,50 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                 justifyContent: 'center',
                 gap: isUltraCompact ? '0px' : '1px'
             }}>
-                <Typography 
-                    sx={{
-                        fontSize: isUltraCompact 
-                            ? (isSmallMobile ? '10px' : '12px')
-                            : (isCompactMode 
-                                ? (isSmallMobile ? '12px' : '14px') 
-                                : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px')),
-                        lineHeight: '1',
-                        fontWeight: '500',
-                        textAlign: 'center',
-                        mb: 0
-                    }}
-                >
-                    {formatDateShort(day.date)}
-                </Typography>
+                {/* 日付と天気を同じ行に表示 */}
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '2px',
+                    width: '100%'
+                }}>
+                    <Typography 
+                        sx={{
+                            fontSize: isUltraCompact 
+                                ? (isSmallMobile ? '10px' : '12px')
+                                : (isCompactMode 
+                                    ? (isSmallMobile ? '12px' : '14px') 
+                                    : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px')),
+                            lineHeight: '1',
+                            fontWeight: '500',
+                            textAlign: 'center',
+                            mb: 0
+                        }}
+                    >
+                        {formatDateShort(day.date)}
+                    </Typography>
+                    
+                    {/* 天気アイコンを日付の横に表示 */}
+                    {day.weather_info && (
+                        <Box sx={{
+                            width: isUltraCompact ? '12px' : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px'),
+                            height: isUltraCompact ? '12px' : (isSmallMobile ? '14px' : isMobile ? '16px' : '18px'),
+                            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                            borderRadius: '2px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                        }}>
+                            <WeatherIcon 
+                                weather={day.weather_info.weather}
+                                size="small"
+                                showTemp={false}
+                            />
+                        </Box>
+                    )}
+                </Box>
                 
                 <Typography 
                     sx={{ 
@@ -372,30 +512,41 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                         textAlign: 'center'
                     }}
                 >
-                    {dateLabel || day.congestion_level}
-                </Typography>
-            </Box>
-            
-            {/* 天気情報エリア */}
-            {day.weather_info && (
-                <Box sx={{
-                    width: '100%',
-                    height: isUltraCompact ? '12px' : (isSmallMobile ? '14px' : isMobile ? '16px' : '20px'),
-                    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0px',
-                    padding: '0px',
-                    mt: '0px'
-                }}>
-                    <WeatherIcon 
-                        weather={day.weather_info.weather}
-                        size={isUltraCompact ? "medium" : "large"}
-                        showTemp={false}
-                    />
-                </Box>
-            )}
+                                {dateLabel || day.congestion_level}
+        </Typography>
+    </Box>
+
+    {/* イベント情報エリア */}
+    {hasEvents && (
+        <Box sx={{
+            width: '100%',
+            minHeight: isUltraCompact ? '10px' : (isSmallMobile ? '12px' : '14px'),
+            backgroundColor: 'rgba(255, 255, 255, 0.75)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1px 2px',
+            overflow: 'visible'
+        }}>
+            <Typography 
+                sx={{ 
+                    fontSize: isUltraCompact ? '7px' : (isSmallMobile ? '8px' : '9px'),
+                    color: '#333',
+                    fontWeight: '600',
+                    lineHeight: '1.1',
+                    textAlign: 'center',
+                    whiteSpace: 'normal',
+                    wordBreak: 'break-word',
+                    hyphens: 'auto',
+                    maxWidth: '100%'
+                }}
+                title={events.map(e => e.title).join(', ')}
+            >
+                {events.length > 1 ? `${events.length}件` : events[0]?.title?.substring(0, 4)}
+            </Typography>
+        </Box>
+    )}
+
         </Box>
     );
 };
@@ -418,7 +569,11 @@ WeeklyCell.propTypes = {
     isCurrentYear: PropTypes.bool,
     getTodaysDate: PropTypes.func.isRequired,
     isCompactMode: PropTypes.bool,
-    isUltraCompact: PropTypes.bool
+    isUltraCompact: PropTypes.bool,
+    events: PropTypes.arrayOf(PropTypes.shape({
+        date: PropTypes.string.isRequired,
+        title: PropTypes.string.isRequired
+    }))
 };
 
 export default WeeklyCell;

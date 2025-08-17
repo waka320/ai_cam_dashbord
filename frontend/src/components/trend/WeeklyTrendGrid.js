@@ -8,7 +8,7 @@ import CongestionLegend from '../common/CongestionLegend';
 
 function WeeklyTrendGrid({ data, loading, isMobile }) {
   const { getCellColor, getTextColor } = useColorPalette();
-  const { selectedLocation, shouldShowCalculationNote } = useCalendar();
+  const { selectedLocation, shouldShowCalculationNote, eventData } = useCalendar();
 
   // 場所名の取得（ファイル名部分のみ）
   const getPlaceName = () => {
@@ -16,6 +16,25 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
     const parts = selectedLocation.split('/');
     const filename = parts[parts.length - 1];
     return filename.replace('.csv', '');
+  };
+
+  // 週の期間内のイベント情報を取得
+  const getEventsForWeek = (weekData) => {
+    if (!eventData || !Array.isArray(eventData) || !weekData) return [];
+    if (!weekData.start_date || !weekData.end_date) return [];
+    
+    try {
+      const startDate = new Date(weekData.start_date);
+      const endDate = new Date(weekData.end_date);
+      
+      return eventData.filter(event => {
+        const eventDate = new Date(event.date);
+        return eventDate >= startDate && eventDate <= endDate;
+      });
+    } catch (error) {
+      console.error('Error in getEventsForWeek:', error);
+      return [];
+    }
   };
 
   // データをヒートマップ形式に変換
@@ -262,6 +281,8 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                 }}>
                   {Array.from({ length: 5 }, (_, index) => {
                     const weekData = monthWeeks[index];
+                    const events = weekData ? getEventsForWeek(weekData) : [];
+                    const hasEvents = events.length > 0;
                     
                     // 全ての行で5セル統一
                     const availableWidth = `calc((100% - ${isMobile ? '50px' : '60px'}) / 5)`;
@@ -269,58 +290,108 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                     // 限界まで大きくした文字サイズ
                     const dynamicFontSize = isMobile ? 22 : 30;
                     const dynamicDateFontSize = isMobile ? 9 : 14;
+                    const baseHeight = isMobile ? 40 : 50;
+                    const eventHeight = hasEvents ? (isMobile ? 12 : 14) : 0;
+                    const totalHeight = baseHeight + eventHeight;
                     
                     return (
                       <Box
                         key={weekData ? `week-${weekData.weekKey}` : `empty-${index}`}
                         sx={{
                           width: availableWidth,
-                          height: isMobile ? '40px' : '50px',
+                          height: `${totalHeight}px`,
                           backgroundColor: weekData ? getCellColor(weekData.congestion) : '#f9f9f9',
                           color: weekData ? getTextColor(weekData.congestion) : '#999',
                           borderRight: index !== 4 ? '1px solid #ddd' : 'none',
                           display: 'flex',
                           flexDirection: 'column',
-                          justifyContent: 'center',
+                          justifyContent: 'flex-start',
                           alignItems: 'center',
                           cursor: weekData ? 'pointer' : 'default',
                           position: 'relative',
                           padding: 0,
                           flex: 1
                         }}
-                        title={weekData ? `期間: ${weekData.display}\n混雑度: ${weekData.congestion}/10\n総数: ${weekData.total_count.toLocaleString()}` : 'データが不足しているため表示できません\n（7日未満の週または欠損率が高い週）'}
+                        title={weekData ? `期間: ${weekData.display}\n混雑度: ${weekData.congestion}/10\n総数: ${weekData.total_count.toLocaleString()}${hasEvents ? `\nイベント: ${events.map(e => e.title).join(', ')}` : ''}` : 'データが不足しているため表示できません\n（7日未満の週または欠損率が高い週）'}
                       >
                         {weekData ? (
                           <>
-                            {/* 混雑度の数値 */}
-                    <Typography 
-                              variant={isMobile ? "h6" : "h5"}
-                      sx={{ 
-                                fontSize: `${dynamicFontSize}px`,
-                        fontWeight: 'bold',
-                                lineHeight: 0.9,
-                                mb: 0,
-                                mt: 0
-                              }}
-                            >
-                              {weekData.congestion}
-                            </Typography>
+                            {/* メインコンテンツエリア */}
+                            <Box sx={{
+                              flex: 1,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              {/* 混雑度の数値 */}
+                              <Typography 
+                                variant={isMobile ? "h6" : "h5"}
+                                sx={{ 
+                                  fontSize: `${dynamicFontSize}px`,
+                                  fontWeight: 'bold',
+                                  lineHeight: 0.9,
+                                  mb: 0,
+                                  mt: 0
+                                }}
+                              >
+                                {weekData.congestion}
+                              </Typography>
+                              
+                              {/* 日付範囲（開始日〜終了日） */}
+                              <Typography 
+                                variant="caption"
+                                sx={{ 
+                                  fontSize: `${dynamicDateFontSize}px`,
+                                  lineHeight: 0.9,
+                                  textAlign: 'center',
+                                  opacity: 0.9,
+                                  whiteSpace: 'nowrap',
+                                  mt: 0,
+                                  mb: 0
+                                }}
+                              >
+                                {weekData.display}
+                              </Typography>
+                            </Box>
                             
-                            {/* 日付範囲（開始日〜終了日） */}
-                            <Typography 
-                              variant="caption"
-                              sx={{ 
-                                fontSize: `${dynamicDateFontSize}px`,
-                                lineHeight: 0.9,
-                        textAlign: 'center',
-                                opacity: 0.9,
-                                whiteSpace: 'nowrap',
-                                mt: 0,
-                                mb: 0
-                              }}
-                            >
-                              {weekData.display}
-                            </Typography>
+                            {/* イベント情報エリア */}
+                            {hasEvents && (
+                              <Box sx={{
+                                width: '100%',
+                                minHeight: isMobile ? '12px' : '14px',
+                                backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '1px 2px',
+                                overflow: 'visible'
+                              }}>
+                                <Typography 
+                                  sx={{ 
+                                    fontSize: isMobile ? '8px' : '9px',
+                                    color: '#333',
+                                    fontWeight: '600',
+                                    lineHeight: '1.1',
+                                    textAlign: 'center',
+                                    whiteSpace: 'normal',
+                                    wordBreak: 'break-word',
+                                    hyphens: 'auto',
+                                    maxWidth: '100%'
+                                  }}
+                                  title={events.map(e => e.title).join(', ')}
+                                >
+                                  {events.length > 2 ? `${events.length}件` : 
+                                    events.map((event, eventIndex) => (
+                                      <span key={eventIndex}>
+                                        {event.title.substring(0, 3)}
+                                        {eventIndex < events.length - 1 && <br />}
+                                      </span>
+                                    ))
+                                  }
+                                </Typography>
+                              </Box>
+                            )}
                           </>
                         ) : (
                           <Typography 
@@ -331,8 +402,8 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                             }}
                           >
                             -
-                    </Typography>
-                  )}
+                          </Typography>
+                        )}
                 </Box>
               );
             })}

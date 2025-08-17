@@ -1,5 +1,6 @@
 from typing import List, Optional, Any
 from pydantic import BaseModel
+from datetime import date
 
 
 class WeatherInfo(BaseModel):
@@ -42,11 +43,17 @@ class GraphRequest(BaseModel):
     action: str
 
 
+class EventInfo(BaseModel):
+    date: str  # YYYY-MM-DD形式
+    title: str
+
+
 class GraphResponse(BaseModel):
     graph: str
     data: Any
     ai_advice: str
     weather_data: Optional[List[WeatherInfo]] = None
+    event_data: Optional[List[EventInfo]] = None  # イベント情報を追加
     # 傾向分析時の追加情報（任意）
     type: Optional[str] = None
     highlighted_info: Optional[Any] = None

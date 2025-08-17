@@ -1,6 +1,5 @@
-from typing import List
+from typing import List, Optional
 from pydantic_settings import BaseSettings
-from typing import List
 
 
 class Settings(BaseSettings):
@@ -15,9 +14,10 @@ class Settings(BaseSettings):
     CRON_SECRET: str
     AWS_ACCSESS_KEY_ID: str
     AWS_SECRET_ACCESS_KEY: str
-
+    
     class Config:
         env_file = ".env"
+        extra = "ignore"  # 追加の環境変数を無視
 
 
 settings = Settings()

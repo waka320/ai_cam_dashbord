@@ -25,12 +25,15 @@ const TimeHeatmap = () => {
   const { 
     calendarData, 
     selectedAction, 
+    selectedYear, // 追加
+    selectedMonth, // 追加
     loading, 
     actionChanging,
     locationChanging,
     dateChanging,
     selectedLocation, 
-    shouldShowCalculationNote 
+    shouldShowCalculationNote,
+    eventData // 追加
   } = useCalendar();
   const { getCellColor, getTextColor } = useColorPalette();
   
@@ -210,6 +213,43 @@ const TimeHeatmap = () => {
     return filename.replace('.csv', '');
   };
 
+  // 曜日に基づいてイベント情報を取得（週の範囲内のイベント）
+  const getEventsForDay = (dayName) => {
+    if (!eventData || !Array.isArray(eventData)) return [];
+    if (!selectedYear || !selectedMonth) return [];
+    
+    try {
+      // 曜日名から該当する日付を計算
+      const dayMap = {
+        'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
+        'Thursday': 4, 'Friday': 5, 'Saturday': 6
+      };
+      
+      const targetDay = dayMap[dayName];
+      if (targetDay === undefined) return [];
+      
+      // 選択された月の全ての日付をチェック
+      const year = selectedYear;
+      const month = selectedMonth;
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const matchingEvents = [];
+      
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month - 1, day);
+        if (date.getDay() === targetDay) {
+          const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const dayEvents = eventData.filter(event => event.date === dateStr);
+          matchingEvents.push(...dayEvents);
+        }
+      }
+      
+      return matchingEvents;
+    } catch (error) {
+      console.error('Error in getEventsForDay:', error, 'dayName:', dayName);
+      return [];
+    }
+  };
+
   return (
     // <ClickAwayListener onClickAway={handleClickAway}>
       <Box sx={{ 
@@ -275,40 +315,85 @@ const TimeHeatmap = () => {
               </Box>
 
               {/* 曜日ラベル */}
-              {sortedData.map((dayData, rowIndex) => (
-                <Box 
-                  key={`day-label-${dayData.day}`}
-                  sx={{ 
-                    borderRight: '1px solid #ddd',
-                    borderBottom: rowIndex !== sortedData.length - 1 ? '1px solid #ddd' : 'none',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    padding: isMobile ? '4px 0' : '8px 0',
-                    backgroundColor: '#f9f9f9',
-                    height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
-                    position: 'relative',
-                    gap: '2px'
-                  }}
-                >
-                  <Typography 
-                    variant={isSmallMobile ? "bodyS" : "bodyM"} 
-                    fontWeight="bold"
+              {sortedData.map((dayData, rowIndex) => {
+                const events = getEventsForDay(dayData.day);
+                const hasEvents = events.length > 0;
+                const baseHeight = isMobile ? (isSmallMobile ? 45 : 50) : 50;
+                const eventHeight = hasEvents ? (isSmallMobile ? 12 : 14) : 0;
+                const totalHeight = baseHeight + eventHeight;
+                
+                return (
+                  <Box 
+                    key={`day-label-${dayData.day}`}
+                    sx={{ 
+                      borderRight: '1px solid #ddd',
+                      borderBottom: rowIndex !== sortedData.length - 1 ? '1px solid #ddd' : 'none',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'flex-start',
+                      alignItems: 'center',
+                      padding: isMobile ? '2px 0' : '4px 0',
+                      backgroundColor: '#f9f9f9',
+                      height: `${totalHeight}px`,
+                      position: 'relative',
+                      gap: '1px'
+                    }}
                   >
-                    {getDayNameJa(dayData.day)}
-                  </Typography>
-                  
-                  {/* 曜日ラベルエリアにも天気情報を表示 */}
-                  {dayData.weather_info && (
-                    <WeatherIcon 
-                      weather={dayData.weather_info.weather}
-                      size="medium"
-                      showTemp={false}
-                    />
-                  )}
-                </Box>
-              ))}
+                    <Box sx={{
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <Typography 
+                        variant={isSmallMobile ? "bodyS" : "bodyM"} 
+                        fontWeight="bold"
+                        sx={{ fontSize: isSmallMobile ? '11px' : '13px' }}
+                      >
+                        {getDayNameJa(dayData.day)}
+                      </Typography>
+                    </Box>
+                    
+                    {/* イベント情報エリア */}
+                    {hasEvents && (
+                      <Box sx={{
+                        width: '100%',
+                        minHeight: isSmallMobile ? '12px' : '14px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '1px 2px',
+                        overflow: 'visible'
+                      }}>
+                        <Typography 
+                          sx={{ 
+                            fontSize: isSmallMobile ? '7px' : '8px',
+                            color: '#333',
+                            fontWeight: '600',
+                            lineHeight: '1.1',
+                            textAlign: 'center',
+                            whiteSpace: 'normal',
+                            wordBreak: 'break-word',
+                            hyphens: 'auto',
+                            maxWidth: '100%'
+                          }}
+                          title={events.map(e => e.title).join(', ')}
+                        >
+                          {events.length > 2 ? `${events.length}件` : 
+                            events.map((event, index) => (
+                              <span key={index}>
+                                {event.title.substring(0, 4)}
+                                {index < events.length - 1 && <br />}
+                              </span>
+                            ))
+                          }
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                );
+              })}
             </Box>
 
             {/* セルとヘッダーのスクロール可能なエリア */}
@@ -365,14 +450,21 @@ const TimeHeatmap = () => {
 
               {/* 時間ごとのセル（行） */}
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                {sortedData.map((dayData, rowIndex) => (
-                  <Box 
-                    key={`day-row-${dayData.day}`} 
-                    sx={{ 
-                      display: 'flex', 
-                      flexDirection: 'row'
-                    }}
-                  >
+                {sortedData.map((dayData, rowIndex) => {
+                  const events = getEventsForDay(dayData.day);
+                  const hasEvents = events.length > 0;
+                  const baseHeight = isMobile ? (isSmallMobile ? 45 : 50) : 50;
+                  const eventHeight = hasEvents ? (isSmallMobile ? 12 : 14) : 0;
+                  const totalHeight = baseHeight + eventHeight;
+                  
+                  return (
+                    <Box 
+                      key={`day-row-${dayData.day}`} 
+                      sx={{ 
+                        display: 'flex', 
+                        flexDirection: 'row'
+                      }}
+                    >
                     {/* 時間ごとのセル */}
                     {hours.map((hour, colIndex) => {
                       const hourData = dayData.hours.find(h => h.hour === hour);
@@ -390,7 +482,7 @@ const TimeHeatmap = () => {
                           sx={{ 
                             minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
                             width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
-                            height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
+                            height: `${totalHeight}px`,
                             display: 'flex',
                             flexDirection: 'column',
                             backgroundColor: congestion === 0 ? '#e0e0e0' : getCellColor(congestion),
@@ -423,20 +515,24 @@ const TimeHeatmap = () => {
                             </Typography>
                           </Box>
                           
-                          {/* 天気情報エリア */}
+                          {/* 天気情報エリア（右上に配置） */}
                           {hourData && hourData.weather_info && (
                             <Box sx={{
-                              width: '100%',
+                              position: 'absolute',
+                              top: '1px',
+                              right: '1px',
+                              width: isSmallMobile ? '12px' : '14px',
                               height: isSmallMobile ? '12px' : '14px',
-                              backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                              backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                              borderRadius: '2px',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              padding: '1px'
+                              boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
                             }}>
                               <WeatherIcon 
                                 weather={hourData.weather_info.weather}
-                                size="medium"
+                                size="small"
                                 showTemp={false}
                               />
                             </Box>
@@ -445,7 +541,8 @@ const TimeHeatmap = () => {
                       );
                     })}
                   </Box>
-                ))}
+                  );
+                })}
               </Box>
             </Box>
           </Box>

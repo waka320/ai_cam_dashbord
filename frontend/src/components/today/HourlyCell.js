@@ -12,12 +12,15 @@ const HourlyCell = ({ hourData, index, totalLength, isGrayCell = false }) => {
     const cellColor = isGrayCell ? '#e0e0e0' : getCellColor(hourData.congestion);
     const textColor = isGrayCell ? '#666' : getTextColor(hourData.congestion);
     
+    // セルの高さを低く設定
+    const cellHeight = isMobile ? (isSmallMobile ? 36 : 40) : 44;
+    
     return (
         <Box
             sx={{
                 minWidth: isMobile ? (isSmallMobile ? '32px' : '42px') : '42px',
                 width: isMobile ? (isSmallMobile ? '32px' : '42px') : '42px',
-                height: isMobile ? (isSmallMobile ? '44px' : '48px') : '52px',
+                height: `${cellHeight}px`,
                 backgroundColor: cellColor,
                 color: textColor,
                 borderRight: index !== totalLength - 1 ? '1px solid #ddd' : 'none',
@@ -48,26 +51,26 @@ const HourlyCell = ({ hourData, index, totalLength, isGrayCell = false }) => {
                 </Typography>
             </Box>
             
-            {/* 天気情報エリア */}
+            {/* 天気情報エリア（右上に配置） */}
             {hourData.weather_info && hourData.weather_info.weather && hourData.weather_info.weather !== '-' && (
                 <Box sx={{
-                    width: '100%',
+                    position: 'absolute',
+                    top: '1px',
+                    right: '1px',
+                    width: isSmallMobile ? '12px' : isMobile ? '14px' : '16px',
                     height: isSmallMobile ? '12px' : isMobile ? '14px' : '16px',
                     backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                    borderRadius: '2px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '0px',
-                    padding: '0px',
-                    mt: '0px',
-                    overflow: 'visible'
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
                 }}>
                     <WeatherIcon 
                         weather={hourData.weather_info.weather}
-                        size={isSmallMobile ? "medium" : "large"}
+                        size="small"
                         showTemp={false}
                     />
-
                 </Box>
             )}
         </Box>

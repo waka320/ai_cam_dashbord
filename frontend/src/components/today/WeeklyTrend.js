@@ -1,14 +1,36 @@
 import React from 'react';
 import { Box, Typography, useMediaQuery } from '@mui/material';
 import WeeklyCell from './WeeklyCell';
+import { useCalendar } from '../../contexts/CalendarContext';
 
 import PropTypes from 'prop-types';
 
 
 
 const WeeklyTrend = ({ summaryData, getTodaysDate, isHistorical = false, isCompact = false }) => {
+    const { eventData } = useCalendar();
     const isMobile = useMediaQuery('(max-width:768px)');
     const isSmallMobile = useMediaQuery('(max-width:480px)');
+    
+    // 指定した日付のイベント情報を取得（去年のデータの場合は今年の同日のイベントを取得）
+    const getEventsForDate = (dateStr, isHistoricalData = false) => {
+        if (!eventData || !Array.isArray(eventData)) return [];
+        
+        try {
+            if (isHistoricalData) {
+                // 去年のデータの場合、今年の同日のイベントを取得
+                const date = new Date(dateStr);
+                const currentYear = new Date().getFullYear();
+                const sameMonthDay = `${currentYear}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                return eventData.filter(event => event.date === sameMonthDay) || [];
+            } else {
+                return eventData.filter(event => event.date === dateStr) || [];
+            }
+        } catch (error) {
+            console.error('Error in getEventsForDate:', error, 'dateStr:', dateStr);
+            return [];
+        }
+    };
     
     // 今日から前後2週間の7×2グリッドに調整する関数
     const adjustToTwoWeekGrid = (data, referenceDate) => {
@@ -247,6 +269,7 @@ const WeeklyTrend = ({ summaryData, getTodaysDate, isHistorical = false, isCompa
                                         getTodaysDate={getTodaysDate}
                                         isCompactMode={true}
                                         isUltraCompact={isCompact}
+                                        events={getEventsForDate(day.date, isHistorical)}
                                     />
                                 </Box>
                             );

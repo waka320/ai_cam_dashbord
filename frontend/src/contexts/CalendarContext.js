@@ -59,6 +59,7 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
   const [aiResponses, setAiResponses] = useState([]);
   const [aiQuestionLoading, setAiQuestionLoading] = useState(false);
   const [weatherData, setWeatherData] = useState([]); // 天気データの状態を追加
+  const [eventData, setEventData] = useState([]); // イベントデータの状態を追加
   
   // 状態と手動更新フラグを保持するRef（Cookie/URLパラメータ両対応）
   const locationRef = useRef({ value: initialLocation, manuallyChanged: !!initialLocation });
@@ -173,6 +174,7 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
 
       setAiAdvice(result.ai_advice || '');
       setWeatherData(result.weather_data || []);
+      setEventData(result.event_data || []); // イベントデータを設定
 
     } catch (error) {
       if (error.name === 'AbortError') {
@@ -480,6 +482,7 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
     setCalendarData([]);
     setAiAdvice("");
     setWeatherData([]); // 天気データもクリア
+    setEventData([]); // イベントデータもクリア
     
     // 手動更新フラグを設定してから値をリセット
     locationRef.current.manuallyChanged = true;
@@ -568,6 +571,7 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
     aiQuestionLoading,
     error,
     weatherData, // 天気データを追加
+    eventData, // イベントデータを追加
     selectedLocation,
     setSelectedLocation,
     selectedAction,
