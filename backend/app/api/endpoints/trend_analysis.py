@@ -19,7 +19,8 @@ AVAILABLE_PLACES = [
 @router.get("/congestion-data/{place}")
 async def get_place_congestion_data(
     place: str,
-    target_date: Optional[str] = Query(None, description="基準日 (YYYY-MM-DD形式、省略時は今日)")
+    target_date: Optional[str] = Query(None, description="基準日 (YYYY-MM-DD形式、省略時は今日)"),
+    weeks_count: Optional[int] = Query(3, description="取得する週数 (デフォルト3週間)")
 ):
     """
     指定した場所の混雑度データを取得する
@@ -29,7 +30,7 @@ async def get_place_congestion_data(
     
     返却データ:
     - recent_week: 直近1週間の混雑度データ
-    - historical_comparison: 前年度同時期の混雑度データ
+    - historical_comparison: 去年度同時期の混雑度データ
     """
     try:
         # 場所名の検証
@@ -61,7 +62,7 @@ async def get_place_congestion_data(
                 )
         
         # 混雑度データの取得
-        result = get_congestion_data(csv_file_path, analysis_date)
+        result = get_congestion_data(csv_file_path, analysis_date, weeks_count)
         
         if not result:
             raise HTTPException(
@@ -150,7 +151,8 @@ async def get_all_places_congestion_data(
 @router.get("/congestion-data/{place}/summary")
 async def get_place_congestion_summary(
     place: str,
-    target_date: Optional[str] = Query(None, description="基準日 (YYYY-MM-DD形式、省略時は今日)")
+    target_date: Optional[str] = Query(None, description="基準日 (YYYY-MM-DD形式、省略時は今日)"),
+    weeks_count: Optional[int] = Query(3, description="取得する週数 (デフォルト3週間)")
 ):
     """
     指定した場所の混雑度データサマリーを取得する（軽量版）
@@ -190,7 +192,7 @@ async def get_place_congestion_summary(
                 )
         
         # 混雑度データの取得
-        result = get_congestion_data(csv_file_path, analysis_date)
+        result = get_congestion_data(csv_file_path, analysis_date, weeks_count)
         
         if not result:
             raise HTTPException(
@@ -210,7 +212,12 @@ async def get_place_congestion_summary(
                     "date": day.get("date"),
                     "day_of_week": day.get("day_of_week"),
                     "congestion_level": day.get("congestion_level"),
-                    "is_weekend": day.get("is_weekend")
+                    "is_weekend": day.get("is_weekend"),
+                    "weather_info": day.get("weather_info"),
+                    "is_today": day.get("is_today"),
+                    "days_from_today": day.get("days_from_today"),
+                    "is_future": day.get("is_future"),
+                    "week_of_month_label": day.get("week_of_month_label")
                 } for day in result.get("recent_week", {}).get("daily_data", [])
             ],
             "historical_period": result.get("historical_comparison", {}).get("period"),
@@ -222,7 +229,8 @@ async def get_place_congestion_summary(
                     "day_of_week": day.get("day_of_week"),
                     "congestion_level": day.get("congestion_level"),
                     "is_weekend": day.get("is_weekend"),
-                    "days_from_reference": day.get("days_from_reference")
+                    "days_from_reference": day.get("days_from_reference"),
+                    "weather_info": day.get("weather_info")
                 } for day in result.get("historical_comparison", {}).get("daily_data", [])
             ],
             "yesterday_hourly_summary": {

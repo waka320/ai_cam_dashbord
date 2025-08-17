@@ -8,7 +8,7 @@
 }
 
 .weather-icon.tiny {
-    font-size: 10px;
+    font-size: 12px;
     opacity: 1;
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 2px;
@@ -16,19 +16,19 @@
 }
 
 .weather-icon.small {
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .weather-icon.medium {
-    font-size: 14px;
-}
-
-.weather-icon.large {
     font-size: 18px;
 }
 
-.weather-icon.xlarge {
+.weather-icon.large {
     font-size: 22px;
+}
+
+.weather-icon.xlarge {
+    font-size: 26px;
 }
 
 .weather-emoji {
@@ -50,24 +50,24 @@
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
     .weather-icon.tiny {
-        font-size: 8px;
+        font-size: 10px;
         opacity: 1;
     }
 
     .weather-icon.small {
-        font-size: 10px;
+        font-size: 12px;
     }
 
     .weather-icon.medium {
-        font-size: 10px;
+        font-size: 14px;
     }
 
     .weather-icon.large {
-        font-size: 16px;
+        font-size: 18px;
     }
 
     .weather-icon.xlarge {
-        font-size: 20px;
+        font-size: 22px;
     }
 }
 

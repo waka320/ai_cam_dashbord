@@ -47,11 +47,12 @@ export const useTodayData = (selectedLocation) => {
                 const todaysDate = getTodaysDate();
                 const weeksCount = 3; // 3週間分のデータを取得
                 
+                // eslint-disable-next-line no-undef
                 const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/';
                 
                 console.log('TodayDetails: Fetching data for:', apiLocation, 'date:', todaysDate, 'weeks:', weeksCount);
                 
-                const fetchWithTimeout = (url, options = {}, timeout = 10000) => {
+                const fetchWithTimeout = (url, options = {}, timeout = 30000) => {
                     return Promise.race([
                         fetch(url, options),
                         new Promise((_, reject) => 
@@ -105,6 +106,13 @@ export const useTodayData = (selectedLocation) => {
                     endDate: summaryDataResult?.data?.recent_week_end_date
                 });
                 
+                // 天気情報の詳細ログ
+                console.log('TodayDetails: Weather info check:', {
+                    firstDayWeather: summaryDataResult?.data?.recent_week_daily_summary?.[0]?.weather_info,
+                    todayWeather: summaryDataResult?.data?.recent_week_daily_summary?.find(d => d.is_today)?.weather_info,
+                    hasWeatherInfo: summaryDataResult?.data?.recent_week_daily_summary?.some(d => d.weather_info)
+                });
+                
                 // サマリーデータに詳細データの一部をマージして補完
                 if (summaryDataResult.data && detailData.data) {
                     // recent_week_daily_summaryが期待より少ない場合、詳細データから補完
@@ -126,7 +134,8 @@ export const useTodayData = (selectedLocation) => {
                                 is_weekend: day.is_weekend,
                                 week_of_month_label: day.week_of_month_label,
                                 is_today: day.is_today || false,
-                                days_from_today: day.days_from_today || 0
+                                days_from_today: day.days_from_today || 0,
+                                weather_info: day.weather_info || null  // 天気情報を追加
                             }));
                             
                             summaryDataResult.data.recent_week_daily_summary = supplementedData;
@@ -135,7 +144,9 @@ export const useTodayData = (selectedLocation) => {
                             console.log('TodayDetails: データ補完完了:', {
                                 supplementedLength: supplementedData.length,
                                 firstDate: supplementedData[0]?.date,
-                                lastDate: supplementedData[supplementedData.length - 1]?.date
+                                lastDate: supplementedData[supplementedData.length - 1]?.date,
+                                hasWeatherInfo: supplementedData.some(d => d.weather_info),
+                                firstWeather: supplementedData[0]?.weather_info
                             });
                         }
                     }

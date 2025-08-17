@@ -95,15 +95,16 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 
     # 最後に無限大を追加（レベル10の上限）
     bins.append(float('inf'))
 
-    print(f"場所: {place}")
-    print(f"混雑度1,2の境界値: {min_threshold}")
-    print(f"混雑度5,6の境界値 (平均値): {middle_threshold}")
-    print(f"混雑度9,10の境界値: {max_threshold}")
-    print(f"計算された境界値: {[int(b) for b in bins[:-1]]}, inf")
+    # デバッグログを削減（必要時のみ出力）
+    # print(f"場所: {place}")
+    # print(f"混雑度1,2の境界値: {min_threshold}")
+    # print(f"混雑度5,6の境界値 (平均値): {middle_threshold}")
+    # print(f"混雑度9,10の境界値: {max_threshold}")
+    # print(f"計算された境界値: {[int(b) for b in bins[:-1]]}, inf")
     
-    # データの最大値を確認
+    # データの最大値を確認（ログ出力は削減）
     max_count = daily_counts['count_1_hour'].max() if not daily_counts.empty else 0
-    print(f"{place}の最大歩行者数: {max_count}")
+    # print(f"{place}の最大歩行者数: {max_count}")
 
     # 定義した境界値に基づいて混雑度レベルを割り当て
     # データが0の場合は混雑度0、それ以外は1～10

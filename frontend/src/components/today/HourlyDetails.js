@@ -37,15 +37,15 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
     }
 
     return (
-        <Box sx={{ mb: 2 }}>
+        <Box>
             {/* 昨日のデータ */}
             {yesterdayEntry?.data_available && (
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 0.5 }}>
                     <Typography 
                         variant="body1"
                         sx={{ 
                             fontWeight: 'bold', 
-                            mb: 1.5,
+                            mb: 0.25,
                             color: 'text.primary',
                             fontSize: isMobile ? '0.9rem' : '1rem'
                         }}
@@ -58,12 +58,17 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                         borderRadius: '8px', 
                         overflow: 'hidden',
                         width: '100%',
-                        maxWidth: '100%'
+                        maxWidth: '100%',
+                        height: 'fit-content',
+                        display: 'flex',
+                        flexDirection: 'column'
                     }}>
                         <Box 
                             sx={{ 
                                 overflowX: 'auto',
                                 WebkitOverflowScrolling: 'touch',
+                                height: 'auto',
+                                flex: 'none',
                                 '&::-webkit-scrollbar': {
                                     height: '8px',
                                     width: '8px'
@@ -86,7 +91,8 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                                 backgroundColor: '#f5f5f5',
                                 borderBottom: '1px solid #ddd',
                                 width: 'fit-content',
-                                minWidth: '100%'
+                                minWidth: '100%',
+                                flex: 'none'
                             }}>
                                 {yesterdayEntry.hourly_congestion.map((hourData, index) => (
                                     <Box 
@@ -121,7 +127,9 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                             <Box sx={{ 
                                 display: 'flex',
                                 width: 'fit-content',
-                                minWidth: '100%'
+                                minWidth: '100%',
+                                flex: 'none',
+                                height: 'auto'
                             }}>
                                 {yesterdayEntry.hourly_congestion.map((hourData, index) => (
                                     <HourlyCell 
@@ -138,19 +146,19 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                 </Box>
             )}
             
-            {/* 前年同日のデータ */}
+            {/* 去年同日のデータ */}
             {lastYearEntry?.data_available && (
-                <Box sx={{ mb: 2 }}>
+                <Box sx={{ mb: 0.25 }}>
                     <Typography 
                         variant="body1"
                         sx={{ 
                             fontWeight: 'bold', 
-                            mb: 1.5,
+                            mb: 0.25,
                             color: 'text.primary',
                             fontSize: isMobile ? '0.9rem' : '1rem'
                         }}
                     >
-                        前年の同じ日 - {formatDateJapanese(lastYearEntry.date)}
+                        去年の同じ日 - {formatDateJapanese(lastYearEntry.date)}
                     </Typography>
                     
                     <Box sx={{ 
@@ -158,12 +166,17 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                         borderRadius: '8px', 
                         overflow: 'hidden',
                         width: '100%',
-                        maxWidth: '100%'
+                        maxWidth: '100%',
+                        height: 'fit-content',
+                        display: 'flex',
+                        flexDirection: 'column'
                     }}>
                         <Box 
                             sx={{ 
                                 overflowX: 'auto',
                                 WebkitOverflowScrolling: 'touch',
+                                height: 'auto',
+                                flex: 'none',
                                 '&::-webkit-scrollbar': {
                                     height: '8px',
                                     width: '8px'
@@ -186,7 +199,8 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                                 backgroundColor: '#f5f5f5',
                                 borderBottom: '1px solid #ddd',
                                 width: 'fit-content',
-                                minWidth: '100%'
+                                minWidth: '100%',
+                                flex: 'none'
                             }}>
                                 {lastYearEntry.hourly_congestion.map((hourData, index) => (
                                     <Box 
@@ -221,7 +235,9 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                             <Box sx={{ 
                                 display: 'flex',
                                 width: 'fit-content',
-                                minWidth: '100%'
+                                minWidth: '100%',
+                                flex: 'none',
+                                height: 'auto'
                             }}>
                                 {lastYearEntry.hourly_congestion.map((hourData, index) => (
                                     <HourlyCell 
