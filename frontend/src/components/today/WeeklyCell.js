@@ -148,7 +148,7 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                 {hasEvents && (
                     <Box sx={{
                         width: '100%',
-                        minHeight: isUltraCompact ? '12px' : (isSmallMobile ? '14px' : '16px'),
+                        minHeight: isUltraCompact ? '14px' : (isSmallMobile ? '16px' : '18px'),
                         backgroundColor: 'rgba(255, 255, 255, 0.75)',
                         display: 'flex',
                         alignItems: 'center',
@@ -158,7 +158,7 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                     }}>
                         <Typography 
                             sx={{ 
-                                fontSize: isUltraCompact ? '9px' : (isSmallMobile ? '11px' : '12px'),
+                                fontSize: isUltraCompact ? '11px' : (isSmallMobile ? '13px' : '14px'),
                                 color: '#333',
                                 fontWeight: '600',
                                 lineHeight: '1.1',
@@ -170,7 +170,14 @@ const WeeklyCell = ({ day, isCurrentYear = true, getTodaysDate, isCompactMode = 
                             }}
                             title={events.map(e => e.title).join(', ')}
                         >
-                            {events.length > 1 ? `${events.length}件` : events[0]?.title?.substring(0, 4)}
+                            {events.map((event, index) => (
+                                <span key={index}>
+                                    {event.title}
+                                    {index < events.length - 1 && (
+                                        <br />
+                                    )}
+                                </span>
+                            ))}
                         </Typography>
                     </Box>
                 )}
