@@ -335,12 +335,34 @@ const DateTimeHeatmap = () => {
                                             gap: '1px',
                                             position: 'relative',
                                             flex: 1,
-                                            justifyContent: 'center'
+                                            justifyContent: 'center',
+                                            width: '100%'
                                         }}>
+                                            {/* 天気情報（右上に配置） */}
+                                            {dateData.weather_info && (
+                                                <Box sx={{
+                                                    position: 'absolute',
+                                                    top: '1px',
+                                                    right: '1px',
+                                                    width: isSmallMobile ? '14px' : '16px',
+                                                    height: isSmallMobile ? '14px' : '16px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                                                }}>
+                                                    <WeatherIcon 
+                                                        weather={dateData.weather_info.weather}
+                                                        size="small"
+                                                        showTemp={false}
+                                                    />
+                                                </Box>
+                                            )}
+                                            
                                             <Typography 
                                                 variant={isSmallMobile ? "bodyS" : "bodyM"} 
                                                 fontWeight="bold"
-                                                sx={{ fontSize: isSmallMobile ? '10px' : '12px' }}
+                                                sx={{ fontSize: isSmallMobile ? '14px' : '16px' }}
                                             >
                                                 {formatDate(dateData.date)}
                                             </Typography>
