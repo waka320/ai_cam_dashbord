@@ -8,7 +8,7 @@ import CongestionLegend from '../common/CongestionLegend';
 
 function MonthlyTrendGrid({ data, loading, isMobile }) {
   const { getCellColor, getTextColor } = useColorPalette();
-  const { selectedLocation, shouldShowCalculationNote, eventData } = useCalendar();
+  const { selectedLocation, shouldShowCalculationNote } = useCalendar();
   const isSmallMobile = useMediaQuery('(max-width:480px)');
 
   // 場所名の取得（ファイル名部分のみ）
@@ -19,20 +19,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
     return filename.replace('.csv', '');
   };
 
-  // 指定年月のイベント情報を取得
-  const getEventsForMonth = (year, month) => {
-    if (!eventData || !Array.isArray(eventData)) return [];
-    
-    try {
-      return eventData.filter(event => {
-        const eventDate = new Date(event.date);
-        return eventDate.getFullYear() === year && eventDate.getMonth() === month - 1;
-      });
-    } catch (error) {
-      console.error('Error in getEventsForMonth:', error);
-      return [];
-    }
-  };
+
 
   // データを年×月のマトリックス形式に変換
   const organizeDataForHeatmap = (rawData) => {
@@ -193,8 +180,8 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
           <Box sx={{ 
             display: 'flex',
             flexDirection: 'column',
-            width: isMobile ? '30px' : '45px', 
-            minWidth: isMobile ? '30px' : '45px',
+            width: isMobile ? (isSmallMobile ? '40px' : '50px') : '60px', 
+            minWidth: isMobile ? (isSmallMobile ? '40px' : '50px') : '60px',
             position: 'sticky',
             left: 0,
             zIndex: 2,
@@ -238,7 +225,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                   variant={isSmallMobile ? "bodyS" : "bodyM"} 
                   fontWeight="bold"
                   sx={{
-                    fontSize: isMobile ? '9px' : '11px',
+                    fontSize: isMobile ? (isSmallMobile ? '14px' : '16px') : '18px',
                     lineHeight: 0.9
                   }}
                 >
@@ -294,7 +281,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                     variant={isSmallMobile ? "bodyM" : "h6"}
                     fontWeight="bold"
                     sx={{
-                      fontSize: isMobile ? (isSmallMobile ? '12px' : '14px') : '11px',
+                      fontSize: isMobile ? (isSmallMobile ? '16px' : '18px') : '20px',
                       lineHeight: 0.9
                     }}
                   >
@@ -319,11 +306,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                     const cellData = matrix[`${year}-${month}`];
                     const congestion = cellData ? cellData.congestion : 0;
                     const totalCount = cellData ? cellData.total_count : 0;
-                    const events = getEventsForMonth(year, month);
-                    const hasEvents = events.length > 0;
-                    const baseHeight = isMobile ? (isSmallMobile ? 45 : 50) : 50;
-                    const eventHeight = hasEvents ? (isMobile ? 12 : 14) : 0;
-                    const totalHeight = baseHeight + eventHeight;
+                    const cellHeight = isMobile ? (isSmallMobile ? 45 : 50) : 50;
                     
                     return (
                       <Box 
@@ -331,7 +314,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                         sx={{ 
                           minWidth: isMobile ? (isSmallMobile ? '28px' : '35px') : '50px',
                           width: isMobile ? (isSmallMobile ? '28px' : '35px') : '50px',
-                          height: `${totalHeight}px`,
+                          height: `${cellHeight}px`,
                           display: 'flex',
                           flexDirection: 'column',
                           backgroundColor: congestion === 0 ? '#e0e0e0' : getCellColor(congestion),
@@ -343,7 +326,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                           justifyContent: 'flex-start',
                           alignItems: 'center'
                         }}
-                        title={`${year}年${month}月 ${congestion === 0 ? '(データなし)' : `混雑度: ${congestion} (人数: ${totalCount})`}${hasEvents ? `\nイベント: ${events.map(e => e.title).join(', ')}` : ''}`}
+                        title={`${year}年${month}月 ${congestion === 0 ? '(データなし)' : `混雑度: ${congestion} (人数: ${totalCount})`}`}
                       >
                         {/* メインコンテンツエリア */}
                         <Box sx={{ 
@@ -355,7 +338,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                         }}>
                           <Typography 
                             sx={{ 
-                              fontSize: isMobile ? (isSmallMobile ? '18px' : '20px') : '22px',
+                              fontSize: isMobile ? (isSmallMobile ? '24px' : '28px') : '32px',
                               lineHeight: '1',
                               fontWeight: 'bold',
                               textAlign: 'center'
@@ -364,44 +347,6 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                             {congestion === 0 ? '-' : congestion}
                           </Typography>
                         </Box>
-                        
-                        {/* イベント情報エリア */}
-                        {hasEvents && (
-                          <Box sx={{
-                            width: '100%',
-                            minHeight: isMobile ? '12px' : '14px',
-                            backgroundColor: 'rgba(255, 255, 255, 0.75)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '1px 2px',
-                            overflow: 'visible'
-                          }}>
-                            <Typography 
-                              sx={{ 
-                                fontSize: isMobile ? '7px' : '8px',
-                                color: '#333',
-                                fontWeight: '600',
-                                lineHeight: '1.1',
-                                textAlign: 'center',
-                                whiteSpace: 'normal',
-                                wordBreak: 'break-word',
-                                hyphens: 'auto',
-                                maxWidth: '100%'
-                              }}
-                              title={events.map(e => e.title).join(', ')}
-                            >
-                              {events.length > 3 ? `${events.length}件` : 
-                                events.map((event, eventIndex) => (
-                                  <span key={eventIndex}>
-                                    {event.title.substring(0, 2)}
-                                    {eventIndex < events.length - 1 && <br />}
-                                  </span>
-                                ))
-                              }
-                            </Typography>
-                          </Box>
-                        )}
                       </Box>
                     );
                   })}
