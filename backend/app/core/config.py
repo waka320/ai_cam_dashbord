@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     CRON_SECRET: str
     AWS_ACCSESS_KEY_ID: str
     AWS_SECRET_ACCESS_KEY: str
+    GOOGLE_SHEETS_ID: Optional[str] = None
+    GOOGLE_SHEETS_CREDENTIALS: Optional[str] = None
     
     class Config:
         env_file = ".env"
