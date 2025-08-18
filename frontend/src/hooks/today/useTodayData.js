@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useCalendar } from '../../contexts/CalendarContext';
 
 export const useTodayData = (selectedLocation) => {
+    const { eventData } = useCalendar();
     const [todayData, setTodayData] = useState(null);
     const [summaryData, setSummaryData] = useState(null);
     const [error, setError] = useState('');
@@ -33,6 +35,18 @@ export const useTodayData = (selectedLocation) => {
             'gyouzinbashi': 'gyouzinbashi'
         };
         return locationMap[location] || location;
+    };
+
+    // 指定した日付のイベント情報を取得
+    const getEventsForDate = (dateStr) => {
+        if (!eventData || !Array.isArray(eventData)) return [];
+        
+        try {
+            return eventData.filter(event => event.date === dateStr) || [];
+        } catch (error) {
+            console.error('Error in getEventsForDate:', error, 'dateStr:', dateStr);
+            return [];
+        }
     };
 
     useEffect(() => {
@@ -180,6 +194,7 @@ export const useTodayData = (selectedLocation) => {
         summaryData,
         error,
         fetchLoading,
-        getTodaysDate
+        getTodaysDate,
+        getEventsForDate
     };
 };

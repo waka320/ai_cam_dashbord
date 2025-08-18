@@ -16,8 +16,11 @@ from app.services.highlighter_service import (
     highlight_date_time_data,
 )
 from app.services.weather.weather_service import weather_service
-from app.models import GraphRequest, GraphResponse, WeatherInfo
+from app.services.csv_events_service import csv_events_service
+from app.models import GraphRequest, GraphResponse, WeatherInfo, EventInfo
 import time
+from datetime import datetime, timedelta
+from typing import List
 
 router = APIRouter()
 
@@ -205,6 +208,9 @@ async def get_graph(request: GraphRequest):
                 for wd in weather_data or []
             ]
 
+            # イベント情報の取得
+            event_info_list = get_events_for_period(year, month)
+
             response = GraphResponse(
                 graph=(
                     f"Graph for {place} in {year}/{month}"
@@ -212,6 +218,7 @@ async def get_graph(request: GraphRequest):
                 data=data,
                 ai_advice=ai_advice,
                 weather_data=weather_info_list,
+                event_data=event_info_list,
             )
 
             # キャッシュにレスポンスを保存
@@ -242,11 +249,15 @@ async def get_graph(request: GraphRequest):
                     for wd in weather_data
                 ]
 
+            # イベント情報の取得
+            event_info_list = get_events_for_period(year, month)
+
             response = GraphResponse(
                 graph=f"Trend analysis for {place}",
                 data=response_data["data"],
                 ai_advice=response_data["ai_analysis"],
                 weather_data=weather_info_list,
+                event_data=event_info_list,
                 type=response_data["type"],
                 highlighted_info=response_data["highlighted_info"],
             )
@@ -267,6 +278,24 @@ async def get_graph(request: GraphRequest):
             detail=f"Error processing data: {str(e)}",
         )
 
+
+def get_events_for_period(year: int, month: int) -> List[EventInfo]:
+    """指定された年月のイベント情報を取得"""
+    try:
+        start_date = datetime(year, month, 1).date()
+        if month == 12:
+            end_date = datetime(year + 1, 1, 1).date() - timedelta(days=1)
+        else:
+            end_date = datetime(year, month + 1, 1).date() - timedelta(days=1)
+        
+        events = csv_events_service.get_events_for_date_range(
+            start_date.strftime("%Y-%m-%d"),
+            end_date.strftime("%Y-%m-%d")
+        )
+        
+        return [EventInfo(**event) for event in events]
+    except Exception:
+        return []
 
 # キャッシュのクリーンアップ関数（定期的に実行する場合）
 def cleanup_cache():

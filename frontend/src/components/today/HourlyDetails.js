@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Box, Typography, useMediaQuery } from '@mui/material';
 import HourlyCell from './HourlyCell';
 import { formatDateJapanese } from '../../utils/todayUtils';
+
 import PropTypes from 'prop-types';
 
 const HourlyDetails = ({ todayData, handleScroll }) => {
@@ -138,6 +139,7 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                                         index={index} 
                                         totalLength={yesterdayEntry.hourly_congestion.length} 
                                         isGrayCell={hourData.congestion === 0}
+
                                     />
                                 ))}
                             </Box>
@@ -246,6 +248,7 @@ const HourlyDetails = ({ todayData, handleScroll }) => {
                                         index={index} 
                                         totalLength={lastYearEntry.hourly_congestion.length} 
                                         isGrayCell={hourData.congestion === 0}
+
                                     />
                                 ))}
                             </Box>

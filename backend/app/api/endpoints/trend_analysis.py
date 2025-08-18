@@ -1,8 +1,10 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from app.services.analyze.get_trend_analysis import get_congestion_data
+from app.services.csv_events_service import csv_events_service
+from app.models import EventInfo
 
 router = APIRouter()
 
@@ -15,6 +17,17 @@ AVAILABLE_PLACES = [
     "nakabashi", "omotesando", "yasukawadori", "yottekan", 
     "gyouzinbashi", "old-town", "station"
 ]
+
+def get_events_for_date_range_extended(start_date: datetime, end_date: datetime) -> list:
+    """指定された日付範囲のイベント情報を取得"""
+    try:
+        events = csv_events_service.get_events_for_date_range(
+            start_date.strftime("%Y-%m-%d"),
+            end_date.strftime("%Y-%m-%d")
+        )
+        return [EventInfo(**event).dict() for event in events]
+    except Exception:
+        return []
 
 @router.get("/congestion-data/{place}")
 async def get_place_congestion_data(
@@ -69,6 +82,19 @@ async def get_place_congestion_data(
                 status_code=500,
                 detail="混雑度データの取得中にエラーが発生しました"
             )
+        
+        # イベント情報を取得（分析期間に合わせて）
+        if analysis_date is None:
+            analysis_date = datetime.now()
+        
+        # 分析期間の開始日と終了日を計算
+        start_date = analysis_date - timedelta(days=weeks_count * 7)
+        end_date = analysis_date + timedelta(days=7)
+        
+        events = get_events_for_date_range_extended(start_date, end_date)
+        
+        # 結果にイベント情報を追加
+        result["events"] = events
         
         return {
             "success": True,
@@ -200,6 +226,16 @@ async def get_place_congestion_summary(
                 detail="混雑度データの取得中にエラーが発生しました"
             )
         
+        # イベント情報を取得（分析期間に合わせて）
+        if analysis_date is None:
+            analysis_date = datetime.now()
+        
+        # 分析期間の開始日と終了日を計算
+        start_date = analysis_date - timedelta(days=weeks_count * 7)
+        end_date = analysis_date + timedelta(days=7)
+        
+        events = get_events_for_date_range_extended(start_date, end_date)
+        
         # サマリー情報のみを抽出（時間別の詳細データは除く）
         summary_data = {
             "place": result.get("place"),
@@ -246,7 +282,10 @@ async def get_place_congestion_summary(
                 "congestion_level": result.get("last_year_today_hourly", {}).get("congestion_level"),
                 "is_weekend": result.get("last_year_today_hourly", {}).get("is_weekend"),
                 "data_available": result.get("last_year_today_hourly", {}).get("data_available")
-            }
+            },
+            "events": events,
+            "weeks_count": weeks_count,
+            "actual_days": result.get("recent_week", {}).get("actual_days", 0)
         }
         
         return {

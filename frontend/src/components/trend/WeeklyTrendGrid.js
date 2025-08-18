@@ -18,6 +18,8 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
     return filename.replace('.csv', '');
   };
 
+
+
   // データをヒートマップ形式に変換
   const organizeDataForHeatmap = (rawData) => {
     if (!rawData || !Array.isArray(rawData) || rawData.length === 0) {
@@ -269,19 +271,20 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                     // 限界まで大きくした文字サイズ
                     const dynamicFontSize = isMobile ? 22 : 30;
                     const dynamicDateFontSize = isMobile ? 9 : 14;
+                    const cellHeight = isMobile ? 40 : 50;
                     
                     return (
                       <Box
                         key={weekData ? `week-${weekData.weekKey}` : `empty-${index}`}
                         sx={{
                           width: availableWidth,
-                          height: isMobile ? '40px' : '50px',
+                          height: `${cellHeight}px`,
                           backgroundColor: weekData ? getCellColor(weekData.congestion) : '#f9f9f9',
                           color: weekData ? getTextColor(weekData.congestion) : '#999',
                           borderRight: index !== 4 ? '1px solid #ddd' : 'none',
                           display: 'flex',
                           flexDirection: 'column',
-                          justifyContent: 'center',
+                          justifyContent: 'flex-start',
                           alignItems: 'center',
                           cursor: weekData ? 'pointer' : 'default',
                           position: 'relative',
@@ -292,35 +295,44 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                       >
                         {weekData ? (
                           <>
-                            {/* 混雑度の数値 */}
-                    <Typography 
-                              variant={isMobile ? "h6" : "h5"}
-                      sx={{ 
-                                fontSize: `${dynamicFontSize}px`,
-                        fontWeight: 'bold',
-                                lineHeight: 0.9,
-                                mb: 0,
-                                mt: 0
-                              }}
-                            >
-                              {weekData.congestion}
-                            </Typography>
-                            
-                            {/* 日付範囲（開始日〜終了日） */}
-                            <Typography 
-                              variant="caption"
-                              sx={{ 
-                                fontSize: `${dynamicDateFontSize}px`,
-                                lineHeight: 0.9,
-                        textAlign: 'center',
-                                opacity: 0.9,
-                                whiteSpace: 'nowrap',
-                                mt: 0,
-                                mb: 0
-                              }}
-                            >
-                              {weekData.display}
-                            </Typography>
+                            {/* メインコンテンツエリア */}
+                            <Box sx={{
+                              flex: 1,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              {/* 混雑度の数値 */}
+                              <Typography 
+                                variant={isMobile ? "h6" : "h5"}
+                                sx={{ 
+                                  fontSize: `${dynamicFontSize}px`,
+                                  fontWeight: 'bold',
+                                  lineHeight: 0.9,
+                                  mb: 0,
+                                  mt: 0
+                                }}
+                              >
+                                {weekData.congestion}
+                              </Typography>
+                              
+                              {/* 日付範囲（開始日〜終了日） */}
+                              <Typography 
+                                variant="caption"
+                                sx={{ 
+                                  fontSize: `${dynamicDateFontSize}px`,
+                                  lineHeight: 0.9,
+                                  textAlign: 'center',
+                                  opacity: 0.9,
+                                  whiteSpace: 'nowrap',
+                                  mt: 0,
+                                  mb: 0
+                                }}
+                              >
+                                {weekData.display}
+                              </Typography>
+                            </Box>
                           </>
                         ) : (
                           <Typography 
@@ -331,8 +343,8 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                             }}
                           >
                             -
-                    </Typography>
-                  )}
+                          </Typography>
+                        )}
                 </Box>
               );
             })}

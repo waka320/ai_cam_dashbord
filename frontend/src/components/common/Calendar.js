@@ -6,18 +6,21 @@ import { useColorPalette } from '../../contexts/ColorPaletteContext';
 import AnalysisInfoButton from '../ui/AnalysisInfoButton'; // 追加
 import WeatherIcon from '../ui/WeatherIcon'; // 追加
 
+
 // カレンダーコンポーネント
 const CalendarHeatmap = () => {
     const { 
         calendarData, 
         selectedAction, 
         selectedMonth, 
+        selectedYear, // 追加
         loading, 
         actionChanging,
         locationChanging,
         dateChanging,
         selectedLocation, 
-        shouldShowCalculationNote 
+        shouldShowCalculationNote,
+        eventData // イベントデータを追加
     } = useCalendar();
     const { getCellColor, getTextColor } = useColorPalette();
     const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
@@ -56,6 +59,44 @@ const CalendarHeatmap = () => {
         const parts = selectedLocation.split('/');
         const filename = parts[parts.length - 1];
         return filename.replace('.csv', '');
+    };
+
+    // 指定した日付のイベント情報を取得
+    const getEventsForDate = (dateNum) => {
+        // eventDataから直接取得
+        if (!eventData || !Array.isArray(eventData)) return [];
+        
+        // selectedYearとselectedMonthが存在しない場合は空配列を返す
+        if (!selectedYear || !selectedMonth) return [];
+        
+        try {
+            const targetDateStr = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(dateNum).padStart(2, '0')}`;
+            
+            return eventData.filter(event => event.date === targetDateStr) || [];
+        } catch (error) {
+            console.error('Error in getEventsForDate:', error, 'selectedYear:', selectedYear, 'selectedMonth:', selectedMonth, 'dateNum:', dateNum);
+            return [];
+        }
+    };
+
+    // 行内の最大イベント数を計算
+    const getMaxEventsInRow = (week) => {
+        let maxEvents = 0;
+        week.forEach(cell => {
+            if (cell) {
+                const events = getEventsForDate(cell.date);
+                maxEvents = Math.max(maxEvents, events.length);
+            }
+        });
+        return maxEvents;
+    };
+
+    // イベント数に基づいて行の高さを計算
+    const getRowHeight = (maxEvents) => {
+        const baseHeight = isMobile ? (isSmallMobile ? 60 : 70) : 80;
+        const eventHeight = isSmallMobile ? 16 : isMobile ? 18 : 20;
+        const additionalHeight = Math.max(0, maxEvents - 1) * eventHeight;
+        return baseHeight + additionalHeight;
     };
 
     // このコンポーネントを表示すべきか判断
@@ -203,32 +244,36 @@ const CalendarHeatmap = () => {
                     </Box>
 
                     {/* カレンダーのセル */}
-                    {calendarData.map((week, rowIndex) => (
-                        <Box key={rowIndex} sx={{ display: 'flex' }}>
-                            {week.map((cell, colIndex) => {
-                                // const cellKey = `${rowIndex}-${colIndex}`;
-                                return (
-                                    <Box
-                                        key={colIndex}
-                                        // ref={(el) => cellRefs.current[cellKey] = el}
-                                        // onClick={(event) => cell && cell.highlighted ? 
-                                        //     handleCellClick(cell, event) : null}
-                                        sx={{
-                                            flex: 1,
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            // 混雑度0の日を灰色で表示
-                                            backgroundColor: !cell ? '#fff' : 
-                                                cell.congestion === 0 ? '#e0e0e0' : getCellColor(cell.congestion),
-                                            borderRight: colIndex !== 6 ? '1px solid #ddd' : undefined,
-                                            borderBottom: rowIndex !== calendarData.length - 1 ? '1px solid #ddd' : undefined,
-                                            position: 'relative',
-                                            // cursor: cell && cell.highlighted ? 'pointer' : 'default',
-                                            cursor: 'default',
-                                            height: isMobile ? (isSmallMobile ? '60px' : '70px') : '80px',
-                                            minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '50px',
-                                        }}
-                                    >
+                    {calendarData.map((week, rowIndex) => {
+                        const maxEventsInRow = getMaxEventsInRow(week);
+                        const rowHeight = getRowHeight(maxEventsInRow);
+                        
+                        return (
+                            <Box key={rowIndex} sx={{ display: 'flex' }}>
+                                {week.map((cell, colIndex) => {
+                                    // const cellKey = `${rowIndex}-${colIndex}`;
+                                    return (
+                                        <Box
+                                            key={colIndex}
+                                            // ref={(el) => cellRefs.current[cellKey] = el}
+                                            // onClick={(event) => cell && cell.highlighted ? 
+                                            //     handleCellClick(cell, event) : null}
+                                            sx={{
+                                                flex: 1,
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                // 混雑度0の日を灰色で表示
+                                                backgroundColor: !cell ? '#fff' : 
+                                                    cell.congestion === 0 ? '#e0e0e0' : getCellColor(cell.congestion),
+                                                borderRight: colIndex !== 6 ? '1px solid #ddd' : undefined,
+                                                borderBottom: rowIndex !== calendarData.length - 1 ? '1px solid #ddd' : undefined,
+                                                position: 'relative',
+                                                // cursor: cell && cell.highlighted ? 'pointer' : 'default',
+                                                cursor: 'default',
+                                                height: `${rowHeight}px`,
+                                                minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '50px',
+                                            }}
+                                        >
                                         {cell && (
                                             <>
                                                 {/* メインコンテンツエリア */}
@@ -237,22 +282,54 @@ const CalendarHeatmap = () => {
                                                     display: 'flex',
                                                     flexDirection: 'column',
                                                     alignItems: 'center',
-                                                    justifyContent: 'center',
+                                                    justifyContent: 'flex-start',
                                                     gap: isSmallMobile ? '1px' : '2px',
                                                     color: !cell ? 'inherit' : getTextColor(cell.congestion),
+                                                    position: 'relative',
+                                                    paddingTop: isSmallMobile ? '4px' : isMobile ? '6px' : '8px'
                                                 }}>
-                                                    {/* 日付を上に中央揃えで表示 */}
-                                                    <Typography 
-                                                        sx={{
-                                                            fontSize: isSmallMobile ? '12px' : isMobile ? '14px' : '16px',
-                                                            lineHeight: '1',
-                                                            color: cell.congestion === 0 ? '#666' : getTextColor(cell.congestion),
-                                                            fontWeight: '500',
-                                                            textAlign: 'center',
-                                                        }}
-                                                    >
-                                                        {`${cell.date}日`}
-                                                    </Typography>
+
+
+                                                    {/* 日付と天気を同じ行に表示 */}
+                                                    <Box sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        gap: '2px',
+                                                        width: '100%'
+                                                    }}>
+                                                        <Typography 
+                                                            sx={{
+                                                                fontSize: isSmallMobile ? '12px' : isMobile ? '14px' : '16px',
+                                                                lineHeight: '1',
+                                                                color: cell.congestion === 0 ? '#666' : getTextColor(cell.congestion),
+                                                                fontWeight: '500',
+                                                                textAlign: 'center',
+                                                            }}
+                                                        >
+                                                            {`${cell.date}日`}
+                                                        </Typography>
+                                                        
+                                                        {/* 天気アイコンを日付の横に表示 */}
+                                                        {cell.weather_info && (
+                                                            <Box sx={{
+                                                                width: isSmallMobile ? '16px' : isMobile ? '18px' : '20px',
+                                                                height: isSmallMobile ? '16px' : isMobile ? '18px' : '20px',
+                                                                backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                                                                borderRadius: '3px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                                                            }}>
+                                                                <WeatherIcon 
+                                                                    weather={cell.weather_info.weather}
+                                                                    size="small"
+                                                                    showTemp={false}
+                                                                />
+                                                            </Box>
+                                                        )}
+                                                    </Box>
                                                     
                                                     {/* 混雑度を下に中央揃えで表示 */}
                                                     <Typography 
@@ -269,44 +346,56 @@ const CalendarHeatmap = () => {
                                                     </Typography>
                                                 </Box>
                                                 
-                                                {/* 天気情報エリア */}
-                                                {cell.weather_info && (
-                                                    <Box sx={{
-                                                        width: '100%',
-                                                        height: isSmallMobile ? '18px' : isMobile ? '20px' : '24px',
-                                                        backgroundColor: 'rgba(255, 255, 255, 0.75)',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        gap: '1px',
-                                                        padding: '1px'
-                                                    }}>
-                                                        <WeatherIcon 
-                                                            weather={cell.weather_info.weather}
-                                                            size="medium"
-                                                            showTemp={false}
-                                                        />
-                                                        {cell.weather_info.avg_temperature && (
+
+                                                
+                                                {/* イベント情報エリア */}
+                                                {(() => {
+                                                    const events = getEventsForDate(cell.date);
+                                                    return events.length > 0 && (
+                                                        <Box sx={{
+                                                            width: '100%',
+                                                            minHeight: isSmallMobile ? '18px' : isMobile ? '20px' : '22px',
+                                                            backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            padding: '2px 3px',
+                                                            overflow: 'visible'
+                                                        }}>
                                                             <Typography 
                                                                 sx={{ 
-                                                                    fontSize: isSmallMobile ? '13px' : '15px',
+                                                                    fontSize: isSmallMobile ? '10px' : isMobile ? '11px' : '12px',
                                                                     color: '#333',
                                                                     fontWeight: '600',
-                                                                    lineHeight: '1'
+                                                                    lineHeight: '1.1',
+                                                                    textAlign: 'center',
+                                                                    whiteSpace: 'normal',
+                                                                    wordBreak: 'break-word',
+                                                                    hyphens: 'auto',
+                                                                    maxWidth: '100%'
                                                                 }}
+                                                                title={events.map(e => e.title).join(', ')}
                                                             >
-                                                                {Math.round(cell.weather_info.avg_temperature)}°
+                                                                {events.map((event, index) => (
+                                                                    <span key={index}>
+                                                                        {event.title}
+                                                                        {index < events.length - 1 && (
+                                                                            <br />
+                                                                        )}
+                                                                    </span>
+                                                                ))}
                                                             </Typography>
-                                                        )}
-                                                    </Box>
-                                                )}
+                                                        </Box>
+                                                    );
+                                                })()}
                                             </>
                                         )}
                                     </Box>
                                 );
                             })}
                         </Box>
-                    ))}
+                        );
+                    })}
                 </Box>
 
                 {/* ハイライト理由のポップオーバー */}

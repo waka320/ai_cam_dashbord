@@ -19,6 +19,8 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
     return filename.replace('.csv', '');
   };
 
+
+
   // データを年×月のマトリックス形式に変換
   const organizeDataForHeatmap = (rawData) => {
     if (!rawData || !Array.isArray(rawData) || rawData.length === 0) {
@@ -178,8 +180,8 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
           <Box sx={{ 
             display: 'flex',
             flexDirection: 'column',
-            width: isMobile ? '30px' : '45px', 
-            minWidth: isMobile ? '30px' : '45px',
+            width: isMobile ? (isSmallMobile ? '40px' : '50px') : '60px', 
+            minWidth: isMobile ? (isSmallMobile ? '40px' : '50px') : '60px',
             position: 'sticky',
             left: 0,
             zIndex: 2,
@@ -223,7 +225,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                   variant={isSmallMobile ? "bodyS" : "bodyM"} 
                   fontWeight="bold"
                   sx={{
-                    fontSize: isMobile ? '9px' : '11px',
+                    fontSize: isMobile ? (isSmallMobile ? '14px' : '16px') : '18px',
                     lineHeight: 0.9
                   }}
                 >
@@ -279,7 +281,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                     variant={isSmallMobile ? "bodyM" : "h6"}
                     fontWeight="bold"
                     sx={{
-                      fontSize: isMobile ? (isSmallMobile ? '12px' : '14px') : '11px',
+                      fontSize: isMobile ? (isSmallMobile ? '16px' : '18px') : '20px',
                       lineHeight: 0.9
                     }}
                   >
@@ -304,6 +306,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                     const cellData = matrix[`${year}-${month}`];
                     const congestion = cellData ? cellData.congestion : 0;
                     const totalCount = cellData ? cellData.total_count : 0;
+                    const cellHeight = isMobile ? (isSmallMobile ? 45 : 50) : 50;
                     
                     return (
                       <Box 
@@ -311,7 +314,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                         sx={{ 
                           minWidth: isMobile ? (isSmallMobile ? '28px' : '35px') : '50px',
                           width: isMobile ? (isSmallMobile ? '28px' : '35px') : '50px',
-                          height: isMobile ? (isSmallMobile ? '45px' : '50px') : '50px',
+                          height: `${cellHeight}px`,
                           display: 'flex',
                           flexDirection: 'column',
                           backgroundColor: congestion === 0 ? '#e0e0e0' : getCellColor(congestion),
@@ -320,6 +323,8 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                           position: 'relative',
                           cursor: 'default',
                           flexShrink: 0,
+                          justifyContent: 'flex-start',
+                          alignItems: 'center'
                         }}
                         title={`${year}年${month}月 ${congestion === 0 ? '(データなし)' : `混雑度: ${congestion} (人数: ${totalCount})`}`}
                       >
@@ -333,7 +338,7 @@ function MonthlyTrendGrid({ data, loading, isMobile }) {
                         }}>
                           <Typography 
                             sx={{ 
-                              fontSize: isMobile ? (isSmallMobile ? '18px' : '20px') : '22px',
+                              fontSize: isMobile ? (isSmallMobile ? '24px' : '28px') : '32px',
                               lineHeight: '1',
                               fontWeight: 'bold',
                               textAlign: 'center'

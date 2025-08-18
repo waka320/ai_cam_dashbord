@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.endpoints import csv_analysis, fetch_csv, fetch_csv_exmeidai, get_graph, root, trend_analysis
+from app.api.endpoints import csv_analysis, fetch_csv, fetch_csv_exmeidai, get_graph, root, trend_analysis, events
 
 app = FastAPI()
 
@@ -19,6 +19,7 @@ app.include_router(fetch_csv_exmeidai.router)
 app.include_router(get_graph.router)
 app.include_router(root.router)
 app.include_router(trend_analysis.router)
+app.include_router(events.router)
 
 if __name__ == "__main__":
     import uvicorn
