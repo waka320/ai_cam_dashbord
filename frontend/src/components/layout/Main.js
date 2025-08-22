@@ -1,7 +1,9 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { Routes, Route } from 'react-router-dom';
-import Content from './Content';
+import LandingPage from '../../pages/LandingPage';
+import PurposeDashboard from '../../pages/PurposeDashboard';
+import FunctionDashboard from '../../pages/FunctionDashboard';
 import TermsAndPrivacy from '../../pages/TermsAndPrivacy';
 import Sitemap from '../../pages/Sitemap';
 import HowToUse from '../../pages/HowToUse';
@@ -17,7 +19,9 @@ const Main = () => {
       }}
     >
       <Routes>
-        <Route path="/" element={<Content />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/purpose" element={<PurposeDashboard />} />
+        <Route path="/function" element={<FunctionDashboard />} />
         <Route path="/terms" element={<TermsAndPrivacy />} />
         <Route path="/sitemap" element={<Sitemap />} />
         <Route path="/how-to-use" element={<HowToUse />} />

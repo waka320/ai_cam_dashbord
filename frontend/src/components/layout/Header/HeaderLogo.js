@@ -1,12 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Box, Button, ButtonGroup } from '@mui/material';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import BusinessIcon from '@mui/icons-material/Business';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 import logo from '../../../assets/dashbord_logo.png';
 import ShareButton from '../../ui/ShareButton';
+import theme from '../../../theme/theme';
 
 function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
   if (isScrolled || isCompactMode) return null;
+  
+  const isPurposePage = location.pathname === '/purpose';
+  const isFunctionPage = location.pathname === '/function';
+  const isDashboardPage = isPurposePage || isFunctionPage;
   
   return (
     <Box sx={{ 
@@ -20,15 +30,60 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
       opacity: isScrolled ? 0 : 1,
       transform: isScrolled ? 'translateY(-20px)' : 'translateY(0)',
     }}>
-      {/* 左側のスペース（モバイルでバランスを取るため） */}
-      <Box sx={{ width: isMobile ? '40px' : '60px' }} />
+      {/* 左側：ダッシュボード切り替えボタン（ダッシュボードページのみ） */}
+      <Box sx={{ width: isMobile ? '40px' : '60px', display: 'flex', justifyContent: 'flex-start' }}>
+        {isDashboardPage && !isMobile && (
+          <ButtonGroup size="small" sx={{ minWidth: 'auto' }}>
+            <Button
+              variant={isPurposePage ? 'contained' : 'outlined'}
+              color="primary"
+              startIcon={<BusinessIcon />}
+              onClick={() => navigate('/purpose')}
+              sx={{
+                fontSize: '0.7rem',
+                px: 1,
+                py: 0.5,
+                minWidth: 'auto',
+                backgroundColor: isPurposePage ? theme.palette.primary.main : 'rgba(255, 255, 255, 0.9)',
+                color: isPurposePage ? 'white' : theme.palette.primary.main,
+                borderColor: theme.palette.primary.main,
+                '&:hover': {
+                  backgroundColor: isPurposePage ? theme.palette.primary.dark : 'rgba(74, 85, 104, 0.1)',
+                }
+              }}
+            >
+              目的
+            </Button>
+            <Button
+              variant={isFunctionPage ? 'contained' : 'outlined'}
+              color="secondary"
+              startIcon={<AnalyticsIcon />}
+              onClick={() => navigate('/function')}
+              sx={{
+                fontSize: '0.7rem',
+                px: 1,
+                py: 0.5,
+                minWidth: 'auto',
+                backgroundColor: isFunctionPage ? theme.palette.secondary.main : 'rgba(255, 255, 255, 0.9)',
+                color: isFunctionPage ? 'white' : theme.palette.secondary.main,
+                borderColor: theme.palette.secondary.main,
+                '&:hover': {
+                  backgroundColor: isFunctionPage ? theme.palette.secondary.dark : 'rgba(85, 60, 154, 0.1)',
+                }
+              }}
+            >
+              機能
+            </Button>
+          </ButtonGroup>
+        )}
+      </Box>
       
       {/* 中央のロゴ */}
       <RouterLink to="/" aria-label="トップページへ戻る">
         <Box
           component="img"
           src={logo}
-          alt="目的ベースダッシュボードのロゴ"
+          alt="高山市AIカメラデータダッシュボードのロゴ"
           sx={{ 
             height: isMobile ? '34px' : '44px',
             objectFit: 'contain',
