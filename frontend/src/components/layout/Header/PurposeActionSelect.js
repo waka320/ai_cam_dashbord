@@ -39,6 +39,10 @@ function PurposeActionSelect({
     handleActionChange(event.target.value);
   };
 
+  // メニューに存在しない値が来た場合は空文字に正規化してMUIのout-of-rangeを防ぐ
+  const allowedValues = menuItems.map((item) => item.value);
+  const normalizedSelectedAction = allowedValues.includes(selectedAction) ? selectedAction : '';
+
   return (
     <Box 
       sx={{ 
@@ -88,7 +92,7 @@ function PurposeActionSelect({
         disabled={actionChanging}
       >
         <Select
-          value={selectedAction || ''}
+          value={normalizedSelectedAction}
           onChange={handleSelectChange}
           disabled={loading || actionChanging}
           displayEmpty

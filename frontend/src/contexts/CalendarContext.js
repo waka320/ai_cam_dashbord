@@ -257,10 +257,20 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
     
     // ページトップにスクロール
     scrollToTop();
+
+    // 条件が揃っていれば直ちにデータ取得を実行
+    if (selectedLocation && selectedYear && selectedMonth) {
+      fetchCalendarDataWithParams(
+        selectedLocation,
+        value,
+        selectedYear,
+        selectedMonth
+      );
+    }
     
     // ローディング状態をリセット（データ取得完了後に自動的にfalseになる）
     setTimeout(() => setActionChanging(false), 500);
-  }, [updateUrlParam, scrollToTop]);
+  }, [updateUrlParam, scrollToTop, selectedLocation, selectedYear, selectedMonth, fetchCalendarDataWithParams]);
 
   // 場所変更時のハンドラー
   const handleLocationChange = useCallback((value) => {
