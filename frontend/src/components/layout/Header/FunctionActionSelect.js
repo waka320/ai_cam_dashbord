@@ -36,9 +36,7 @@ function FunctionActionSelect({
     handleActionChange(event.target.value);
   };
 
-  // メニューに存在しない値が来た場合は空文字に正規化してMUIのout-of-rangeを防ぐ
-  const allowedValues = menuItems.map((item) => item.value);
-  const normalizedSelectedAction = allowedValues.includes(selectedAction) ? selectedAction : '';
+  // CalendarContext側で適切に処理されるため、正規化は不要
 
   return (
     <Box 
@@ -89,7 +87,7 @@ function FunctionActionSelect({
         disabled={actionChanging}
       >
         <Select
-          value={normalizedSelectedAction}
+          value={selectedAction}
           onChange={handleSelectChange}
           disabled={loading || actionChanging}
           displayEmpty

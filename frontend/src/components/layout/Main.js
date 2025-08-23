@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import { Routes, Route } from 'react-router-dom';
-import LandingPage from '../../pages/LandingPage';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import PurposeDashboard from '../../pages/PurposeDashboard';
 import FunctionDashboard from '../../pages/FunctionDashboard';
 import TermsAndPrivacy from '../../pages/TermsAndPrivacy';
@@ -19,7 +18,7 @@ const Main = () => {
       }}
     >
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<Navigate to="/purpose" replace />} />
         <Route path="/purpose" element={<PurposeDashboard />} />
         <Route path="/function" element={<FunctionDashboard />} />
         <Route path="/terms" element={<TermsAndPrivacy />} />
