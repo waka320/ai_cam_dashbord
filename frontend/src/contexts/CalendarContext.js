@@ -47,11 +47,7 @@ const VALID_ACTIONS = {
   ]
 };
 
-// デフォルトアクション
-const DEFAULT_ACTIONS = {
-  purpose: "today_details",
-  function: "cal_cog"
-};
+// デフォルトアクションは現在未使用（無効値は空に正規化）
 
 // アクションの有効性をチェック
 const isValidActionForPage = (action, pageType) => {
@@ -60,12 +56,7 @@ const isValidActionForPage = (action, pageType) => {
 };
 
 // 無効なアクションの場合のデフォルト値を取得
-const getValidActionForPage = (action, pageType) => {
-  if (isValidActionForPage(action, pageType)) {
-    return action;
-  }
-  return DEFAULT_ACTIONS[pageType] || '';
-};
+// 現状未使用（URL/Cookieの整合性チェックで直接使用）
 
 const CalendarContext = createContext();
 
@@ -424,18 +415,19 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
         const urlYear = searchParams.get('year') || '';
         const urlMonth = searchParams.get('month') || '';
         
-                      // URLパラメータがある場合はそれを使用、なければCookieから復元、最後にデフォルト値
-              const finalLocation = urlLocation || locationFromCookie || '';
-              let finalAction = urlAction || actionFromCookie || '';
-              
-              // アクションが現在のページタイプに対して有効かチェック
-              finalAction = getValidActionForPage(finalAction, pageType);
-              if (!finalAction) {
-                finalAction = DEFAULT_ACTIONS[pageType] || '';
-              }
-              
-              const finalYear = urlYear || yearFromCookie || currentYear;
-              const finalMonth = urlMonth || monthFromCookie || currentMonth;
+        // URL/Cookieの整合性チェック（アクションはページに有効なものを優先）
+        const finalLocation = urlLocation || locationFromCookie || '';
+        let finalAction = '';
+        if (isValidActionForPage(urlAction, pageType)) {
+          finalAction = urlAction;
+        } else if (isValidActionForPage(actionFromCookie, pageType)) {
+          finalAction = actionFromCookie;
+        } else {
+          finalAction = '';
+        }
+        
+        const finalYear = urlYear || yearFromCookie || currentYear;
+        const finalMonth = urlMonth || monthFromCookie || currentMonth;
         
         // 状態を設定
         locationRef.current.value = finalLocation;
