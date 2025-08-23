@@ -13,6 +13,8 @@ import { useCalendar } from '../../../contexts/CalendarContext';
 // コンポーネントのインポート
 import HeaderLogo from './HeaderLogo';
 import ActionSelect from './ActionSelect';
+import PurposeActionSelect from './PurposeActionSelect';
+import FunctionActionSelect from './FunctionActionSelect';
 import DateSelect from './DateSelect';
 import LocationSelect from './LocationSelect';
 import CameraModal from './CameraModal';
@@ -44,13 +46,28 @@ function Header() {
   const isSpecialPage = useCallback(() => {
     return ['/terms', '/how-to-use', '/sitemap'].includes(location.pathname);
   }, [location.pathname]);
+
+  // 現在のページタイプを判定（将来の拡張用）
+  // const isDashboardPage = useCallback(() => {
+  //   return ['/purpose', '/function'].includes(location.pathname);
+  // }, [location.pathname]);
+
+  const isPurposePage = location.pathname === '/purpose';
+  const isFunctionPage = location.pathname === '/function';
+  const isLandingPage = location.pathname === '/';
   
   const today = new Date();
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth() + 1;
   
   // 現在の年月を自動的に設定するためのuseEffect
+  // ただし、ダッシュボードページでは実行しない（Cookie復元を優先）
   useEffect(() => {
+    // ダッシュボードページでは年月の自動設定を行わない
+    if (isPurposePage || isFunctionPage) {
+      return;
+    }
+
     // 年月が未選択の場合のみ自動設定する
     if (!selectedYear) {
       setSelectedYear(currentYear.toString());
@@ -63,7 +80,7 @@ function Header() {
       const monthToSet = selectedYear === currentYear.toString() ? currentMonth.toString() : "12";
       setSelectedMonth(monthToSet);
     }
-  }, [selectedYear, selectedMonth, currentYear, currentMonth, setSelectedYear, setSelectedMonth]);
+  }, [selectedYear, selectedMonth, currentYear, currentMonth, setSelectedYear, setSelectedMonth, isPurposePage, isFunctionPage]);
   
   const [isScrolled, setIsScrolled] = useState(false);
   const [isCompactMode, setIsCompactMode] = useState(false);
@@ -108,6 +125,11 @@ function Header() {
     setIsCameraModalOpen(false);
   };
 
+  // ランディングページではヘッダーを表示しない
+  if (isLandingPage) {
+    return null;
+  }
+
   return (
     <>
       <AppBar 
@@ -118,7 +140,11 @@ function Header() {
           top: 0,
           zIndex: 1100,
           padding: isCompactMode ? '1px 0' : (isScrolled ? (isMobile ? '2px 0' : '8px 0') : (isMobile ? '4px 0' : '8px 0')),
-          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+          background: isPurposePage 
+            ? `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`
+            : isFunctionPage
+            ? `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.secondary.dark} 100%)`
+            : `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
           boxShadow: isCompactMode ? '0 2px 8px rgba(0, 0, 0, 0.3)' : (isScrolled ? '0 4px 10px rgba(0, 0, 0, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.1)'),
           borderRadius: (isScrolled || isCompactMode) ? '0' : '0 0 8px 8px',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -166,17 +192,43 @@ function Header() {
                 }}
               >
                 {/* アクション選択部分 */}
-                <ActionSelect 
-                  isMobile={isMobile}
-                  isTablet={isTablet}
-                  isSmallDesktop={isSmallDesktop}
-                  isScrolled={isScrolled}
-                  isCompactMode={isCompactMode}
-                  selectedAction={selectedAction}
-                  handleActionChange={handleActionChange}
-                  loading={loading}
-                  actionChanging={actionChanging}
-                />
+                {isPurposePage ? (
+                  <PurposeActionSelect 
+                    isMobile={isMobile}
+                    isTablet={isTablet}
+                    isSmallDesktop={isSmallDesktop}
+                    isScrolled={isScrolled}
+                    isCompactMode={isCompactMode}
+                    selectedAction={selectedAction}
+                    handleActionChange={handleActionChange}
+                    loading={loading}
+                    actionChanging={actionChanging}
+                  />
+                ) : isFunctionPage ? (
+                  <FunctionActionSelect 
+                    isMobile={isMobile}
+                    isTablet={isTablet}
+                    isSmallDesktop={isSmallDesktop}
+                    isScrolled={isScrolled}
+                    isCompactMode={isCompactMode}
+                    selectedAction={selectedAction}
+                    handleActionChange={handleActionChange}
+                    loading={loading}
+                    actionChanging={actionChanging}
+                  />
+                ) : (
+                  <ActionSelect 
+                    isMobile={isMobile}
+                    isTablet={isTablet}
+                    isSmallDesktop={isSmallDesktop}
+                    isScrolled={isScrolled}
+                    isCompactMode={isCompactMode}
+                    selectedAction={selectedAction}
+                    handleActionChange={handleActionChange}
+                    loading={loading}
+                    actionChanging={actionChanging}
+                  />
+                )}
                 
                 {/* 計測場所・年月選択部分 */}
                 <Box 
