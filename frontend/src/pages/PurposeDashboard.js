@@ -84,15 +84,6 @@ function PurposeDashboard() {
                             >
                                 「やりたいこと」を選んでください
                             </Typography>
-                            <Typography 
-                                variant="body2" 
-                                sx={{ 
-                                    color: theme.palette.text.secondary,
-                                    fontSize: isMobile ? '0.75rem' : '0.85rem'
-                                }}
-                            >
-                                事業の目的に応じた分析オプションから選択してください
-                            </Typography>
                         </Box>
                     ) : needsLocation ? (
                         // 「計測場所」の選択を促す

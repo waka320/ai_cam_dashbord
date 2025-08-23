@@ -87,16 +87,7 @@ function FunctionDashboard() {
                                     fontSize: isMobile ? '1rem' : '1.1rem'
                                 }}
                             >
-                                「分析機能」を選んでください
-                            </Typography>
-                            <Typography 
-                                variant="body2" 
-                                sx={{ 
-                                    color: theme.palette.text.secondary,
-                                    fontSize: isMobile ? '0.75rem' : '0.85rem'
-                                }}
-                            >
-                                利用したい分析ツールやビジュアライゼーションを選択してください
+                                使いたい機能を選んでください
                             </Typography>
                         </Box>
                     ) : needsLocation ? (
