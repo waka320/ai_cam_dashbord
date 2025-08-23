@@ -47,11 +47,7 @@ const VALID_ACTIONS = {
   ]
 };
 
-// デフォルトアクション
-const DEFAULT_ACTIONS = {
-  purpose: "today_details",
-  function: "cal_cog"
-};
+// デフォルトアクションは廃止 - 初期状態では何も選択されていない
 
 // アクションの有効性をチェック
 const isValidActionForPage = (action, pageType) => {
@@ -60,12 +56,7 @@ const isValidActionForPage = (action, pageType) => {
 };
 
 // 無効なアクションの場合のデフォルト値を取得
-const getValidActionForPage = (action, pageType) => {
-  if (isValidActionForPage(action, pageType)) {
-    return action;
-  }
-  return DEFAULT_ACTIONS[pageType] || '';
-};
+// 現状未使用（URL/Cookieの整合性チェックで直接使用）
 
 const CalendarContext = createContext();
 
@@ -82,16 +73,14 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
   
   // 現在のページタイプを判定
   const getPageType = () => {
-    if (location.pathname === '/purpose') return 'purpose';
+    if (location.pathname === '/' || location.pathname === '/purpose') return 'purpose';
     if (location.pathname === '/function') return 'function';
     return 'default';
   };
   
   const pageType = getPageType();
-  const COOKIE_KEYS = getCookieKeys(pageType);
   
-  // データ取得実行中フラグ
-  const [isFetchingData, setIsFetchingData] = useState(false);
+  // ページリロード方式では複雑な状態管理は不要
   
   // 現在の年月を取得
   const today = new Date();
@@ -257,10 +246,20 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
     
     // ページトップにスクロール
     scrollToTop();
+
+    // 条件が揃っていれば直ちにデータ取得を実行
+    if (selectedLocation && selectedYear && selectedMonth) {
+      fetchCalendarDataWithParams(
+        selectedLocation,
+        value,
+        selectedYear,
+        selectedMonth
+      );
+    }
     
     // ローディング状態をリセット（データ取得完了後に自動的にfalseになる）
     setTimeout(() => setActionChanging(false), 500);
-  }, [updateUrlParam, scrollToTop]);
+  }, [updateUrlParam, scrollToTop, selectedLocation, selectedYear, selectedMonth, fetchCalendarDataWithParams]);
 
   // 場所変更時のハンドラー
   const handleLocationChange = useCallback((value) => {
@@ -366,202 +365,104 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
     }
   }, [selectedYear, selectedAction, selectedLocation, fetchCalendarDataWithParams, updateUrlParam, scrollToTop]);
 
-  // ページタイプが変更されたときに状態をクリアしてリセット
-  useEffect(() => {
-    // 進行中のリクエストをキャンセル
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    
-    // データをクリア
-    setCalendarData([]);
-    setAiAdvice("");
-    setWeatherData([]);
-    setEventData([]);
-    setData(null);
-    setResponseType(null);
-    setError("");
-    setLoading(false);
-    setActionChanging(false);
-    setLocationChanging(false);
-    setDateChanging(false);
-    
-    // Cookie読み込み状態とフェッチングフラグをリセット
-    setCookiesLoaded(false);
-    setIsFetchingData(false);
-    
-    console.log(`Page type changed to: ${pageType}, clearing all data`);
-  }, [pageType]);
+  // ページリロード時は状態クリアは不要（新しいページとして読み込まれるため）
 
-  //  マウント時またはページタイプ変更時にCookieから値を読み込む
+  // ページ読み込み時にCookieから値を読み込む（シンプル版）
   useEffect(() => {
     if (!cookiesLoaded) {
-      const locationFromCookie = getCookie(COOKIE_KEYS.LOCATION);
-      const actionFromCookie = getCookie(COOKIE_KEYS.ACTION);
-      const yearFromCookie = getCookie(COOKIE_KEYS.YEAR);
-      const monthFromCookie = getCookie(COOKIE_KEYS.MONTH);
+      const currentCookieKeys = getCookieKeys(pageType);
+      const locationFromCookie = getCookie(currentCookieKeys.LOCATION);
+      const actionFromCookie = getCookie(currentCookieKeys.ACTION);
+      const yearFromCookie = getCookie(currentCookieKeys.YEAR);
+      const monthFromCookie = getCookie(currentCookieKeys.MONTH);
 
-      // ページタイプが変更された場合は、手動変更フラグをリセットして状態を初期化
-      if (pageType !== 'default') {
-        locationRef.current.manuallyChanged = false;
-        actionRef.current.manuallyChanged = false;
-        yearRef.current.manuallyChanged = false;
-        monthRef.current.manuallyChanged = false;
-        
-        // 状態を初期化（URLパラメータがある場合はそれを優先）
-        const urlLocation = searchParams.get('location') || '';
-        const urlAction = searchParams.get('action') || '';
-        const urlYear = searchParams.get('year') || '';
-        const urlMonth = searchParams.get('month') || '';
-        
-                      // URLパラメータがある場合はそれを使用、なければCookieから復元、最後にデフォルト値
-              const finalLocation = urlLocation || locationFromCookie || '';
-              let finalAction = urlAction || actionFromCookie || '';
-              
-              // アクションが現在のページタイプに対して有効かチェック
-              finalAction = getValidActionForPage(finalAction, pageType);
-              if (!finalAction) {
-                finalAction = DEFAULT_ACTIONS[pageType] || '';
-              }
-              
-              const finalYear = urlYear || yearFromCookie || currentYear;
-              const finalMonth = urlMonth || monthFromCookie || currentMonth;
-        
-        // 状態を設定
-        locationRef.current.value = finalLocation;
-        setSelectedLocationInternal(finalLocation);
-        if (finalLocation !== urlLocation) updateUrlParam('location', finalLocation);
-        
-        actionRef.current.value = finalAction;
-        setSelectedActionInternal(finalAction);
-        if (finalAction !== urlAction) updateUrlParam('action', finalAction);
-        
-        yearRef.current.value = finalYear;
-        setSelectedYearInternal(finalYear);
-        if (finalYear !== urlYear) updateUrlParam('year', finalYear);
-        
-        monthRef.current.value = finalMonth;
-        setSelectedMonthInternal(finalMonth);
-        if (finalMonth !== urlMonth) updateUrlParam('month', finalMonth);
-        
-        // 遅延して完了フラグを設定し、データ取得も実行
-        setTimeout(() => {
-          setCookiesLoaded(true);
-          
-          // 全ての必要な値が揃っており、データ取得中でない場合のみ実行
-          if (finalLocation && finalAction && finalYear && finalMonth && !isFetchingData) {
-            console.log('Page switch: Auto-fetching data with restored values:', {
-              location: finalLocation,
-              action: finalAction,
-              originalAction: urlAction || actionFromCookie,
-              actionChanged: finalAction !== (urlAction || actionFromCookie),
-              pageType: pageType,
-              year: finalYear,
-              month: finalMonth
-            });
-            
-            // データ取得フラグを設定してから実行
-            setIsFetchingData(true);
-            fetchCalendarDataWithParams(finalLocation, finalAction, finalYear, finalMonth)
-              .finally(() => {
-                setTimeout(() => setIsFetchingData(false), 1000); // 1秒後にフラグをリセット
-              });
-          }
-        }, 150); // 状態更新が確実に完了するよう少し遅延を増やす
-        return; // 早期リターンで以下の処理をスキップ
-      }
-
-      // Cookieに値が保存されている場合のみ状態を更新
-      if (locationFromCookie && !locationRef.current.manuallyChanged) {
-        locationRef.current.value = locationFromCookie;
-        setSelectedLocationInternal(locationFromCookie);
-        updateUrlParam('location', locationFromCookie);
+      // URLパラメータを優先、次にCookie、最後にデフォルト値
+      const urlLocation = searchParams.get('location') || '';
+      const urlAction = searchParams.get('action') || '';
+      const urlYear = searchParams.get('year') || '';
+      const urlMonth = searchParams.get('month') || '';
+      
+      const finalLocation = urlLocation || locationFromCookie || '';
+      let finalAction = urlAction || actionFromCookie || '';
+      
+      // ダッシュボードページでアクションが無効な場合は空文字にする（デフォルトアクション廃止）
+      if (pageType !== 'default' && !isValidActionForPage(finalAction, pageType)) {
+        finalAction = '';
       }
       
-      if (actionFromCookie && !actionRef.current.manuallyChanged) {
-        actionRef.current.value = actionFromCookie;
-        setSelectedActionInternal(actionFromCookie);
-        updateUrlParam('action', actionFromCookie);
-      }
+      const finalYear = urlYear || yearFromCookie || currentYear;
+      const finalMonth = urlMonth || monthFromCookie || currentMonth;
       
-      // Cookieに値がない場合は現在の年月をデフォルト値として使用
-      if (yearFromCookie && !yearRef.current.manuallyChanged) {
-        yearRef.current.value = yearFromCookie;
-        setSelectedYearInternal(yearFromCookie);
-        updateUrlParam('year', yearFromCookie);
-      } else if (!yearRef.current.manuallyChanged) {
-        yearRef.current.value = currentYear;
-        setSelectedYearInternal(currentYear);
-        updateUrlParam('year', currentYear);
-      }
+      // 状態を設定
+      setSelectedLocationInternal(finalLocation);
+      setSelectedActionInternal(finalAction);
+      setSelectedYearInternal(finalYear);
+      setSelectedMonthInternal(finalMonth);
       
-      if (monthFromCookie && !monthRef.current.manuallyChanged) {
-        monthRef.current.value = monthFromCookie;
-        setSelectedMonthInternal(monthFromCookie);
-        updateUrlParam('month', monthFromCookie);
-      } else if (!monthRef.current.manuallyChanged) {
-        monthRef.current.value = currentMonth;
-        setSelectedMonthInternal(currentMonth);
-        updateUrlParam('month', currentMonth);
-      }
-
-      // 遅延して完了フラグを設定し、必要に応じてデータ取得も実行
-      setTimeout(() => {
-        setCookiesLoaded(true);
-        
-        // デフォルトページでも、全ての値が揃っており、データ取得中でない場合はデータを取得
-        const currentLocation = locationRef.current.value;
-        const currentAction = actionRef.current.value;
-        const currentYear = yearRef.current.value;
-        const currentMonth = monthRef.current.value;
-        
-        if (currentLocation && currentAction && currentYear && currentMonth && !isFetchingData) {
-          console.log('Default page: Auto-fetching data with current values:', {
-            location: currentLocation,
-            action: currentAction,
-            year: currentYear,
-            month: currentMonth
-          });
-          
-          // データ取得フラグを設定してから実行
-          setIsFetchingData(true);
-          fetchCalendarDataWithParams(currentLocation, currentAction, currentYear, currentMonth)
-            .finally(() => {
-              setTimeout(() => setIsFetchingData(false), 1000); // 1秒後にフラグをリセット
-            });
-        }
-      }, 100);
+      // URLパラメータを更新
+      if (finalLocation !== urlLocation) updateUrlParam('location', finalLocation);
+      if (finalAction !== urlAction) updateUrlParam('action', finalAction);
+      if (finalYear !== urlYear) updateUrlParam('year', finalYear);
+      if (finalMonth !== urlMonth) updateUrlParam('month', finalMonth);
+      
+      console.log('Page loaded with values:', {
+        pageType,
+        location: finalLocation,
+        action: finalAction,
+        year: finalYear,
+        month: finalMonth
+      });
+      
+      setCookiesLoaded(true);
     }
-  }, [cookiesLoaded, currentYear, currentMonth, pageType, COOKIE_KEYS, updateUrlParam, searchParams, fetchCalendarDataWithParams, isFetchingData]);
+  }, [cookiesLoaded, currentYear, currentMonth, pageType, updateUrlParam, searchParams]);
+
+  // Cookie読み込み完了後、全ての値が揃っていればデータを取得
+  useEffect(() => {
+    if (cookiesLoaded && selectedLocation && selectedAction && selectedYear && selectedMonth) {
+      console.log('Auto-fetching data after cookie load:', {
+        location: selectedLocation,
+        action: selectedAction,
+        year: selectedYear,
+        month: selectedMonth,
+        pageType
+      });
+      fetchCalendarDataWithParams(selectedLocation, selectedAction, selectedYear, selectedMonth);
+    }
+  }, [cookiesLoaded, selectedLocation, selectedAction, selectedYear, selectedMonth, fetchCalendarDataWithParams, pageType]);
 
   // 選択値が変更されたらCookieに保存（cookiesLoadedがtrueになった後のみ）
   useEffect(() => {
     if (cookiesLoaded && selectedLocation) {
-      setCookie(COOKIE_KEYS.LOCATION, selectedLocation);
+      const currentCookieKeys = getCookieKeys(pageType);
+      setCookie(currentCookieKeys.LOCATION, selectedLocation);
       locationRef.current.value = selectedLocation;
     }
-  }, [selectedLocation, cookiesLoaded, COOKIE_KEYS.LOCATION]);
+  }, [selectedLocation, cookiesLoaded, pageType]);
 
   useEffect(() => {
     if (cookiesLoaded && selectedAction) {
-      setCookie(COOKIE_KEYS.ACTION, selectedAction);
+      const currentCookieKeys = getCookieKeys(pageType);
+      setCookie(currentCookieKeys.ACTION, selectedAction);
       actionRef.current.value = selectedAction;
     }
-  }, [selectedAction, cookiesLoaded, COOKIE_KEYS.ACTION]);
+  }, [selectedAction, cookiesLoaded, pageType]);
 
   useEffect(() => {
     if (cookiesLoaded && selectedYear) {
-      setCookie(COOKIE_KEYS.YEAR, selectedYear);
+      const currentCookieKeys = getCookieKeys(pageType);
+      setCookie(currentCookieKeys.YEAR, selectedYear);
       yearRef.current.value = selectedYear;
     }
-  }, [selectedYear, cookiesLoaded, COOKIE_KEYS.YEAR]);
+  }, [selectedYear, cookiesLoaded, pageType]);
 
   useEffect(() => {
     if (cookiesLoaded && selectedMonth) {
-      setCookie(COOKIE_KEYS.MONTH, selectedMonth);
+      const currentCookieKeys = getCookieKeys(pageType);
+      setCookie(currentCookieKeys.MONTH, selectedMonth);
       monthRef.current.value = selectedMonth;
     }
-  }, [selectedMonth, cookiesLoaded, COOKIE_KEYS.MONTH]);
+  }, [selectedMonth, cookiesLoaded, pageType]);
 
   // 入力が全て完了しているかチェックする
   useEffect(() => {

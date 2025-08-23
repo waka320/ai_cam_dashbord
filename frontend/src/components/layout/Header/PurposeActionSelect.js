@@ -39,6 +39,8 @@ function PurposeActionSelect({
     handleActionChange(event.target.value);
   };
 
+  // CalendarContext側で適切に処理されるため、正規化は不要
+
   return (
     <Box 
       sx={{ 
@@ -88,7 +90,7 @@ function PurposeActionSelect({
         disabled={actionChanging}
       >
         <Select
-          value={selectedAction || ''}
+          value={selectedAction}
           onChange={handleSelectChange}
           disabled={loading || actionChanging}
           displayEmpty

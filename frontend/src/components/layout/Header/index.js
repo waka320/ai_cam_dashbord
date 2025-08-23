@@ -52,9 +52,8 @@ function Header() {
   //   return ['/purpose', '/function'].includes(location.pathname);
   // }, [location.pathname]);
 
-  const isPurposePage = location.pathname === '/purpose';
+  const isPurposePage = location.pathname === '/' || location.pathname === '/purpose';
   const isFunctionPage = location.pathname === '/function';
-  const isLandingPage = location.pathname === '/';
   
   const today = new Date();
   const currentYear = today.getFullYear();
@@ -125,10 +124,7 @@ function Header() {
     setIsCameraModalOpen(false);
   };
 
-  // ランディングページではヘッダーを表示しない
-  if (isLandingPage) {
-    return null;
-  }
+
 
   return (
     <>

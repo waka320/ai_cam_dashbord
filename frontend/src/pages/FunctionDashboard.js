@@ -12,7 +12,6 @@ import SectionContainer from '../components/ui/SectionContainer';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import SEOComponent from '../components/common/SEOComponent';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
 import theme from '../theme/theme';
 
 function FunctionDashboard() {
@@ -67,37 +66,6 @@ function FunctionDashboard() {
                         zIndex: 1002
                     }}
                 >
-                    {/* 機能ベースダッシュボードのアイコンとタイトル */}
-                    <Box sx={{ textAlign: 'center', mb: 2 }}>
-                        <AnalyticsIcon 
-                            sx={{ 
-                                fontSize: isMobile ? '2rem' : '2.5rem',
-                                color: theme.palette.secondary.main,
-                                mb: 1
-                            }} 
-                        />
-                        <Typography 
-                            variant="h5" 
-                            sx={{ 
-                                fontWeight: 700,
-                                color: theme.palette.secondary.main,
-                                mb: 1,
-                                fontSize: isMobile ? '1.2rem' : '1.4rem'
-                            }}
-                        >
-                            機能ベースダッシュボード
-                        </Typography>
-                        <Typography 
-                            variant="body2" 
-                            sx={{ 
-                                color: theme.palette.text.secondary,
-                                mb: 2,
-                                fontSize: isMobile ? '0.8rem' : '0.9rem'
-                            }}
-                        >
-                            様々な分析機能とビジュアライゼーションツールを提供します
-                        </Typography>
-                    </Box>
                     
                     {needsAction ? (
                         // 「やりたいこと」の選択を促す
@@ -119,16 +87,7 @@ function FunctionDashboard() {
                                     fontSize: isMobile ? '1rem' : '1.1rem'
                                 }}
                             >
-                                「分析機能」を選んでください
-                            </Typography>
-                            <Typography 
-                                variant="body2" 
-                                sx={{ 
-                                    color: theme.palette.text.secondary,
-                                    fontSize: isMobile ? '0.75rem' : '0.85rem'
-                                }}
-                            >
-                                利用したい分析ツールやビジュアライゼーションを選択してください
+                                使いたい機能を選んでください
                             </Typography>
                         </Box>
                     ) : needsLocation ? (
