@@ -1,14 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Box, Button } from '@mui/material';
-import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import logo from '../../../assets/dashbord_logo.png';
 import ShareButton from '../../ui/ShareButton';
 import theme from '../../../theme/theme';
 
 function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
   const location = useLocation();
-  const navigate = useNavigate();
   
   if (isScrolled || isCompactMode) return null;
   
@@ -32,9 +31,10 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
       <Box sx={{ width: isMobile ? '80px' : '120px', display: 'flex', justifyContent: 'flex-start' }}>
         {isDashboardPage && (
           <Button
+            component="a"
+            href={isPurposePage ? '/function' : '/purpose'}
             variant="outlined"
-            size="medium"
-            onClick={() => navigate(isPurposePage ? '/function' : '/purpose')}
+            size={isMobile ? "small" : "medium"}
             sx={{
               fontSize: isMobile ? '0.65rem' : '0.75rem',
               px: isMobile ? 0.8 : 1.2,
@@ -43,10 +43,12 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
               backgroundColor: 'rgba(255, 255, 255, 0.9)',
               color: isPurposePage ? theme.palette.secondary.main : theme.palette.primary.main,
               borderColor: isPurposePage ? theme.palette.secondary.main : theme.palette.primary.main,
+              textDecoration: 'none',
               '&:hover': {
                 backgroundColor: isPurposePage 
                   ? 'rgba(85, 60, 154, 0.1)' 
                   : 'rgba(74, 85, 104, 0.1)',
+                textDecoration: 'none',
               },
               whiteSpace: 'nowrap'
             }}
@@ -57,7 +59,7 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
       </Box>
       
       {/* 中央のロゴ */}
-      <RouterLink to="/" aria-label="トップページへ戻る">
+      <a href="/" aria-label="トップページへ戻る" style={{ textDecoration: 'none' }}>
         <Box
           component="img"
           src={logo}
@@ -68,7 +70,7 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         />
-      </RouterLink>
+      </a>
       
       {/* 右側の共有ボタン */}
       {!isSpecialPage && (

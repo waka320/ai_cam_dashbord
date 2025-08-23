@@ -10,7 +10,6 @@ import SectionContainer from '../components/ui/SectionContainer';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import SEOComponent from '../components/common/SEOComponent';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import BusinessIcon from '@mui/icons-material/Business';
 import theme from '../theme/theme';
 
 function PurposeDashboard() {
@@ -63,38 +62,6 @@ function PurposeDashboard() {
                         zIndex: 1002
                     }}
                 >
-                    {/* 目的ベースダッシュボードのアイコンとタイトル */}
-                    <Box sx={{ textAlign: 'center', mb: 2 }}>
-                        <BusinessIcon 
-                            sx={{ 
-                                fontSize: isMobile ? '2rem' : '2.5rem',
-                                color: theme.palette.primary.main,
-                                mb: 1
-                            }} 
-                        />
-                        <Typography 
-                            variant="h5" 
-                            sx={{ 
-                                fontWeight: 700,
-                                color: theme.palette.primary.main,
-                                mb: 1,
-                                fontSize: isMobile ? '1.2rem' : '1.4rem'
-                            }}
-                        >
-                            目的ベースダッシュボード
-                        </Typography>
-                        <Typography 
-                            variant="body2" 
-                            sx={{ 
-                                color: theme.palette.text.secondary,
-                                mb: 2,
-                                fontSize: isMobile ? '0.8rem' : '0.9rem'
-                            }}
-                        >
-                            あなたの事業目的に合わせた最適な分析を提供します
-                        </Typography>
-                    </Box>
-                    
                     {needsAction ? (
                         // 「やりたいこと」の選択を促す
                         <Box sx={{ textAlign: 'center' }}>

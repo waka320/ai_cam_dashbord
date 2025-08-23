@@ -1,11 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box } from '@mui/material';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import PurposeDashboard from '../../pages/PurposeDashboard';
 import FunctionDashboard from '../../pages/FunctionDashboard';
 import TermsAndPrivacy from '../../pages/TermsAndPrivacy';
 import Sitemap from '../../pages/Sitemap';
 import HowToUse from '../../pages/HowToUse';
+
+// ルートアクセス時のリダイレクトコンポーネント
+const RootRedirect = () => {
+  useEffect(() => {
+    // ページリロード方式でのリダイレクト
+    window.location.href = '/purpose';
+  }, []);
+  
+  return <div>リダイレクト中...</div>;
+};
 
 const Main = () => {
   return (
@@ -18,7 +28,7 @@ const Main = () => {
       }}
     >
       <Routes>
-        <Route path="/" element={<Navigate to="/purpose" replace />} />
+        <Route path="/" element={<RootRedirect />} />
         <Route path="/purpose" element={<PurposeDashboard />} />
         <Route path="/function" element={<FunctionDashboard />} />
         <Route path="/terms" element={<TermsAndPrivacy />} />
