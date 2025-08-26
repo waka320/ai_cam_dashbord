@@ -36,12 +36,12 @@ const Sitemap = () => {
               <ListItemText primary="目的ベースダッシュボード" secondary="やりたいことから混雑度データを分析" />
             </ListItem>
             
-            <ListItem button component={RouterLink} to="/function">
+            {/* <ListItem button component={RouterLink} to="/function">
               <ListItemIcon>
                 <AnalyticsIcon />
               </ListItemIcon>
               <ListItemText primary="機能ベースダッシュボード" secondary="機能から混雑度データを分析" />
-            </ListItem>
+            </ListItem> */}
             {/* <ListItem button component={RouterLink} to="/how-to-use">
               <ListItemIcon>
                   <HelpOutlineIcon />
