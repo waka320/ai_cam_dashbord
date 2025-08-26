@@ -4,7 +4,6 @@ import { Link as RouterLink } from 'react-router-dom';
 import SecurityIcon from '@mui/icons-material/Security';
 import ArticleIcon from '@mui/icons-material/Article';
 import BusinessIcon from '@mui/icons-material/Business';
-import AnalyticsIcon from '@mui/icons-material/Analytics';
 import SEOComponent from '../components/common/SEOComponent';
 // import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
@@ -36,19 +35,7 @@ const Sitemap = () => {
               <ListItemText primary="目的ベースダッシュボード" secondary="やりたいことから混雑度データを分析" />
             </ListItem>
             
-            {/* <ListItem button component={RouterLink} to="/function">
-              <ListItemIcon>
-                <AnalyticsIcon />
-              </ListItemIcon>
-              <ListItemText primary="機能ベースダッシュボード" secondary="機能から混雑度データを分析" />
-            </ListItem> */}
-            {/* <ListItem button component={RouterLink} to="/how-to-use">
-              <ListItemIcon>
-                  <HelpOutlineIcon />
-              </ListItemIcon>
-              <ListItemText primary="使い方ガイド" secondary="目的ベースダッシュボードの使い方について" />
-            </ListItem> */}
-            
+
             <ListItem button component={RouterLink} to="/privacy-policy">
               <ListItemIcon>
                 <SecurityIcon />
