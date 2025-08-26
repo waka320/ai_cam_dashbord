@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Box, Button } from '@mui/material';
 import { useLocation } from 'react-router-dom';
-import logo from '../../../assets/dashbord_logo.png';
+import purposeLogo from '../../../assets/dashbord_logo.png';
+import functionLogo from '../../../assets/dashbord_logo_func.png';
 import ShareButton from '../../ui/ShareButton';
 import theme from '../../../theme/theme';
 
@@ -14,6 +15,9 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
   const isPurposePage = location.pathname === '/purpose';
   const isFunctionPage = location.pathname === '/function';
   const isDashboardPage = isPurposePage || isFunctionPage;
+  
+  // ページに応じてロゴを選択
+  const currentLogo = isFunctionPage ? functionLogo : purposeLogo;
   
   return (
     <Box sx={{ 
@@ -62,8 +66,8 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
       <a href="/" aria-label="トップページへ戻る" style={{ textDecoration: 'none' }}>
         <Box
           component="img"
-          src={logo}
-          alt="高山市AIカメラデータダッシュボードのロゴ"
+          src={currentLogo}
+          alt={`高山市AIカメラデータダッシュボード${isFunctionPage ? '（機能ベース）' : '（目的ベース）'}のロゴ`}
           sx={{ 
             height: isMobile ? '34px' : '44px',
             objectFit: 'contain',
