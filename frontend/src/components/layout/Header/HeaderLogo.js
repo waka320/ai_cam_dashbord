@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Box, Button } from '@mui/material';
 import { useLocation } from 'react-router-dom';
-import logo from '../../../assets/dashbord_logo.png';
+import purposeLogo from '../../../assets/dashbord_logo.png';
+import functionLogo from '../../../assets/dashbord_logo_func.png';
 import ShareButton from '../../ui/ShareButton';
 import theme from '../../../theme/theme';
 
@@ -11,9 +12,10 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
   
   if (isScrolled || isCompactMode) return null;
   
-  const isPurposePage = location.pathname === '/purpose';
   const isFunctionPage = location.pathname === '/function';
-  const isDashboardPage = isPurposePage || isFunctionPage;
+  
+  // ページに応じてロゴを選択
+  const currentLogo = isFunctionPage ? functionLogo : purposeLogo;
   
   return (
     <Box sx={{ 
@@ -27,12 +29,12 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
       opacity: isScrolled ? 0 : 1,
       transform: isScrolled ? 'translateY(-20px)' : 'translateY(0)',
     }}>
-      {/* 左側：ダッシュボード切り替えボタン（ダッシュボードページのみ） */}
+      {/* 左側：ダッシュボード切り替えボタン（機能ベースページのみ） */}
       <Box sx={{ width: isMobile ? '80px' : '120px', display: 'flex', justifyContent: 'flex-start' }}>
-        {isDashboardPage && (
+        {isFunctionPage && (
           <Button
             component="a"
-            href={isPurposePage ? '/function' : '/purpose'}
+            href="/purpose"
             variant="outlined"
             size={isMobile ? "small" : "medium"}
             sx={{
@@ -41,19 +43,17 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
               py: isMobile ? 0.4 : 0.6,
               minWidth: 'auto',
               backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              color: isPurposePage ? theme.palette.secondary.main : theme.palette.primary.main,
-              borderColor: isPurposePage ? theme.palette.secondary.main : theme.palette.primary.main,
+              color: theme.palette.primary.main,
+              borderColor: theme.palette.primary.main,
               textDecoration: 'none',
               '&:hover': {
-                backgroundColor: isPurposePage 
-                  ? 'rgba(85, 60, 154, 0.1)' 
-                  : 'rgba(74, 85, 104, 0.1)',
+                backgroundColor: 'rgba(74, 85, 104, 0.1)',
                 textDecoration: 'none',
               },
               whiteSpace: 'nowrap'
             }}
           >
-            {isPurposePage ? '機能ベースへ' : '目的ベースへ'}
+            目的ベースへ
           </Button>
         )}
       </Box>
@@ -62,8 +62,8 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
       <a href="/" aria-label="トップページへ戻る" style={{ textDecoration: 'none' }}>
         <Box
           component="img"
-          src={logo}
-          alt="高山市AIカメラデータダッシュボードのロゴ"
+          src={currentLogo}
+          alt={`高山市AIカメラデータダッシュボード${isFunctionPage ? '（機能ベース）' : '（目的ベース）'}のロゴ`}
           sx={{ 
             height: isMobile ? '34px' : '44px',
             objectFit: 'contain',
