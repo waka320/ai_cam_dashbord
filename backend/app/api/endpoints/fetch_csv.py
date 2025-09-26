@@ -66,11 +66,11 @@ def filter_person_only(csv_data):
     return output_file.getvalue()
 
 
-@router.post("/api/fetch-csv")
-async def fetch_csv(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    if credentials.credentials != settings.CRON_SECRET:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
+def run_fetch_csv():
+    """
+    API に依存しない CSV 取得・フィルタリング・保存の実行関数。
+    CLI からも利用できるように切り出し。
+    """
     results = []
     for csv in csvs:
         try:
@@ -79,7 +79,7 @@ async def fetch_csv(credentials: HTTPAuthorizationCredentials = Depends(security
             response.raise_for_status()
             csv_data = response.text
             
-            # "person"のみにフィルタリング
+            # "person" のみにフィルタリング
             logger.debug(f"Filtering '{csv['name']}' for 'person' rows only")
             filtered_csv_data = filter_person_only(csv_data)
 
@@ -91,9 +91,14 @@ async def fetch_csv(credentials: HTTPAuthorizationCredentials = Depends(security
             logger.info(f"CSV {csv['name']} fetched, filtered, and saved successfully")
             results.append({"name": csv['name'], "status": "success"})
         except Exception as e:
-            logger.error(
-                f"Error occurred while processing {csv['name']}: {str(e)}")
-            results.append(
-                {"name": csv['name'], "status": "error", "error": str(e)})
+            logger.error(f"Error occurred while processing {csv['name']}: {str(e)}")
+            results.append({"name": csv['name'], "status": "error", "error": str(e)})
 
     return {"message": "CSV fetch and filter process completed", "results": results}
+
+
+@router.post("/api/fetch-csv")
+async def fetch_csv(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if credentials.credentials != settings.CRON_SECRET:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return run_fetch_csv()

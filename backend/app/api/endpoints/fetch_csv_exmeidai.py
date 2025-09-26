@@ -234,21 +234,18 @@ def sort_and_finalize_csv(camera_num: int):
         logger.error(f"カメラ{camera_num}のデータのソートと最終化中にエラー発生: {str(e)}")
         return False
 
-@router.get("/api/fetch-csv-exmeidai")
-async def fetch_all_exmeidai_cams(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    if credentials.credentials != settings.CRON_SECRET:
-        raise HTTPException(status_code=401, detail="Unauthorized")
 
+def run_fetch_all_exmeidai():
+    """
+    API に依存しない Exmeidai 全カメラ取得・集計の実行関数。
+    CLI からも利用できるように切り出し。
+    """
     results = {}
     total_processed = 0
-    
     for cam_num in [1, 2, 3]:
         camera_name = CAMERA_NAME_MAPPING.get(cam_num, f"fa-cam{cam_num}")
-        
-        # データ取得と一時ファイル作成
         success, processed = fetch_and_process_camera_data(cam_num)
         if success:
-            # 1時間単位に集約・ソートして最終ファイル作成
             final_success = sort_and_finalize_csv(cam_num)
             results[camera_name] = {
                 "status": "success" if final_success else "partial_success",
@@ -267,3 +264,10 @@ async def fetch_all_exmeidai_cams(credentials: HTTPAuthorizationCredentials = De
         "results": results,
         "output_directory": data_dir
     }
+
+@router.get("/api/fetch-csv-exmeidai")
+async def fetch_all_exmeidai_cams(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if credentials.credentials != settings.CRON_SECRET:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    return run_fetch_all_exmeidai()
