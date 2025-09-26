@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
     Box, Typography, useMediaQuery, Paper, CircularProgress, 
 } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -22,8 +23,36 @@ function AdviceSection() {
         data,
         calendarData
     } = useCalendar();
+    const location = useLocation();
     const isMobile = useMediaQuery('(max-width:768px)');
     const [conversation, setConversation] = useState([]);
+    
+    // 現在のページテーマを判定
+    const isPurposePage = location.pathname === '/purpose';
+    const isFunctionPage = location.pathname === '/function';
+    
+    // テーマカラーを取得
+    const getThemeColors = () => {
+        if (isPurposePage) {
+            return {
+                main: '#4A5568',        // 目的ベース用
+                light: '#718096',
+                dark: '#2D3748',
+                contrastText: '#FFFFFF'
+            };
+        } else if (isFunctionPage) {
+            return {
+                main: '#553C9A',        // 機能ベース用
+                light: '#805AD5',
+                dark: '#44337A',
+                contrastText: '#FFFFFF'
+            };
+        } else {
+            return theme.palette.primary;  // デフォルト
+        }
+    };
+    
+    const themeColors = getThemeColors();
     
     // 初期のAIアドバイスが更新されたらチャット履歴に追加
     useEffect(() => {
@@ -91,7 +120,7 @@ function AdviceSection() {
                     backgroundColor: 'rgba(245, 245, 245, 0.5)',
                     borderRadius: '12px',
                 }}>
-                    <InfoOutlinedIcon sx={{ fontSize: 40, color: theme.palette.primary.main, mb: 2, opacity: 0.7 }} />
+                    <InfoOutlinedIcon sx={{ fontSize: 40, color: themeColors.main, mb: 2, opacity: 0.7 }} />
                     <Typography variant="body1" align="center" color="textSecondary" sx={{ maxWidth: '80%' }}>
                         場所、目的、年月を選択すると、グラフと分析の手引きが表示されます
                     </Typography>
@@ -151,8 +180,12 @@ function AdviceSection() {
                 case 'やること':
                     return {
                         icon: '📋',
-                        color: theme.palette.primary.main,
-                        bgColor: 'rgba(25, 118, 210, 0.05)'
+                        color: themeColors.main,
+                        bgColor: isPurposePage 
+                            ? 'rgba(74, 85, 104, 0.05)'
+                            : isFunctionPage 
+                            ? 'rgba(85, 60, 154, 0.05)'
+                            : 'rgba(25, 118, 210, 0.05)'
                     };
                 case '注意点':
                     return {
@@ -186,7 +219,7 @@ function AdviceSection() {
                         fontWeight: 600,
                         color: theme.palette.text.primary,
                         pb: 1,
-                        borderBottom: `2px solid ${theme.palette.primary.main}`
+                        borderBottom: `2px solid ${themeColors.main}`
                     }}
                 >
                     {titleLine}
@@ -263,7 +296,7 @@ function AdviceSection() {
             <Box sx={{ 
                 display: 'flex', 
                 alignItems: 'center', 
-                backgroundColor: theme.palette.primary.main,
+                backgroundColor: themeColors.main,
                 color: 'white',
                 p: isMobile ? 1.5 : 2,
                 borderBottom: '1px solid rgba(0, 0, 0, 0.08)'
@@ -271,7 +304,7 @@ function AdviceSection() {
                 <LightbulbIcon sx={{ 
                     mr: 1.5,
                     fontSize: isMobile ? '1.5rem' : '1.75rem',
-                    color: theme.palette.primary.contrastText
+                    color: themeColors.contrastText
                 }} />
                 <Typography 
                     variant="h6" 

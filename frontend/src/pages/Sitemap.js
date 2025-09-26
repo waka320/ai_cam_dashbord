@@ -1,9 +1,9 @@
 import React from 'react';
 import { Container, Typography, Box, Paper, List, ListItem, ListItemText, ListItemIcon } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import HomeIcon from '@mui/icons-material/Home';
 import SecurityIcon from '@mui/icons-material/Security';
 import ArticleIcon from '@mui/icons-material/Article';
+import BusinessIcon from '@mui/icons-material/Business';
 import SEOComponent from '../components/common/SEOComponent';
 // import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
@@ -12,8 +12,8 @@ const Sitemap = () => {
     <>
       <SEOComponent 
         title="サイトマップ"
-        description="目的ベースダッシュボードのサイトマップです。サイト内の全ページへのリンクをまとめています。"
-        keywords="サイトマップ,ページ一覧,ナビゲーション,高山市,ダッシュボード"
+        description="高山市AIカメラデータを元にした目的ベースダッシュボードのサイトマップです。サイト内の全ページへのリンクをまとめています。"
+        keywords="サイトマップ,ページ一覧,ナビゲーション,高山市,ダッシュボード,目的ベース,機能ベース"
         url="https://ai-camera.lab.mdg-meidai.com/sitemap"
       />
       <Container maxWidth="md" sx={{ my: 4 }}>
@@ -27,19 +27,15 @@ const Sitemap = () => {
         </Typography>
         <Box sx={{ mt: 3 }}>
           <List>
-            <ListItem button component={RouterLink} to="/">
-              <ListItemIcon>
-                <HomeIcon />
-              </ListItemIcon>
-              <ListItemText primary="ホーム" secondary="メインダッシュボード" />
-            </ListItem>
-            {/* <ListItem button component={RouterLink} to="/how-to-use">
-              <ListItemIcon>
-                  <HelpOutlineIcon />
-              </ListItemIcon>
-              <ListItemText primary="使い方ガイド" secondary="目的ベースダッシュボードの使い方について" />
-            </ListItem> */}
             
+            <ListItem button component={RouterLink} to="/purpose">
+              <ListItemIcon>
+                <BusinessIcon />
+              </ListItemIcon>
+              <ListItemText primary="目的ベースダッシュボード" secondary="やりたいことから混雑度データを分析" />
+            </ListItem>
+            
+
             <ListItem button component={RouterLink} to="/privacy-policy">
               <ListItemIcon>
                 <SecurityIcon />

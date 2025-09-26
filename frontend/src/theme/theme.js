@@ -3,20 +3,20 @@ import { createTheme } from '@mui/material/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#383947', // 黒系統のメインカラー
-      light: '#565A6F',
-      dark: '#242631',
+      main: '#4A5568', // 目的ベース用（元の色調をベースにした青みがかったグレー）
+      light: '#718096',
+      dark: '#2D3748',
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#5C5F73', // 黒系統に合わせたセカンダリーカラー
-      light: '#7C8093',
-      dark: '#3F4254',
+      main: '#553C9A', // 機能ベース用（元の色調をベースにした紫みがかったグレー）
+      light: '#805AD5',
+      dark: '#44337A',
       contrastText: '#FFFFFF',
     },
     background: {
       default: '#f5f5f5',
-      paper: '#343746',
+      paper: '#ffffff',  // カードの背景色を白に変更
     },
     text: {
       primary: '#212121',
