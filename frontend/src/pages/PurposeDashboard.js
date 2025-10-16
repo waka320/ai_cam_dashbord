@@ -3,6 +3,7 @@ import Calendar from '../components/common/Calendar';
 import TimeHeatmap from '../components/common/TimeHeatmap';
 import DateTimeHeatmap from '../components/common/DateTimeHeatmap';
 import TodayDetails from '../components/common/TodayDetails';
+import EventEffect from '../components/common/EventEffect';
 import { Box, Typography, Button, useMediaQuery, Paper } from '@mui/material';
 import AdviceSection from '../components/layout/AdviceSection';
 import { useCalendar } from '../contexts/CalendarContext';
@@ -151,6 +152,9 @@ function PurposeDashboard() {
             <>
                 {/* 今日について詳しく知りたい */}
                 {selectedAction === 'today_details' && <TodayDetails />}
+                
+                {/* イベント効果分析 */}
+                {selectedAction === 'event_effect' && <EventEffect />}
                 
                 {/* カレンダー系のアクション */}
                 {(selectedAction.startsWith('cal_') && selectedAction !== 'today_details') && <Calendar />}

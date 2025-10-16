@@ -41,6 +41,7 @@ class GraphRequest(BaseModel):
     year: int
     month: int
     action: str
+    day: Optional[int] = None  # イベント効果分析用の日付
 
 
 class EventInfo(BaseModel):

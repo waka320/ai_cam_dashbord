@@ -33,6 +33,7 @@ function PurposeActionSelect({
     { value: "wti_shift", label: "アルバイトのシフトを検討したい", shortLabel: "アルバイトのシフトを検討" },
     { value: "dti_open_hour", label: "お店の営業時刻を検討したい", shortLabel: "お店の営業時刻を検討" },
     { value: "dti_shoping_open_hour", label: "商店街の営業時刻を検討したい", shortLabel: "商店街の営業時刻を検討" },
+    { value: "event_effect", label: "イベントの効果を見る", shortLabel: "イベントの効果を見る" },
   ];
 
   const handleSelectChange = (event) => {

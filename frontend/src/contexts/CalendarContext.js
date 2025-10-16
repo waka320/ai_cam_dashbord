@@ -40,7 +40,7 @@ const VALID_ACTIONS = {
   purpose: [
     "today_details", "cal_holiday", "cal_shoping_holiday", "cal_long_holiday", 
     "cal_event", "cal_training", "dti_event_time", "wti_shift", 
-    "dti_open_hour", "dti_shoping_open_hour"
+    "dti_open_hour", "dti_shoping_open_hour", "event_effect"
   ],
   function: [
     "cal_cog", "dti_cog", "wti_cog", "month_trend", "week_trend"
@@ -194,6 +194,15 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
 
       const result = await response.json();
       console.log(`Successfully received data for: ${year}年${month}月`, result);
+      
+      // event_effect の場合はスキップ（コンポーネント内で独自に処理）
+      if (action === 'event_effect') {
+        console.log('event_effect data received but will be handled by component');
+        setCalendarData([]);
+        setData(null);
+        setResponseType(null);
+        return;
+      }
       
       // 傾向分析データかどうかを判定
       const isTrendAnalysis = ['year_trend', 'month_trend', 'week_trend'].includes(action);
