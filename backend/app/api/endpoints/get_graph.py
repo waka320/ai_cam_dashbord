@@ -9,6 +9,7 @@ from app.services.analyze import get_data_for_date_time250504
 from app.services.analyze import get_data_for_year
 from app.services.analyze import get_data_for_month
 from app.services.analyze import get_data_for_week
+from app.services.analyze import get_event_effect
 from app.services.ai_service_debug import analyze_csv_data_debug
 from app.services.highlighter_service import (
     highlight_calendar_data,
@@ -36,13 +37,14 @@ async def get_graph(request: GraphRequest):
     year = request.year
     month = request.month
     action = request.action
+    day = request.day
 
-    # キャッシュキーの作成
-    cache_key = f"{place}_{year}_{month}_{action}"
+    # キャッシュキーの作成（dayがある場合は含める）
+    cache_key = f"{place}_{year}_{month}_{day if day else ''}_{action}"
 
-    # キャッシュが存在し、期限内であれば、キャッシュから返す
+    # event_effectの場合はキャッシュをスキップ（dayパラメータによって結果が変わるため）
     current_time = time.time()
-    if cache_key in cache:
+    if action != "event_effect" and cache_key in cache:
         cached_data, timestamp = cache[cache_key]
         if current_time - timestamp < CACHE_EXPIRY:
             print(f"Cache hit for {cache_key}")
@@ -148,6 +150,69 @@ async def get_graph(request: GraphRequest):
                 "ai_analysis": "",
                 "highlighted_info": None,
             }
+
+        elif action == "event_effect":
+            # イベント効果分析
+            print(f"Event effect analysis requested: place={place}, year={year}, month={month}, day={day}")
+            
+            if day is None:
+                # 日付が指定されていない場合は空のレスポンスを返す
+                print("Day parameter is None, returning empty data")
+                event_effect_data = {
+                    "place": place,
+                    "event_date": "",
+                    "prev_week_date": "",
+                    "next_week_date": "",
+                    "event_hourly": [],
+                    "prev_week_hourly": [],
+                    "next_week_hourly": [],
+                    "increase_rates": [],
+                    "summary": {}
+                }
+            else:
+                print(f"Calling get_event_effect_data with: {csv_file_path}, {year}, {month}, {day}")
+                event_effect_data = get_event_effect.get_event_effect_data(
+                    csv_file_path, year, month, day
+                )
+                print(f"Event effect data received: {event_effect_data.get('event_date', 'N/A')}")
+            
+            # AIアドバイスの生成
+            ai_advice = await analyze_csv_data_debug(
+                csv_file_path, year, month, action
+            )
+            
+            # 天気データの整形
+            weather_info_list = []
+            if weather_data:
+                weather_info_list = [
+                    WeatherInfo(
+                        day=wd['day'],
+                        date=wd['date'],
+                        weather=wd['weather'],
+                        avg_temperature=wd['avg_temperature'],
+                        total_rain=wd['total_rain'],
+                    )
+                    for wd in weather_data
+                ]
+            
+            # イベント情報の取得
+            event_info_list = get_events_for_period(year, month)
+            
+            response = GraphResponse(
+                graph=f"Event effect analysis for {place}",
+                data=event_effect_data,
+                ai_advice=ai_advice,
+                weather_data=weather_info_list,
+                event_data=event_info_list,
+                type="event_effect",
+                highlighted_info=None,
+            )
+            
+            # event_effectの場合はキャッシュしない（dayパラメータによって結果が変わるため）
+            # cache[cache_key] = (response, current_time)
+            print(f"Event effect data returned (not cached)")
+            
+            return response
 
         else:
             # 既存のアクション処理
