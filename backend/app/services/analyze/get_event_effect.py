@@ -3,6 +3,7 @@ from typing import Dict, Any, List
 from datetime import datetime, timedelta
 import os
 from app.services.analyze.get_data_for_date_time250504 import get_data_for_date_time as dti_get
+from app.services.weather.weather_service import weather_service
 
 # 各場所の混雑度境界値の定義
 CONGESTION_THRESHOLDS = {
@@ -153,7 +154,9 @@ def get_event_effect_data(
         # DateTimeHeatmapと同一の混雑度計算に合わせるため、該当月ごとにDTIの月次データを生成して抽出
         def build_month_data(y: int, m: int) -> List[Dict[str, Any]]:
             try:
-                return dti_get(df, y, m, place, None) or []
+                # DateTimeHeatmapと同様、月次の時間別天気を取得して渡す
+                date_time_weather_data = weather_service.get_weather_for_date_time(y, m)
+                return dti_get(df, y, m, place, date_time_weather_data) or []
             except Exception:
                 return []
 

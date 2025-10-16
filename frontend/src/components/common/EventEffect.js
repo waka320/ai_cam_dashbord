@@ -14,12 +14,14 @@ import {
 } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
 import { useColorPalette } from '../../contexts/ColorPaletteContext';
+import WeatherIcon from '../ui/WeatherIcon';
 
 function EventEffect() {
   const { selectedLocation, selectedYear, selectedMonth } = useCalendar();
   const { getCellColor, getTextColor } = useColorPalette();
   const [selectedDay, setSelectedDay] = useState('');
   const [eventData, setEventData] = useState(null);
+  const [monthlyEvents, setMonthlyEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const isMobile = useMediaQuery('(max-width:768px)');
@@ -75,6 +77,7 @@ function EventEffect() {
       const result = await response.json();
       console.log('EventEffect: Data received:', result.data);
       setEventData(result.data);
+      setMonthlyEvents(result.event_data || []);
     } catch (err) {
       setError(err.message);
       console.error('EventEffect: Error fetching data:', err);
@@ -104,21 +107,24 @@ function EventEffect() {
   };
 
   // 時間別データを表示するコンポーネント
-  // スクロール連動のためのRefs
-  const headerRef1 = React.useRef(null);
-  const rowRef1 = React.useRef(null);
-  const headerRef2 = React.useRef(null);
-  const rowRef2 = React.useRef(null);
-  const headerRef3 = React.useRef(null);
-  const rowRef3 = React.useRef(null);
+  // スクロール連動のためのRefs（TodayDetails.jsと同じパターン）
+  const scrollRef1 = React.useRef(null);
+  const scrollRef2 = React.useRef(null);
+  const scrollRef3 = React.useRef(null);
 
-  const syncScroll = (source, targets) => {
-    if (!source?.current) return;
-    const left = source.current.scrollLeft;
-    targets.forEach(t => { if (t?.current && t.current.scrollLeft !== left) t.current.scrollLeft = left; });
+  // TodayDetails.jsと同じhandleScrollパターン
+  const handleScroll = (sourceRef, targetRefs) => {
+    if (!sourceRef.current) return;
+    
+    const scrollLeft = sourceRef.current.scrollLeft;
+    targetRefs.forEach(targetRef => {
+      if (targetRef.current && targetRef !== sourceRef) {
+        targetRef.current.scrollLeft = scrollLeft;
+      }
+    });
   };
 
-  const HourlyDataDisplay = ({ title, date, data, headerRef, rowRef, onScrollSync }) => (
+  const HourlyDataDisplay = ({ title, date, data, scrollRef, onScrollSync, monthlyEvents }) => (
     <Box sx={{ mb: 1.5 }}>
       <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mb: 0.5 }}>
         <Typography variant={isMobile ? 'bodyM' : 'h6'} sx={{ fontWeight: 700 }}>
@@ -130,67 +136,178 @@ function EventEffect() {
       </Box>
       <Box sx={{ border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden', width: '100%' }}>
         {/* スクロール領域（ヘッダー+1行） */}
-        <Box ref={headerRef} onScroll={onScrollSync} sx={{ 
-          overflowX: 'auto', 
-          WebkitOverflowScrolling: 'touch',
-          '&::-webkit-scrollbar': { height: '8px' },
-          '&::-webkit-scrollbar-thumb': { backgroundColor: '#c1c1c1', borderRadius: '4px' }
-        }}>
-          {/* 時間ヘッダー */}
-          <Box sx={{ display: 'flex', backgroundColor: '#f5f5f5' }}>
-            {Array.from({ length: 16 }, (_, i) => i + 7).map((hour, _, arr) => (
-              <Box 
-                key={`hour-head-${hour}`} 
-                sx={{ 
-                  minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
-                  width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
-                  textAlign: 'center', 
-                  padding: isMobile ? '4px 2px' : '6px 2px',
-                  borderRight: hour !== arr[arr.length - 1] ? '1px solid #ddd' : 'none',
-                  borderBottom: '1px solid #ddd',
-                  flexShrink: 0,
-                  height: isMobile ? (isSmallMobile ? '40px' : '44px') : '46px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <Typography variant={isSmallMobile ? 'bodyS' : 'bodyM'} fontWeight="bold">
-                  {hour}
-                </Typography>
-              </Box>
-            ))}
-          </Box>
-          {/* 1日の行（セル色＝混雑度、テキスト色もパレットに準拠） */}
-          <Box ref={rowRef} onScroll={onScrollSync} sx={{ display: 'flex', flexDirection: 'row', overflowX: 'auto' }}>
-            {Array.from({ length: 16 }, (_, i) => i + 7).map((hour, colIndex, arr) => {
-              const hourItem = data.find(h => h.hour === hour) || { hour, count: 0, congestion: 0 };
-              const congestion = hourItem.congestion || 0;
-              const bg = congestion === 0 ? '#e0e0e0' : getCellColor(congestion);
-              const fg = congestion === 0 ? '#666' : getTextColor(congestion);
+        <Box sx={{ display: 'flex', position: 'relative' }}>
+          {/* 左側の日付・天気カラム（固定） */}
+          <Box sx={{ 
+            display: 'flex', flexDirection: 'column',
+            width: isMobile ? '60px' : '70px', minWidth: isMobile ? '60px' : '70px',
+            borderRight: '1px solid #ddd', backgroundColor: '#f9f9f9'
+          }}>
+            {/* 左上角の見出し */}
+            <Box sx={{ 
+              borderBottom: '1px solid #ddd',
+              display: 'flex', justifyContent: 'center', alignItems: 'center',
+              height: isMobile ? (isSmallMobile ? '40px' : '44px') : '46px',
+              padding: isMobile ? '4px 2px' : '6px 2px'
+            }}>
+              <Typography variant={isSmallMobile ? 'bodyS' : 'bodyM'} fontWeight="bold">日付</Typography>
+            </Box>
+            {/* 日付＋天気（1行分） */}
+            <Box sx={{ 
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              height: isMobile ? (isSmallMobile ? '48px' : '54px') : '56px',
+              position: 'relative'
+            }}>
+              {/* 天気（右上） */}
+              {data?.[0]?.weather_info && (
+                <Box sx={{ position: 'absolute', top: '2px', right: '2px', width: isSmallMobile ? '14px' : '16px', height: isSmallMobile ? '14px' : '16px' }}>
+                  <WeatherIcon weather={data[0].weather_info.weather} size="small" showTemp={false} />
+                </Box>
+              )}
+              <Typography variant={isSmallMobile ? 'bodyS' : 'bodyM'} fontWeight="bold">
+                {new Date(date).getMonth() + 1}/{new Date(date).getDate()}
+              </Typography>
+              <Typography variant="caption" sx={{ fontSize: isSmallMobile ? '0.55rem' : '0.65rem', opacity: 0.85, lineHeight: 1 }}>
+                {['日','月','火','水','木','金','土'][new Date(date).getDay()]}
+              </Typography>
+            </Box>
+            {/* イベント表示（DateTimeHeatmap風） */}
+            {(() => {
+              const eventsForDate = (monthlyEvents || []).filter(e => e.date === date);
+              if (!eventsForDate.length) return null;
               return (
-                <Box 
-                  key={`hour-cell-${hour}`} 
-                  sx={{ 
-                    minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
-                    width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
-                    height: isMobile ? (isSmallMobile ? '48px' : '54px') : '56px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: bg,
-                    borderRight: colIndex !== arr.length - 1 ? '1px solid #ddd' : 'none',
-                    flexShrink: 0
-                  }}
-                  title={`${hour}時`}
-                >
-                  <Typography sx={{ fontSize: isMobile ? (isSmallMobile ? '1rem' : '1.1rem') : '1.15rem', fontWeight: 800, lineHeight: 1, color: fg }}>
-                    {congestion === 0 ? '-' : congestion}
+                <Box sx={{
+                  width: '100%',
+                  minHeight: isSmallMobile ? '12px' : '14px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '1px 2px', overflow: 'visible', borderTop: '1px solid #ddd'
+                }}>
+                  <Typography sx={{
+                    fontSize: isSmallMobile ? '8px' : '9px', color: '#333', fontWeight: 600,
+                    lineHeight: 1.1, textAlign: 'center', whiteSpace: 'normal', wordBreak: 'break-word', hyphens: 'auto', maxWidth: '100%'
+                  }} title={eventsForDate.map(ev => ev.title).join(', ')}>
+                    {eventsForDate.map((ev, idx) => (
+                      <span key={idx}>
+                        {ev.title}
+                        {idx < eventsForDate.length - 1 && <br />}
+                      </span>
+                    ))}
                   </Typography>
                 </Box>
               );
-            })}
+            })()}
+          </Box>
+          {/* 右側：ヘッダーと1行の水平スクロール領域（1つのコンテナにまとめる） */}
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Box 
+              ref={scrollRef}
+              onScroll={() => onScrollSync(scrollRef)}
+              sx={{ 
+                overflowX: 'auto',
+                overflowY: 'hidden',
+                WebkitOverflowScrolling: 'touch',
+                height: 'auto',
+                flex: 'none',
+                // スクロールバーを常に表示（モバイルでも）
+                '&::-webkit-scrollbar': { 
+                  height: isMobile ? '6px' : '8px',
+                  width: isMobile ? '6px' : '8px'
+                },
+                '&::-webkit-scrollbar-track': { 
+                  backgroundColor: '#f1f1f1', 
+                  borderRadius: '4px' 
+                },
+                '&::-webkit-scrollbar-thumb': { 
+                  backgroundColor: '#888', 
+                  borderRadius: '4px',
+                  '&:hover': {
+                    backgroundColor: '#555'
+                  }
+                },
+                // Firefox用のスクロールバー表示
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#888 #f1f1f1'
+              }}
+            >
+              {/* 時間ヘッダー */}
+              <Box sx={{ 
+                display: 'flex', 
+                backgroundColor: '#f5f5f5', 
+                width: 'fit-content', 
+                minWidth: '100%',
+                borderBottom: '1px solid #ddd'
+              }}>
+                {Array.from({ length: 16 }, (_, i) => i + 7).map((hour, idx, arr) => (
+                  <Box key={`hour-head-${hour}`} sx={{ 
+                    minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
+                    width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
+                    textAlign: 'center', 
+                    padding: isMobile ? '4px 2px' : '6px 2px',
+                    borderRight: idx !== arr.length - 1 ? '1px solid #ddd' : 'none',
+                    flexShrink: 0,
+                    height: isMobile ? (isSmallMobile ? '40px' : '44px') : '46px',
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center'
+                  }}>
+                    <Typography variant={isSmallMobile ? 'bodyS' : 'bodyM'} fontWeight="bold">{hour}</Typography>
+                  </Box>
+                ))}
+              </Box>
+              {/* 1日の行 */}
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: 'row', 
+                width: 'fit-content', 
+                minWidth: '100%',
+                flex: 'none',
+                height: 'auto'
+              }}>
+                {Array.from({ length: 16 }, (_, i) => i + 7).map((hour, colIndex, arr) => {
+                  const hourItem = data.find(h => h.hour === hour) || { hour, count: 0, congestion: 0 };
+                  const congestion = hourItem.congestion || 0;
+                  const bg = congestion === 0 ? '#e0e0e0' : getCellColor(congestion);
+                  const fg = congestion === 0 ? '#666' : getTextColor(congestion);
+                  return (
+                    <Box key={`hour-cell-${hour}`} sx={{ 
+                      minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
+                      width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
+                      height: isMobile ? (isSmallMobile ? '48px' : '54px') : '56px',
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      position: 'relative',
+                      backgroundColor: bg, 
+                      borderRight: colIndex !== arr.length - 1 ? '1px solid #ddd' : 'none', 
+                      flexShrink: 0
+                    }} title={`${hour}時`}>
+                      {/* 時刻ごとの天気（右上） */}
+                      {hourItem.weather_info && (
+                        <Box sx={{ 
+                          position: 'absolute', 
+                          top: '2px', 
+                          right: '2px', 
+                          width: isSmallMobile ? '12px' : '14px', 
+                          height: isSmallMobile ? '12px' : '14px' 
+                        }}>
+                          <WeatherIcon weather={hourItem.weather_info.weather} size="small" showTemp={false} />
+                        </Box>
+                      )}
+                      <Typography sx={{ 
+                        fontSize: isMobile ? (isSmallMobile ? '1rem' : '1.1rem') : '1.15rem', 
+                        fontWeight: 800, 
+                        lineHeight: 1, 
+                        color: fg 
+                      }}>
+                        {congestion === 0 ? '-' : congestion}
+                      </Typography>
+                    </Box>
+                  );
+                })}
+              </Box>
+            </Box>
           </Box>
         </Box>
       </Box>
@@ -203,17 +320,22 @@ function EventEffect() {
     data: PropTypes.arrayOf(PropTypes.shape({
       hour: PropTypes.number.isRequired,
       count: PropTypes.number.isRequired,
-      congestion: PropTypes.number.isRequired
+      congestion: PropTypes.number.isRequired,
+      weather_info: PropTypes.shape({
+        weather: PropTypes.string,
+        avg_temperature: PropTypes.number,
+        total_rain: PropTypes.number
+      })
     })).isRequired,
-    headerRef: PropTypes.oneOfType([
+    scrollRef: PropTypes.oneOfType([
       PropTypes.func,
       PropTypes.shape({ current: PropTypes.any })
     ]),
-    rowRef: PropTypes.oneOfType([
-      PropTypes.func,
-      PropTypes.shape({ current: PropTypes.any })
-    ]),
-    onScrollSync: PropTypes.func
+    onScrollSync: PropTypes.func,
+    monthlyEvents: PropTypes.arrayOf(PropTypes.shape({
+      date: PropTypes.string,
+      title: PropTypes.string
+    })).isRequired
   };
 
   return (
@@ -305,27 +427,27 @@ function EventEffect() {
               title="イベント当日"
               date={eventData.event_date}
               data={eventData.event_hourly}
-              headerRef={headerRef1}
-              rowRef={rowRef1}
-              onScrollSync={() => syncScroll(rowRef1, [rowRef2, rowRef3])}
+              scrollRef={scrollRef1}
+              onScrollSync={() => handleScroll(scrollRef1, [scrollRef2, scrollRef3])}
+              monthlyEvents={monthlyEvents}
             />
 
             <HourlyDataDisplay
               title="前週同曜日 (-7日)"
               date={eventData.prev_week_date}
               data={eventData.prev_week_hourly}
-              headerRef={headerRef2}
-              rowRef={rowRef2}
-              onScrollSync={() => syncScroll(rowRef2, [rowRef1, rowRef3])}
+              scrollRef={scrollRef2}
+              onScrollSync={() => handleScroll(scrollRef2, [scrollRef1, scrollRef3])}
+              monthlyEvents={monthlyEvents}
             />
 
             <HourlyDataDisplay
               title="翌週同曜日 (+7日)"
               date={eventData.next_week_date}
               data={eventData.next_week_hourly}
-              headerRef={headerRef3}
-              rowRef={rowRef3}
-              onScrollSync={() => syncScroll(rowRef3, [rowRef1, rowRef2])}
+              scrollRef={scrollRef3}
+              onScrollSync={() => handleScroll(scrollRef3, [scrollRef1, scrollRef2])}
+              monthlyEvents={monthlyEvents}
             />
           </Box>
         )}
