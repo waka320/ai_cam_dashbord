@@ -2,26 +2,42 @@ import pandas as pd
 from typing import Dict, Any, List
 from datetime import datetime, timedelta
 import os
+from app.services.analyze.get_data_for_date_time250504 import get_data_for_date_time as dti_get
 
-# 各場所の混雑度境界値の定義（他のファイルと同じ）
+# 各場所の混雑度境界値の定義
 CONGESTION_THRESHOLDS = {
-    'honmachi2': (2300, 9500),
-    'honmachi3': (1500, 8500),
-    'honmachi4': (1000, 10000),
-    'jinnya': (700, 7000),
-    'kokubunjidori': (1600, 5800),
-    'nakabashi': (1600, 7800),
-    'omotesando': (700, 7000),
-    'yasukawadori': (7000, 26000),
-    'yottekan': (300, 3500),
-    'gyouzinbashi': (500, 5000),
-    'old-town': (900, 20000),
-    'station': (300, 7000),
-    'default': (2300, 9500)
+    # 場所ごとの(min_threshold, max_threshold)を定義
+    'honmachi2': (65, 850),
+    'honmachi3': (35, 400),
+    'honmachi4': (50, 2000),
+    'jinnya': (50, 1000),
+    'kokubunjidori': (40, 450),
+    'nakabashi': (40, 650),
+    'omotesando': (25, 700),
+    'yasukawadori': (400, 2900),
+    'yottekan': (10, 300),
+    'old-town': (15, 150),        # 旧市街地域の歩行者データ分析に基づく
+    'gyouzinbashi': (25, 900),    # 行神橋のデータから適切な値を算出
+    'station': (25, 200),  
+    # デフォルト値
+    'default': (10, 500)
 }
 
 
-def calculate_congestion_level(count: float, place: str = 'default') -> int:
+# 時間別の混雑度計算では日次閾値を時間にスケーリングして使用
+def _scale_thresholds(thresholds):
+    min_threshold, max_threshold = thresholds
+    # 24でスケールしつつ、極端な小ささを避ける
+    min_hourly = max(1, int(min_threshold / 24))
+    max_hourly = max(min_hourly + 1, int(max_threshold / 24))
+    return (min_hourly, max_hourly)
+
+HOURLY_CONGESTION_THRESHOLDS = {
+    place: _scale_thresholds(bounds) for place, bounds in CONGESTION_THRESHOLDS.items()
+}
+
+
+def calculate_congestion_level(count: float, place: str = 'default', hourly: bool = False) -> int:
     """
     混雑度を10段階で計算する
     
@@ -35,7 +51,9 @@ def calculate_congestion_level(count: float, place: str = 'default') -> int:
     if pd.isna(count) or count == 0:
         return 0
     
-    min_threshold, max_threshold = CONGESTION_THRESHOLDS.get(place, CONGESTION_THRESHOLDS['default'])
+    # 時間別かどうかで閾値マップを切り替える
+    thresholds_map = HOURLY_CONGESTION_THRESHOLDS if hourly else CONGESTION_THRESHOLDS
+    min_threshold, max_threshold = thresholds_map.get(place, thresholds_map['default'])
     
     if count < min_threshold:
         return 1
@@ -44,6 +62,8 @@ def calculate_congestion_level(count: float, place: str = 'default') -> int:
     else:
         # min_thresholdとmax_thresholdの間を9段階に分割
         step = (max_threshold - min_threshold) / 9
+        if step <= 0:
+            return 10 if count >= max_threshold else 1
         level = int((count - min_threshold) / step) + 1
         return min(max(level, 1), 10)
 
@@ -81,7 +101,7 @@ def get_hourly_data_for_date(df: pd.DataFrame, target_date: datetime, place: str
         hour_data = hourly_counts[hourly_counts['hour'] == hour]
         if not hour_data.empty:
             count = int(hour_data['count_1_hour'].values[0])
-            congestion = calculate_congestion_level(count, place)
+            congestion = calculate_congestion_level(count, place, hourly=True)
         else:
             count = 0
             congestion = 0
@@ -130,9 +150,28 @@ def get_event_effect_data(
         print(f"Analyzing dates: event={event_date.strftime('%Y-%m-%d')}, prev={prev_week_date.strftime('%Y-%m-%d')}, next={next_week_date.strftime('%Y-%m-%d')}")
         
         # 各日付の時間別データを取得
-        event_hourly = get_hourly_data_for_date(df, event_date, place)
-        prev_week_hourly = get_hourly_data_for_date(df, prev_week_date, place)
-        next_week_hourly = get_hourly_data_for_date(df, next_week_date, place)
+        # DateTimeHeatmapと同一の混雑度計算に合わせるため、該当月ごとにDTIの月次データを生成して抽出
+        def build_month_data(y: int, m: int) -> List[Dict[str, Any]]:
+            try:
+                return dti_get(df, y, m, place, None) or []
+            except Exception:
+                return []
+
+        event_month_data = build_month_data(event_year, event_month)
+        prev_month_data = event_month_data if (prev_week_date.year == event_year and prev_week_date.month == event_month) else build_month_data(prev_week_date.year, prev_week_date.month)
+        next_month_data = event_month_data if (next_week_date.year == event_year and next_week_date.month == event_month) else build_month_data(next_week_date.year, next_week_date.month)
+
+        def extract_hours(month_list: List[Dict[str, Any]], date_obj: datetime) -> List[Dict[str, Any]]:
+            date_str = date_obj.strftime('%Y-%m-%d')
+            for item in month_list:
+                if item.get('date') == date_str:
+                    return item.get('hours', [])
+            # 見つからない場合はフォールバック
+            return get_hourly_data_for_date(df, date_obj, place)
+
+        event_hourly = extract_hours(event_month_data, event_date)
+        prev_week_hourly = extract_hours(prev_month_data, prev_week_date)
+        next_week_hourly = extract_hours(next_month_data, next_week_date)
         
         print(f"Hourly data collected: event={len(event_hourly)}, prev={len(prev_week_hourly)}, next={len(next_week_hourly)}")
         print(f"Event day total: {sum(h['count'] for h in event_hourly)}")

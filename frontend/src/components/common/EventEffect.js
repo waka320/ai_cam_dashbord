@@ -9,25 +9,23 @@ import {
   MenuItem,
   CircularProgress,
   Alert,
-  Card,
-  CardContent,
   Divider,
   useMediaQuery
 } from '@mui/material';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import { useCalendar } from '../../contexts/CalendarContext';
-import theme from '../../theme/theme';
+import { useColorPalette } from '../../contexts/ColorPaletteContext';
 
 function EventEffect() {
   const { selectedLocation, selectedYear, selectedMonth } = useCalendar();
+  const { getCellColor, getTextColor } = useColorPalette();
   const [selectedDay, setSelectedDay] = useState('');
   const [eventData, setEventData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const isMobile = useMediaQuery('(max-width:768px)');
+  const isSmallMobile = useMediaQuery('(max-width:480px)');
 
-  // 月の日数を取得
+  // 月の日数を取得（機能優先・モバイル優先のためシンプルに）
   const getDaysInMonth = (year, month) => {
     return new Date(year, month, 0).getDate();
   };
@@ -98,98 +96,105 @@ function EventEffect() {
     setSelectedDay(newDay);
   };
 
-  // 混雑度に応じた色を返す
-  const getCongestionColor = (congestion) => {
-    if (congestion === 0) return '#e0e0e0';
-    const colors = [
-      '#4CAF50', // 1
-      '#8BC34A', // 2
-      '#CDDC39', // 3
-      '#FFEB3B', // 4
-      '#FFC107', // 5
-      '#FF9800', // 6
-      '#FF5722', // 7
-      '#F44336', // 8
-      '#E91E63', // 9
-      '#9C27B0'  // 10
-    ];
-    return colors[congestion - 1] || '#e0e0e0';
-  };
-
-  // 増加率に応じた色を返す
+  // 増加率の色（必要最小限）
   const getIncreaseRateColor = (rate) => {
-    if (rate > 10) return '#4CAF50';
-    if (rate > 0) return '#8BC34A';
-    if (rate > -10) return '#FFC107';
-    return '#F44336';
+    if (rate > 0) return '#2e7d32';
+    if (rate < 0) return '#c62828';
+    return '#555';
   };
 
   // 時間別データを表示するコンポーネント
-  const HourlyDataDisplay = ({ title, date, data, showIncreaseRate = false, increaseRates = [] }) => (
-    <Card sx={{ mb: 2, borderRadius: '12px' }}>
-      <CardContent>
-        <Typography variant="h6" sx={{ mb: 1, fontWeight: 600, color: theme.palette.primary.main }}>
+  // スクロール連動のためのRefs
+  const headerRef1 = React.useRef(null);
+  const rowRef1 = React.useRef(null);
+  const headerRef2 = React.useRef(null);
+  const rowRef2 = React.useRef(null);
+  const headerRef3 = React.useRef(null);
+  const rowRef3 = React.useRef(null);
+
+  const syncScroll = (source, targets) => {
+    if (!source?.current) return;
+    const left = source.current.scrollLeft;
+    targets.forEach(t => { if (t?.current && t.current.scrollLeft !== left) t.current.scrollLeft = left; });
+  };
+
+  const HourlyDataDisplay = ({ title, date, data, headerRef, rowRef, onScrollSync }) => (
+    <Box sx={{ mb: 1.5 }}>
+      <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mb: 0.5 }}>
+        <Typography variant={isMobile ? 'bodyM' : 'h6'} sx={{ fontWeight: 700 }}>
           {title}
         </Typography>
-        <Typography variant="body2" sx={{ mb: 2, color: theme.palette.text.secondary }}>
+        <Typography variant={isMobile ? 'caption' : 'body2'} sx={{ color: '#555' }}>
           {date}
         </Typography>
-        <Box sx={{ 
-          display: 'flex', 
-          flexWrap: 'wrap', 
-          gap: 1 
+      </Box>
+      <Box sx={{ border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden', width: '100%' }}>
+        {/* スクロール領域（ヘッダー+1行） */}
+        <Box ref={headerRef} onScroll={onScrollSync} sx={{ 
+          overflowX: 'auto', 
+          WebkitOverflowScrolling: 'touch',
+          '&::-webkit-scrollbar': { height: '8px' },
+          '&::-webkit-scrollbar-thumb': { backgroundColor: '#c1c1c1', borderRadius: '4px' }
         }}>
-          {data.map((hourData, index) => {
-            const increaseRate = showIncreaseRate ? increaseRates[index]?.increase_rate : null;
-            return (
-              <Box
-                key={hourData.hour}
-                sx={{
-                  flex: isMobile ? '0 0 calc(50% - 4px)' : '0 0 calc(16.666% - 7px)',
-                  minWidth: isMobile ? 'calc(50% - 4px)' : '120px',
-                  p: 1.5,
-                  borderRadius: '8px',
-                  backgroundColor: getCongestionColor(hourData.congestion),
-                  textAlign: 'center',
-                  position: 'relative',
-                  transition: 'transform 0.2s',
-                  '&:hover': {
-                    transform: 'scale(1.05)',
-                  }
+          {/* 時間ヘッダー */}
+          <Box sx={{ display: 'flex', backgroundColor: '#f5f5f5' }}>
+            {Array.from({ length: 16 }, (_, i) => i + 7).map((hour, _, arr) => (
+              <Box 
+                key={`hour-head-${hour}`} 
+                sx={{ 
+                  minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
+                  width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
+                  textAlign: 'center', 
+                  padding: isMobile ? '4px 2px' : '6px 2px',
+                  borderRight: hour !== arr[arr.length - 1] ? '1px solid #ddd' : 'none',
+                  borderBottom: '1px solid #ddd',
+                  flexShrink: 0,
+                  height: isMobile ? (isSmallMobile ? '40px' : '44px') : '46px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
               >
-                <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.9rem' }}>
-                  {hourData.hour}時
+                <Typography variant={isSmallMobile ? 'bodyS' : 'bodyM'} fontWeight="bold">
+                  {hour}
                 </Typography>
-                <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>
-                  {hourData.count.toLocaleString()}人
-                </Typography>
-                {showIncreaseRate && increaseRate !== null && (
-                  <Box
-                    sx={{
-                      mt: 0.5,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: getIncreaseRateColor(increaseRate)
-                    }}
-                  >
-                    {increaseRate > 0 ? (
-                      <TrendingUpIcon sx={{ fontSize: '1rem', mr: 0.5 }} />
-                    ) : (
-                      <TrendingDownIcon sx={{ fontSize: '1rem', mr: 0.5 }} />
-                    )}
-                    <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem' }}>
-                      {increaseRate > 0 ? '+' : ''}{increaseRate.toFixed(1)}%
-                    </Typography>
-                  </Box>
-                )}
               </Box>
-            );
-          })}
+            ))}
+          </Box>
+          {/* 1日の行（セル色＝混雑度、テキスト色もパレットに準拠） */}
+          <Box ref={rowRef} onScroll={onScrollSync} sx={{ display: 'flex', flexDirection: 'row', overflowX: 'auto' }}>
+            {Array.from({ length: 16 }, (_, i) => i + 7).map((hour, colIndex, arr) => {
+              const hourItem = data.find(h => h.hour === hour) || { hour, count: 0, congestion: 0 };
+              const congestion = hourItem.congestion || 0;
+              const bg = congestion === 0 ? '#e0e0e0' : getCellColor(congestion);
+              const fg = congestion === 0 ? '#666' : getTextColor(congestion);
+              return (
+                <Box 
+                  key={`hour-cell-${hour}`} 
+                  sx={{ 
+                    minWidth: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
+                    width: isMobile ? (isSmallMobile ? '30px' : '40px') : '40px',
+                    height: isMobile ? (isSmallMobile ? '48px' : '54px') : '56px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: bg,
+                    borderRight: colIndex !== arr.length - 1 ? '1px solid #ddd' : 'none',
+                    flexShrink: 0
+                  }}
+                  title={`${hour}時`}
+                >
+                  <Typography sx={{ fontSize: isMobile ? (isSmallMobile ? '1rem' : '1.1rem') : '1.15rem', fontWeight: 800, lineHeight: 1, color: fg }}>
+                    {congestion === 0 ? '-' : congestion}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
         </Box>
-      </CardContent>
-    </Card>
+      </Box>
+    </Box>
   );
 
   HourlyDataDisplay.propTypes = {
@@ -200,23 +205,27 @@ function EventEffect() {
       count: PropTypes.number.isRequired,
       congestion: PropTypes.number.isRequired
     })).isRequired,
-    showIncreaseRate: PropTypes.bool,
-    increaseRates: PropTypes.arrayOf(PropTypes.shape({
-      hour: PropTypes.number,
-      increase_rate: PropTypes.number
-    }))
+    headerRef: PropTypes.oneOfType([
+      PropTypes.func,
+      PropTypes.shape({ current: PropTypes.any })
+    ]),
+    rowRef: PropTypes.oneOfType([
+      PropTypes.func,
+      PropTypes.shape({ current: PropTypes.any })
+    ]),
+    onScrollSync: PropTypes.func
   };
 
   return (
     <Box sx={{ p: isMobile ? 1 : 2 }}>
-      <Paper sx={{ p: isMobile ? 2 : 3, borderRadius: '12px' }}>
-        <Typography variant="h5" sx={{ mb: 3, fontWeight: 600, color: theme.palette.primary.main }}>
+      <Paper sx={{ p: isMobile ? 1.5 : 2, borderRadius: '10px' }}>
+        <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ mb: 1.5, fontWeight: 700 }}>
           イベント効果分析
         </Typography>
 
         {/* 日付選択 */}
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="body1" sx={{ mb: 1, fontWeight: 500 }}>
+        <Box sx={{ mb: 1.5 }}>
+          <Typography variant={isMobile ? 'bodyM' : 'body1'} sx={{ mb: 0.5, fontWeight: 600 }}>
             イベント開催日を選択してください
           </Typography>
           <FormControl fullWidth sx={{ maxWidth: 300 }}>
@@ -227,6 +236,7 @@ function EventEffect() {
               sx={{
                 backgroundColor: 'white',
                 borderRadius: '8px',
+                height: isMobile ? 36 : 40,
               }}
             >
               <MenuItem value="" disabled>
@@ -257,81 +267,65 @@ function EventEffect() {
 
         {eventData && !loading && eventData.event_date && eventData.event_hourly && eventData.event_hourly.length > 0 && (
           <Box>
-            {/* サマリー情報 */}
-            <Card sx={{ mb: 3, borderRadius: '12px', backgroundColor: theme.palette.primary.light + '10' }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-                  全体サマリー
-                </Typography>
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexWrap: 'wrap', 
-                  gap: 2 
-                }}>
-                  <Box sx={{ flex: isMobile ? '0 0 100%' : '1 1 calc(25% - 12px)', minWidth: isMobile ? '100%' : '150px' }}>
-                    <Typography variant="caption" color="text.secondary">
-                      イベント当日合計
-                    </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      {eventData.summary?.event_total?.toLocaleString() || 0}人
-                    </Typography>
-                  </Box>
-                  <Box sx={{ flex: isMobile ? '0 0 100%' : '1 1 calc(25% - 12px)', minWidth: isMobile ? '100%' : '150px' }}>
-                    <Typography variant="caption" color="text.secondary">
-                      前週・翌週平均
-                    </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      {eventData.summary?.average_total?.toLocaleString() || 0}人
-                    </Typography>
-                  </Box>
-                  <Box sx={{ flex: isMobile ? '0 0 100%' : '1 1 calc(25% - 12px)', minWidth: isMobile ? '100%' : '150px' }}>
-                    <Typography variant="caption" color="text.secondary">
-                      増加人数
-                    </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                      {((eventData.summary?.event_total || 0) - (eventData.summary?.average_total || 0)).toLocaleString()}人
-                    </Typography>
-                  </Box>
-                  <Box sx={{ flex: isMobile ? '0 0 100%' : '1 1 calc(25% - 12px)', minWidth: isMobile ? '100%' : '150px' }}>
-                    <Typography variant="caption" color="text.secondary">
-                      増加率
-                    </Typography>
-                    <Typography 
-                      variant="h6" 
-                      sx={{ 
-                        fontWeight: 600,
-                        color: getIncreaseRateColor(eventData.summary?.total_increase_rate || 0)
-                      }}
-                    >
-                      {(eventData.summary?.total_increase_rate || 0) > 0 ? '+' : ''}
-                      {(eventData.summary?.total_increase_rate || 0).toFixed(1)}%
-                    </Typography>
-                  </Box>
+            {/* サマリー（装飾最小・大きめ文字） */}
+            <Box sx={{ mb: 1.5 }}>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                <Box sx={{ flex: isMobile ? '0 0 calc(50% - 4px)' : '1 1 calc(25% - 8px)' }}>
+                  <Typography sx={{ fontSize: isMobile ? '0.8rem' : '0.85rem', color: '#666' }}>イベント当日合計</Typography>
+                  <Typography sx={{ fontWeight: 700, fontSize: isMobile ? '1.1rem' : '1.2rem' }}>
+                    {eventData.summary?.event_total?.toLocaleString() || 0}人
+                  </Typography>
                 </Box>
-              </CardContent>
-            </Card>
+                <Box sx={{ flex: isMobile ? '0 0 calc(50% - 4px)' : '1 1 calc(25% - 8px)' }}>
+                  <Typography sx={{ fontSize: isMobile ? '0.8rem' : '0.85rem', color: '#666' }}>前週・翌週平均</Typography>
+                  <Typography sx={{ fontWeight: 700, fontSize: isMobile ? '1.1rem' : '1.2rem' }}>
+                    {eventData.summary?.average_total?.toLocaleString() || 0}人
+                  </Typography>
+                </Box>
+                <Box sx={{ flex: isMobile ? '0 0 calc(50% - 4px)' : '1 1 calc(25% - 8px)' }}>
+                  <Typography sx={{ fontSize: isMobile ? '0.8rem' : '0.85rem', color: '#666' }}>増加人数</Typography>
+                  <Typography sx={{ fontWeight: 700, fontSize: isMobile ? '1.1rem' : '1.2rem' }}>
+                    {((eventData.summary?.event_total || 0) - (eventData.summary?.average_total || 0)).toLocaleString()}人
+                  </Typography>
+                </Box>
+                <Box sx={{ flex: isMobile ? '0 0 calc(50% - 4px)' : '1 1 calc(25% - 8px)' }}>
+                  <Typography sx={{ fontSize: isMobile ? '0.8rem' : '0.85rem', color: '#666' }}>増加率</Typography>
+                  <Typography sx={{ fontWeight: 700, fontSize: isMobile ? '1.1rem' : '1.2rem', color: getIncreaseRateColor(eventData.summary?.total_increase_rate || 0) }}>
+                    {(eventData.summary?.total_increase_rate || 0) > 0 ? '+' : ''}
+                    {(eventData.summary?.total_increase_rate || 0).toFixed(1)}%
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
 
-            <Divider sx={{ my: 3 }} />
+            <Divider sx={{ my: 1.5 }} />
 
             {/* 時間別データ表示 */}
             <HourlyDataDisplay
               title="イベント当日"
               date={eventData.event_date}
               data={eventData.event_hourly}
-              showIncreaseRate={true}
-              increaseRates={eventData.increase_rates || []}
+              headerRef={headerRef1}
+              rowRef={rowRef1}
+              onScrollSync={() => syncScroll(rowRef1, [rowRef2, rowRef3])}
             />
 
             <HourlyDataDisplay
               title="前週同曜日 (-7日)"
               date={eventData.prev_week_date}
               data={eventData.prev_week_hourly}
+              headerRef={headerRef2}
+              rowRef={rowRef2}
+              onScrollSync={() => syncScroll(rowRef2, [rowRef1, rowRef3])}
             />
 
             <HourlyDataDisplay
               title="翌週同曜日 (+7日)"
               date={eventData.next_week_date}
               data={eventData.next_week_hourly}
+              headerRef={headerRef3}
+              rowRef={rowRef3}
+              onScrollSync={() => syncScroll(rowRef3, [rowRef1, rowRef2])}
             />
           </Box>
         )}
