@@ -124,16 +124,28 @@ function EventEffect() {
     });
   };
 
-  const HourlyDataDisplay = ({ title, date, data, scrollRef, onScrollSync, monthlyEvents }) => (
-    <Box sx={{ mb: 1.5 }}>
-      <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mb: 0.5 }}>
-        <Typography variant={isMobile ? 'bodyM' : 'h6'} sx={{ fontWeight: 700 }}>
-          {title}
-        </Typography>
-        <Typography variant={isMobile ? 'caption' : 'body2'} sx={{ color: '#555' }}>
-          {date}
-        </Typography>
-      </Box>
+  const HourlyDataDisplay = ({ title, date, data, scrollRef, onScrollSync, monthlyEvents }) => {
+    // 日付を日本語形式に変換（例: 2025年7月10日（木））
+    const formatDateJapanese = (dateStr) => {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      const year = d.getFullYear();
+      const month = d.getMonth() + 1;
+      const day = d.getDate();
+      const dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][d.getDay()];
+      return `${year}年${month}月${day}日(${dayOfWeek})`;
+    };
+
+    return (
+      <Box sx={{ mb: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', mb: 0.5 }}>
+          <Typography variant={isMobile ? 'bodyM' : 'h6'} sx={{ fontWeight: 700 }}>
+            {title}
+          </Typography>
+          <Typography variant={isMobile ? 'caption' : 'body2'} sx={{ color: '#555' }}>
+            {formatDateJapanese(date)}
+          </Typography>
+        </Box>
       <Box sx={{ border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden', width: '100%' }}>
         {/* スクロール領域（ヘッダー+1行） */}
         <Box sx={{ display: 'flex', position: 'relative' }}>
@@ -312,7 +324,8 @@ function EventEffect() {
         </Box>
       </Box>
     </Box>
-  );
+    );
+  };
 
   HourlyDataDisplay.propTypes = {
     title: PropTypes.string.isRequired,
