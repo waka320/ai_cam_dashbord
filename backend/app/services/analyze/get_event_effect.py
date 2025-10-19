@@ -179,12 +179,23 @@ def get_event_effect_data(
         print(f"Hourly data collected: event={len(event_hourly)}, prev={len(prev_week_hourly)}, next={len(next_week_hourly)}")
         print(f"Event day total: {sum(h['count'] for h in event_hourly)}")
         
+        # 時間ごとのデータを辞書化（安全にアクセスできるように）
+        def create_hour_dict(hourly_data):
+            return {h['hour']: h['count'] for h in hourly_data}
+        
+        event_dict = create_hour_dict(event_hourly)
+        prev_dict = create_hour_dict(prev_week_hourly)
+        next_dict = create_hour_dict(next_week_hourly)
+        
+        # 全ての時間を収集（和集合）
+        all_hours = sorted(set(list(event_dict.keys()) + list(prev_dict.keys()) + list(next_dict.keys())))
+        
         # 増加率を計算（時間別）
         increase_rates = []
-        for i in range(len(event_hourly)):
-            event_count = event_hourly[i]['count']
-            prev_count = prev_week_hourly[i]['count']
-            next_count = next_week_hourly[i]['count']
+        for hour in all_hours:
+            event_count = event_dict.get(hour, 0)
+            prev_count = prev_dict.get(hour, 0)
+            next_count = next_dict.get(hour, 0)
             
             # 前週と翌週の平均
             avg_count = (prev_count + next_count) / 2
@@ -196,7 +207,7 @@ def get_event_effect_data(
                 increase_rate = 0 if event_count == 0 else 100
             
             increase_rates.append({
-                'hour': event_hourly[i]['hour'],
+                'hour': hour,
                 'increase_rate': round(increase_rate, 1)
             })
         
