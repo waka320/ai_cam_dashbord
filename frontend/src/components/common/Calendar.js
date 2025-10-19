@@ -20,7 +20,11 @@ const CalendarHeatmap = () => {
         dateChanging,
         selectedLocation, 
         shouldShowCalculationNote,
-        eventData // イベントデータを追加
+        eventData, // イベントデータを追加
+        previousMonthCalendarData, // 先月のカレンダーデータ
+        previousMonthEventData, // 先月のイベントデータ
+        previousYear, // 先月の年
+        previousMonth // 先月の月
     } = useCalendar();
     const { getCellColor, getTextColor } = useColorPalette();
     const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
@@ -61,31 +65,31 @@ const CalendarHeatmap = () => {
         return filename.replace('.csv', '');
     };
 
-    // 指定した日付のイベント情報を取得
-    const getEventsForDate = (dateNum) => {
+    // 指定した日付のイベント情報を取得（汎用）
+    const getEventsForDate = (dateNum, year, month, events) => {
         // eventDataから直接取得
-        if (!eventData || !Array.isArray(eventData)) return [];
+        if (!events || !Array.isArray(events)) return [];
         
-        // selectedYearとselectedMonthが存在しない場合は空配列を返す
-        if (!selectedYear || !selectedMonth) return [];
+        // yearとmonthが存在しない場合は空配列を返す
+        if (!year || !month) return [];
         
         try {
-            const targetDateStr = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(dateNum).padStart(2, '0')}`;
+            const targetDateStr = `${year}-${String(month).padStart(2, '0')}-${String(dateNum).padStart(2, '0')}`;
             
-            return eventData.filter(event => event.date === targetDateStr) || [];
+            return events.filter(event => event.date === targetDateStr) || [];
         } catch (error) {
-            console.error('Error in getEventsForDate:', error, 'selectedYear:', selectedYear, 'selectedMonth:', selectedMonth, 'dateNum:', dateNum);
+            console.error('Error in getEventsForDate:', error, 'year:', year, 'month:', month, 'dateNum:', dateNum);
             return [];
         }
     };
 
-    // 行内の最大イベント数を計算
-    const getMaxEventsInRow = (week) => {
+    // 行内の最大イベント数を計算（汎用）
+    const getMaxEventsInRow = (week, year, month, events) => {
         let maxEvents = 0;
         week.forEach(cell => {
             if (cell) {
-                const events = getEventsForDate(cell.date);
-                maxEvents = Math.max(maxEvents, events.length);
+                const cellEvents = getEventsForDate(cell.date, year, month, events);
+                maxEvents = Math.max(maxEvents, cellEvents.length);
             }
         });
         return maxEvents;
@@ -189,10 +193,13 @@ const CalendarHeatmap = () => {
         );
     }
 
-    return (
-        // <ClickAwayListener onClickAway={() => setOpen(false)}>
-            <Box>
-                {/* 分析情報ボタンとタイトルの追加 */}
+    // カレンダーを1つレンダリングする関数
+    const renderCalendar = (data, year, month, events, title) => {
+        if (!data || data.length === 0) return null;
+
+        return (
+            <Box sx={{ mb: 4 }}>
+                {/* 分析情報ボタンとタイトル */}
                 <Box sx={{ 
                     display: 'flex', 
                     alignItems: 'center', 
@@ -204,13 +211,15 @@ const CalendarHeatmap = () => {
                         variant={isMobile ? "subtitle1" : "h5"} 
                         sx={{ textAlign: isMobile ? 'center' : 'left' }}
                     >
-                        {selectedMonth}月の混雑度カレンダー
+                        {title}
                     </Typography>
                     
-                    <AnalysisInfoButton 
-                        analysisType="calendar"
-                        place={getPlaceName()}
-                    />
+                    {month === selectedMonth && (
+                        <AnalysisInfoButton 
+                            analysisType="calendar"
+                            place={getPlaceName()}
+                        />
+                    )}
                 </Box>
 
                 <Box sx={{ 
@@ -244,8 +253,8 @@ const CalendarHeatmap = () => {
                     </Box>
 
                     {/* カレンダーのセル */}
-                    {calendarData.map((week, rowIndex) => {
-                        const maxEventsInRow = getMaxEventsInRow(week);
+                    {data.map((week, rowIndex) => {
+                        const maxEventsInRow = getMaxEventsInRow(week, year, month, events);
                         const rowHeight = getRowHeight(maxEventsInRow);
                         
                         return (
@@ -350,8 +359,8 @@ const CalendarHeatmap = () => {
                                                 
                                                 {/* イベント情報エリア */}
                                                 {(() => {
-                                                    const events = getEventsForDate(cell.date);
-                                                    return events.length > 0 && (
+                                                    const cellEvents = getEventsForDate(cell.date, year, month, events);
+                                                    return cellEvents.length > 0 && (
                                                         <Box sx={{
                                                             width: '100%',
                                                             minHeight: isSmallMobile ? '18px' : isMobile ? '20px' : '22px',
@@ -374,12 +383,12 @@ const CalendarHeatmap = () => {
                                                                     hyphens: 'auto',
                                                                     maxWidth: '100%'
                                                                 }}
-                                                                title={events.map(e => e.title).join(', ')}
+                                                                title={cellEvents.map(e => e.title).join(', ')}
                                                             >
-                                                                {events.map((event, index) => (
+                                                                {cellEvents.map((event, index) => (
                                                                     <span key={index}>
                                                                         {event.title}
-                                                                        {index < events.length - 1 && (
+                                                                        {index < cellEvents.length - 1 && (
                                                                             <br />
                                                                         )}
                                                                     </span>
@@ -397,56 +406,41 @@ const CalendarHeatmap = () => {
                         );
                     })}
                 </Box>
-
-                {/* ハイライト理由のポップオーバー */}
-                {/*
-                <Popper 
-                    open={open} 
-                    anchorEl={anchorEl}
-                    placement={isMobile ? "bottom" : "top"}
-                    modifiers={[
-                        {
-                            name: 'offset',
-                            options: {
-                                offset: [0, isMobile ? 5 : 10],
-                            },
-                        },
-                        {
-                            name: 'preventOverflow',
-                            enabled: true,
-                            options: {
-                                boundary: document.body,
-                            },
-                        },
-                    ]}
-                    sx={{ 
-                        zIndex: 1500
-                    }}
-                >
-                    <Paper 
-                        elevation={3} 
-                        sx={{ 
-                            p: isMobile ? 1.5 : 2, 
-                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                            border: '1px solid #ddd',
-                            maxWidth: isMobile ? '180px' : '200px',
-                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-                            fontSize: isMobile ? (isSmallMobile ? '12px' : '14px') : undefined
-                        }}
-                    >
-                        <Typography variant={isMobile ? "bodyS" : "bodyM"} fontWeight="bold">
-                            {popperCell?.highlight_reason}
-                        </Typography>
-                    </Paper>
-                </Popper>
-                */}
-                
-                <CongestionLegend 
-                    showCalculationNote={shouldShowCalculationNote()} 
-                    legendType="calendar" 
-                />
             </Box>
-        // </ClickAwayListener>
+        );
+    };
+
+    // 先月のデータも表示する必要があるアクションかチェック
+    const shouldShowPreviousMonth = ['cal_holiday', 'cal_shoping_holiday', 'cal_long_holiday'].includes(selectedAction);
+
+    return (
+        <Box>
+            {/* 今月のカレンダー */}
+            {renderCalendar(
+                calendarData,
+                selectedYear,
+                selectedMonth,
+                eventData,
+                `${selectedMonth}月の混雑度カレンダー`
+            )}
+
+            {/* 先月のカレンダー（該当アクションの場合のみ） */}
+            {shouldShowPreviousMonth && previousMonthCalendarData && previousMonthCalendarData.length > 0 && (
+                renderCalendar(
+                    previousMonthCalendarData,
+                    previousYear,
+                    previousMonth,
+                    previousMonthEventData,
+                    `${previousMonth}月の混雑度カレンダー（先月）`
+                )
+            )}
+
+            {/* 凡例 */}
+            <CongestionLegend 
+                showCalculationNote={shouldShowCalculationNote()} 
+                legendType="calendar" 
+            />
+        </Box>
     );
 };
 

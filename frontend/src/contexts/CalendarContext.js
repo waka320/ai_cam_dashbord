@@ -104,6 +104,13 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
   const [weatherData, setWeatherData] = useState([]); // 天気データの状態を追加
   const [eventData, setEventData] = useState([]); // イベントデータの状態を追加
   
+  // 先月のデータ（定休日検討系アクション用）
+  const [previousMonthCalendarData, setPreviousMonthCalendarData] = useState([]);
+  const [previousMonthWeatherData, setPreviousMonthWeatherData] = useState([]);
+  const [previousMonthEventData, setPreviousMonthEventData] = useState([]);
+  const [previousYear, setPreviousYear] = useState(null);
+  const [previousMonth, setPreviousMonth] = useState(null);
+  
   // 状態と手動更新フラグを保持するRef（Cookie/URLパラメータ両対応）
   const locationRef = useRef({ value: initialLocation, manuallyChanged: !!initialLocation });
   const actionRef = useRef({ value: initialAction, manuallyChanged: !!initialAction });
@@ -227,6 +234,22 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
       setAiAdvice(result.ai_advice || '');
       setWeatherData(result.weather_data || []);
       setEventData(result.event_data || []); // イベントデータを設定
+      
+      // 先月のデータを設定（定休日検討系アクションの場合）
+      if (result.previous_month_data) {
+        setPreviousMonthCalendarData(result.previous_month_data);
+        setPreviousMonthWeatherData(result.previous_month_weather_data || []);
+        setPreviousMonthEventData(result.previous_month_event_data || []);
+        setPreviousYear(result.previous_year);
+        setPreviousMonth(result.previous_month);
+      } else {
+        // 先月のデータがない場合はクリア
+        setPreviousMonthCalendarData([]);
+        setPreviousMonthWeatherData([]);
+        setPreviousMonthEventData([]);
+        setPreviousYear(null);
+        setPreviousMonth(null);
+      }
 
     } catch (error) {
       if (error.name === 'AbortError') {
@@ -578,6 +601,11 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
     setAiAdvice("");
     setWeatherData([]); // 天気データもクリア
     setEventData([]); // イベントデータもクリア
+    setPreviousMonthCalendarData([]); // 先月のカレンダーデータもクリア
+    setPreviousMonthWeatherData([]); // 先月の天気データもクリア
+    setPreviousMonthEventData([]); // 先月のイベントデータもクリア
+    setPreviousYear(null);
+    setPreviousMonth(null);
     
     // 手動更新フラグを設定してから値をリセット
     locationRef.current.manuallyChanged = true;
@@ -668,6 +696,11 @@ export const CalendarProvider = ({ children, searchParams, setSearchParams }) =>
     error,
     weatherData, // 天気データを追加
     eventData, // イベントデータを追加
+    previousMonthCalendarData, // 先月のカレンダーデータを追加
+    previousMonthWeatherData, // 先月の天気データを追加
+    previousMonthEventData, // 先月のイベントデータを追加
+    previousYear, // 先月の年を追加
+    previousMonth, // 先月の月を追加
     selectedLocation,
     setSelectedLocation,
     selectedAction,
