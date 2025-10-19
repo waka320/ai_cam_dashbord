@@ -216,6 +216,13 @@ async def get_graph(request: GraphRequest):
 
         else:
             # 既存のアクション処理
+            # 先月のデータ用の変数を初期化（スコープ外で使用するため）
+            previous_month_data = None
+            previous_month_weather_data = None
+            previous_month_event_data = None
+            previous_year = None
+            previous_month = None
+            
             # アクションに応じたデータ生成とハイライト
             if action[:3] == "cal":
                 # カレンダーデータの作成 - placeをファイル名から抽出して渡す
@@ -225,6 +232,45 @@ async def get_graph(request: GraphRequest):
                 )
                 # ハイライト処理
                 data = highlight_calendar_data(data, action)
+                
+                # 先月のデータも必要なアクションの場合
+                if action in ["cal_holiday", "cal_shoping_holiday", "cal_long_holiday"]:
+                    # 先月の年月を計算
+                    if month == 1:
+                        previous_year = year - 1
+                        previous_month = 12
+                    else:
+                        previous_year = year
+                        previous_month = month - 1
+                    
+                    # 先月の天気データを取得
+                    previous_month_weather_raw = weather_service.get_daily_weather_summary(
+                        previous_year, previous_month
+                    )
+                    
+                    # 先月のカレンダーデータを生成
+                    previous_month_data = calendar_service.get_data_for_calendar(
+                        df, previous_year, previous_month, place_name, previous_month_weather_raw
+                    )
+                    
+                    # 先月のデータもハイライト処理
+                    previous_month_data = highlight_calendar_data(previous_month_data, action)
+                    
+                    # 先月の天気データを整形
+                    if previous_month_weather_raw:
+                        previous_month_weather_data = [
+                            WeatherInfo(
+                                day=wd['day'],
+                                date=wd['date'],
+                                weather=wd['weather'],
+                                avg_temperature=wd['avg_temperature'],
+                                total_rain=wd['total_rain'],
+                            )
+                            for wd in previous_month_weather_raw
+                        ]
+                    
+                    # 先月のイベント情報を取得
+                    previous_month_event_data = get_events_for_period(previous_year, previous_month)
             elif action[:3] == "wti":
                 # 曜日×時間帯データの作成
                 week_weather_data = weather_service.get_weather_for_week_time(
@@ -284,6 +330,11 @@ async def get_graph(request: GraphRequest):
                 ai_advice=ai_advice,
                 weather_data=weather_info_list,
                 event_data=event_info_list,
+                previous_month_data=previous_month_data,
+                previous_month_weather_data=previous_month_weather_data,
+                previous_month_event_data=previous_month_event_data,
+                previous_year=previous_year,
+                previous_month=previous_month,
             )
 
             # キャッシュにレスポンスを保存

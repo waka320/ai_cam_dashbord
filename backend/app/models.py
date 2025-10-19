@@ -58,3 +58,9 @@ class GraphResponse(BaseModel):
     # 傾向分析時の追加情報（任意）
     type: Optional[str] = None
     highlighted_info: Optional[Any] = None
+    # 先月のデータ（定休日検討系アクション用）
+    previous_month_data: Optional[Any] = None
+    previous_month_weather_data: Optional[List[WeatherInfo]] = None
+    previous_month_event_data: Optional[List[EventInfo]] = None
+    previous_year: Optional[int] = None
+    previous_month: Optional[int] = None
