@@ -13,6 +13,23 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
   if (isScrolled || isCompactMode) return null;
   
   const isFunctionPage = location.pathname === '/function';
+  const isPurposePage = location.pathname === '/purpose';
+  
+  const switchButtonConfig = isFunctionPage
+    ? {
+        href: '/purpose',
+        label: '目的ベースへ',
+        color: theme.palette.primary.main,
+        hoverBg: 'rgba(74, 85, 104, 0.1)'
+      }
+    : isPurposePage
+    ? {
+        href: '/function',
+        label: '機能ベースへ',
+        color: theme.palette.secondary.main,
+        hoverBg: 'rgba(85, 60, 154, 0.1)'
+      }
+    : null;
   
   // ページに応じてロゴを選択
   const currentLogo = isFunctionPage ? functionLogo : purposeLogo;
@@ -29,12 +46,12 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
       opacity: isScrolled ? 0 : 1,
       transform: isScrolled ? 'translateY(-20px)' : 'translateY(0)',
     }}>
-      {/* 左側：ダッシュボード切り替えボタン（機能ベースページのみ） */}
+      {/* 左側：ダッシュボード切り替えボタン */}
       <Box sx={{ width: isMobile ? '80px' : '120px', display: 'flex', justifyContent: 'flex-start' }}>
-        {isFunctionPage && (
+        {switchButtonConfig && (
           <Button
             component="a"
-            href="/purpose"
+            href={switchButtonConfig.href}
             variant="outlined"
             size={isMobile ? "small" : "medium"}
             sx={{
@@ -43,17 +60,17 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
               py: isMobile ? 0.4 : 0.6,
               minWidth: 'auto',
               backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              color: theme.palette.primary.main,
-              borderColor: theme.palette.primary.main,
+              color: switchButtonConfig.color,
+              borderColor: switchButtonConfig.color,
               textDecoration: 'none',
               '&:hover': {
-                backgroundColor: 'rgba(74, 85, 104, 0.1)',
+                backgroundColor: switchButtonConfig.hoverBg,
                 textDecoration: 'none',
               },
               whiteSpace: 'nowrap'
             }}
           >
-            目的ベースへ
+            {switchButtonConfig.label}
           </Button>
         )}
       </Box>
