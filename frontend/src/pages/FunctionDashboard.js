@@ -2,6 +2,8 @@ import React from 'react';
 import Calendar from '../components/common/Calendar';
 import TimeHeatmap from '../components/common/TimeHeatmap';
 import DateTimeHeatmap from '../components/common/DateTimeHeatmap';
+import TodayDetails from '../components/common/TodayDetails';
+import EventEffect from '../components/common/EventEffect';
 import YearlyTrendGrid from '../components/trend/YearlyTrendGrid';
 import MonthlyTrendGrid from '../components/trend/MonthlyTrendGrid';
 import WeeklyTrendGrid from '../components/trend/WeeklyTrendGrid';
@@ -204,13 +206,23 @@ function FunctionDashboard() {
             return renderInitialState();
         }
         
+        // 今日について詳しく知りたい
+        if (selectedAction === 'today_details') {
+            return <TodayDetails />;
+        }
+        
+        // イベント効果分析
+        if (selectedAction === 'event_effect') {
+            return <EventEffect />;
+        }
+        
         // 傾向分析の場合は専用グリッドを表示
         const trendGrid = renderTrendGrid();
         if (trendGrid) {
             return trendGrid;
         }
         
-        // 機能ベースのビジュアライゼーション（今日の詳細を除く）
+        // 機能ベースのビジュアライゼーション
         return (
             <>
                 <Calendar />
