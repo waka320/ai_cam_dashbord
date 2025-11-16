@@ -13,7 +13,7 @@ const Sitemap = () => {
       <SEOComponent 
         title="サイトマップ"
         description="高山市AIカメラデータを元にした目的ベースダッシュボードのサイトマップです。サイト内の全ページへのリンクをまとめています。"
-        keywords="サイトマップ,ページ一覧,ナビゲーション,高山市,ダッシュボード,目的ベース,機能ベース"
+        keywords="サイトマップ,ページ一覧,ナビゲーション,高山市,ダッシュボード,目的ベース,グラフベース"
         url="https://ai-camera.lab.mdg-meidai.com/sitemap"
       />
       <Container maxWidth="md" sx={{ my: 4 }}>

@@ -122,7 +122,7 @@ function Header() {
           background: isPurposePage 
             ? `linear-gradient(135deg, #4A5568 0%, #2D3748 100%)`  // 目的ベース用（青みがかったダークグレー）
             : isFunctionPage
-            ? `linear-gradient(135deg, #553C9A 0%, #44337A 100%)`  // 機能ベース用（紫みがかったダークグレー）
+            ? `linear-gradient(135deg, #553C9A 0%, #44337A 100%)`  // グラフベース用（紫みがかったダークグレー）
             : `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
           boxShadow: isScrolled ? '0 4px 10px rgba(0, 0, 0, 0.2)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
           borderRadius: isScrolled ? '0' : '0 0 8px 8px',

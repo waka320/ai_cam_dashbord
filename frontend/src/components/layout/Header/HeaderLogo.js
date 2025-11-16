@@ -25,7 +25,7 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
     : isPurposePage
     ? {
         href: '/function',
-        label: '機能ベースへ',
+        label: 'グラフベースへ',
         color: theme.palette.secondary.main,
         hoverBg: 'rgba(85, 60, 154, 0.1)'
       }
@@ -80,7 +80,7 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
         <Box
           component="img"
           src={currentLogo}
-          alt={`高山市AIカメラデータダッシュボード${isFunctionPage ? '（機能ベース）' : '（目的ベース）'}のロゴ`}
+          alt={`高山市AIカメラデータダッシュボード${isFunctionPage ? '（グラフベース）' : '（目的ベース）'}のロゴ`}
           sx={{ 
             height: isMobile ? '34px' : '44px',
             objectFit: 'contain',

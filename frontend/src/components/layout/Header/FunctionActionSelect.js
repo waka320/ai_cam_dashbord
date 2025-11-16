@@ -21,7 +21,7 @@ function FunctionActionSelect({
   loading, 
   actionChanging 
 }) {
-  // 機能ベースの選択肢のみ
+  // グラフベースの選択肢のみ
   const menuItems = [
     { value: "today_details", label: "今日について詳しく知りたい", shortLabel: "今日について詳しく知る" },
     { value: "cal_cog", label: "カレンダー形式の混雑度が見たい", shortLabel: "カレンダー形式混雑度を見る" },
@@ -69,7 +69,7 @@ function FunctionActionSelect({
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         }}
       >
-        使いたい機能は...
+        見たいグラフは...
       </Typography>
 
       <FormControl 
@@ -112,9 +112,9 @@ function FunctionActionSelect({
           sx={{
             backgroundColor: actionChanging ? 'rgba(255, 255, 255, 0.8)' : 'white',
             borderRadius: '8px',
-            border: '2px solid rgba(85, 60, 154, 0.2)', // 機能ベース用のボーダー
+            border: '2px solid rgba(85, 60, 154, 0.2)', // グラフベース用のボーダー
             '.MuiSelect-icon': { 
-              color: actionChanging ? 'rgba(0, 0, 0, 0.38)' : theme.palette.secondary.main, // 機能ベースアイコン
+              color: actionChanging ? 'rgba(0, 0, 0, 0.38)' : theme.palette.secondary.main, // グラフベースアイコン
               display: actionChanging ? 'none' : 'block',
               right: isMobile ? '4px' : '8px',
               fontSize: isMobile ? '1rem' : '1.25rem'
@@ -127,7 +127,7 @@ function FunctionActionSelect({
             color:
               selectedAction === ""
                 ? theme.palette.text.secondary
-                : theme.palette.secondary.main, // 機能ベーステキスト
+                : theme.palette.secondary.main, // グラフベーステキスト
             fontSize: isCompactMode ?
               (isMobile ? '0.65rem' : '0.85rem') :
               (isScrolled ? 

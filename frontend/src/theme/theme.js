@@ -9,7 +9,7 @@ const theme = createTheme({
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#553C9A', // 機能ベース用（元の色調をベースにした紫みがかったグレー）
+      main: '#553C9A', // グラフベース用（元の色調をベースにした紫みがかったグレー）
       light: '#805AD5',
       dark: '#44337A',
       contrastText: '#FFFFFF',
