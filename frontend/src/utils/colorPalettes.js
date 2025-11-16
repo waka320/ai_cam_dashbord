@@ -2,6 +2,7 @@
 
 // パレット名の定義
 export const COLOR_PALETTE_NAMES = {
+    TAKAYAMA_DEEP_GRADIENT: 'デフォルト',
     GREEN_YELLOW_RED_ONE: '緑→黄→赤',
     GREEN_YELLOW_RED: '白→黄→赤',
     WHITE_RED: '白→赤',
@@ -80,6 +81,10 @@ export const TEXT_COLOR_SETTINGS = {
   PASTELE_THREE: {
     mode: 'range',
     blackRanges: [[3, 8]]      // 通常パターン
+  },
+  TAKAYAMA_DEEP_GRADIENT: {
+    mode: 'range',
+    whiteRanges: [[1, 6], [18, 20]]
   },
 
 };
@@ -165,6 +170,12 @@ const BASE_PALETTES = {
   [COLOR_PALETTE_NAMES.TURBO]: ['#30123b', '#4067e9', '#26a4f2', '#4ac16d', '#a7d65d', '#fcce2e', '#fb9e24', '#f06b22', '#d93806', '#7a0403'],
   [COLOR_PALETTE_NAMES.GRADS]: ['#000080', '#0000ff', '#0080ff', '#00ffff', '#00ff80', '#00ff00', '#80ff00', '#ffff00', '#ff8000', '#ff0000'],
   [COLOR_PALETTE_NAMES.CMTHERMAL]: ['#000000', '#240000', '#580000', '#8c0000', '#c03b00', '#f07800', '#ffb000', '#ffe060', '#ffff9f', '#ffffff'],
+  [COLOR_PALETTE_NAMES.TAKAYAMA_DEEP_GRADIENT]: [
+    '#6A64AE', '#5468ad', '#396bb0', '#2b78b0', '#1b86ae',
+    '#1db4b3', '#19a28d', '#2ea27f', '#33a65d', '#56a73a',
+    '#99d12c', '#cee52f', '#fef32f', '#ffcb21', '#ff9911',
+    '#ff6e2c', '#fb4f32', '#fc3633', '#fc3633', '#ed3b6a'
+  ],
 };
 
 export const colorPalettes = Object.keys(BASE_PALETTES).reduce((acc, key) => {
