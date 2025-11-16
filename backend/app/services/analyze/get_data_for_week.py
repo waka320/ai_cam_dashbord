@@ -1,5 +1,9 @@
 import pandas as pd
 from typing import List, Dict, Any
+from app.services.analyze.utils.congestion_scale import (
+    TOTAL_CONGESTION_LEVELS,
+    build_congestion_bins,
+)
 
 # 各場所の混雑度境界値の定義（週単位用）
 CONGESTION_THRESHOLDS_WEEK = {
@@ -29,7 +33,7 @@ def get_data_for_week(
 ) -> List[Dict[str, Any]]:
     """
     DataFrameから歩行者データを取得し、全期間の週単位で混雑度を計算する。
-    混雑度を10段階で計算する。
+    混雑度を20段階で計算する。
     """
     # 人のデータのみをフィルタリング
     df_person = df[df['name'] == 'person']
@@ -124,45 +128,7 @@ def get_data_for_week(
         min_threshold + 1
     )
 
-    # 段階的な境界値（非正の場合は後続で調整）
-    step_lower = (middle_threshold - min_threshold) / 4
-    step_upper = (max_threshold - middle_threshold) / 4
-
-    # 境界値（厳密に単調増加にする）
-    bins = [0, 1, float(min_threshold)]
-
-    # 下側の中間境界
-    last = bins[-1]
-    for i in range(1, 4):
-        val = min_threshold + i * step_lower
-        if val <= last:
-            val = last + 1
-        bins.append(float(val))
-        last = val
-
-    # middle 境界
-    val = float(middle_threshold)
-    if val <= last:
-        val = last + 1
-    bins.append(val)
-    last = val
-
-    # 上側の中間境界
-    for i in range(1, 4):
-        val = middle_threshold + i * step_upper
-        if val <= last:
-            val = last + 1
-        bins.append(float(val))
-        last = val
-
-    # 上限境界
-    val = float(max_threshold)
-    if val <= last:
-        val = last + 1
-    bins.append(val)
-
-    # 最上限
-    bins.append(float('inf'))
+    bins = build_congestion_bins(min_threshold, middle_threshold, max_threshold, TOTAL_CONGESTION_LEVELS)
 
     weekly_counts['congestion'] = pd.cut(
         weekly_counts['total_count'],

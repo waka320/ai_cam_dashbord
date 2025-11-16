@@ -2,6 +2,10 @@ import pandas as pd
 import calendar
 from typing import List, Optional
 from app.models import DayCongestion, WeatherInfo
+from app.services.analyze.utils.congestion_scale import (
+    TOTAL_CONGESTION_LEVELS,
+    build_congestion_bins,
+)
 import os
 import glob
 
@@ -27,7 +31,7 @@ CONGESTION_THRESHOLDS = {
 def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 'default', weather_data: List[dict] = None) -> List[List[Optional[DayCongestion]]]:
     """
     DataFrameから歩行者データを取得し、カレンダー形式に整形する。
-    混雑度を10段階で計算する。日曜始まりのカレンダーを作成する。
+    混雑度を20段階で計算する。日曜始まりのカレンダーを作成する。
     
     混雑度計算方法:
     1. CONGESTION_THRESHOLDSから混雑度1,2の境界値と9,10の境界値を取得
@@ -68,32 +72,7 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 
         # データがない場合は、min_thresholdとmax_thresholdの中間値を使用
         middle_threshold = (min_threshold + max_threshold) / 2
     
-    # 混雑度1,2〜5,6の間の段階的な境界値を計算
-    step_lower = (middle_threshold - min_threshold) / 4
-    
-    # 混雑度5,6〜9,10の間の段階的な境界値を計算
-    step_upper = (max_threshold - middle_threshold) / 4
-    
-    # 境界値のリストを作成（データが存在すれば1以上の混雑度を割り当てる）
-    bins = [0, 1]  # 0=データなし, 1以上=データあり
-    bins.append(min_threshold)  # 混雑度1,2の境界
-    
-    # 混雑度2,3、3,4、4,5の境界値
-    for i in range(1, 4):
-        bins.append(min_threshold + i * step_lower)
-    
-    # 混雑度5,6の境界値
-    bins.append(middle_threshold)
-    
-    # 混雑度6,7、7,8、8,9の境界値
-    for i in range(1, 4):
-        bins.append(middle_threshold + i * step_upper)
-    
-    # 混雑度9,10の境界値
-    bins.append(max_threshold)
-    
-    # 最後に無限大を追加（レベル10の上限）
-    bins.append(float('inf'))
+    bins = build_congestion_bins(min_threshold, middle_threshold, max_threshold, TOTAL_CONGESTION_LEVELS)
 
     # デバッグログを削減（必要時のみ出力）
     # print(f"場所: {place}")
@@ -107,7 +86,7 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 
     # print(f"{place}の最大歩行者数: {max_count}")
 
     # 定義した境界値に基づいて混雑度レベルを割り当て
-    # データが0の場合は混雑度0、それ以外は1～10
+    # データが0の場合は混雑度0、それ以外は1～20
     daily_counts['level'] = pd.cut(
         daily_counts['count_1_hour'], 
         bins=bins, 
@@ -157,7 +136,7 @@ def get_data_for_calendar(df: pd.DataFrame, year: int, month: int, place: str = 
 
         # 天気情報を取得
         weather_info = weather_map.get(day, None)
-
+    
         day_data = DayCongestion(date=day, congestion=int(level), weather_info=weather_info)
         week.append(day_data)
 
