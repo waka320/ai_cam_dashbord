@@ -291,7 +291,7 @@ function WeeklyTrendGrid({ data, loading, isMobile }) {
                           padding: 0,
                           flex: 1
                         }}
-                        title={weekData ? `期間: ${weekData.display}\n混雑度: ${weekData.congestion}/10\n総数: ${weekData.total_count.toLocaleString()}` : 'データが不足しているため表示できません\n（7日未満の週または欠損率が高い週）'}
+                        title={weekData ? `期間: ${weekData.display}\n混雑度: ${weekData.congestion}/20\n総数: ${weekData.total_count.toLocaleString()}` : 'データが不足しているため表示できません\n（7日未満の週または欠損率が高い週）'}
                       >
                         {weekData ? (
                           <>

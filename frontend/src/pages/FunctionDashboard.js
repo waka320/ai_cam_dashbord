@@ -61,8 +61,8 @@ function FunctionDashboard() {
                     elevation={1} 
                     sx={{ 
                         borderRadius: '12px',
-                        border: '2px solid rgba(85, 60, 154, 0.2)', // 機能ベース用のボーダー
-                        backgroundColor: 'rgba(250, 248, 255, 0.98)', // 機能ベース用の薄い紫がかった背景
+                        border: '2px solid rgba(85, 60, 154, 0.2)', // グラフベース用のボーダー
+                        backgroundColor: 'rgba(250, 248, 255, 0.98)', // グラフベース用の薄い紫がかった背景
                         p: isMobile ? 2 : 3,
                         position: 'relative',
                         zIndex: 1002
@@ -222,7 +222,7 @@ function FunctionDashboard() {
             return trendGrid;
         }
         
-        // 機能ベースのビジュアライゼーション
+        // グラフベースのビジュアライゼーション
         return (
             <>
                 <Calendar />
@@ -235,9 +235,9 @@ function FunctionDashboard() {
     return (
         <>
             <SEOComponent 
-                title="機能ベースダッシュボード | 高山市AIカメラデータ"
+                title="グラフベースダッシュボード | 高山市AIカメラデータ"
                 description="高山市のAIカメラから取得した歩行者オープンデータを活用。様々な分析機能とビジュアライゼーションツールで混雑状況を詳細に分析できます。"
-                keywords="高山市,ダッシュボード,観光,混雑度,混雑状況,データ可視化,オープンデータ,データ分析,機能ベース,分析ツール,飛騨高山,MDG,遠藤・浦田研究室"
+                keywords="高山市,ダッシュボード,観光,混雑度,混雑状況,データ可視化,オープンデータ,データ分析,グラフベース,分析ツール,飛騨高山,MDG,遠藤・浦田研究室"
                 url="https://ai-camera.lab.mdg-meidai.com/function"
             />
             {/* 初期状態時の全画面オーバーレイ（ヘッダーと誘導カード以外を暗く） */}
@@ -251,10 +251,10 @@ function FunctionDashboard() {
                 }} />
             )}
             <Box sx={{
-                backgroundColor: 'rgba(250, 248, 255, 0.3)', // 機能ベース用の薄い紫がかった背景
+                backgroundColor: 'rgba(250, 248, 255, 0.3)', // グラフベース用の薄い紫がかった背景
                 borderRadius: isMobile ? '0' : '8px',
                 padding: isMobile ? '6px 4px 12px' : '12px 8px 16px',
-                boxShadow: 'inset 0 1px 3px rgba(85, 60, 154, 0.1)', // 機能ベースシャドウ
+                boxShadow: 'inset 0 1px 3px rgba(85, 60, 154, 0.1)', // グラフベースシャドウ
                 flex: '1 0 auto',
                 position: 'relative'
             }}>

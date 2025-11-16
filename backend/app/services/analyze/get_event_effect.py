@@ -4,6 +4,10 @@ from datetime import datetime, timedelta
 import os
 from app.services.analyze.get_data_for_date_time250504 import get_data_for_date_time as dti_get
 from app.services.weather.weather_service import weather_service
+from app.services.analyze.utils.congestion_scale import (
+    TOTAL_CONGESTION_LEVELS,
+    calculate_scaled_level,
+)
 
 # 各場所の混雑度境界値の定義
 CONGESTION_THRESHOLDS = {
@@ -56,17 +60,12 @@ def calculate_congestion_level(count: float, place: str = 'default', hourly: boo
     thresholds_map = HOURLY_CONGESTION_THRESHOLDS if hourly else CONGESTION_THRESHOLDS
     min_threshold, max_threshold = thresholds_map.get(place, thresholds_map['default'])
     
-    if count < min_threshold:
-        return 1
-    elif count > max_threshold:
-        return 10
-    else:
-        # min_thresholdとmax_thresholdの間を9段階に分割
-        step = (max_threshold - min_threshold) / 9
-        if step <= 0:
-            return 10 if count >= max_threshold else 1
-        level = int((count - min_threshold) / step) + 1
-        return min(max(level, 1), 10)
+    return calculate_scaled_level(
+        count=count,
+        min_threshold=min_threshold,
+        max_threshold=max_threshold,
+        total_levels=TOTAL_CONGESTION_LEVELS,
+    )
 
 
 def get_hourly_data_for_date(df: pd.DataFrame, target_date: datetime, place: str = 'default') -> List[Dict[str, Any]]:

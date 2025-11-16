@@ -4,6 +4,10 @@ from typing import List, Dict, Optional, Tuple, Any
 from datetime import datetime, timedelta
 import os
 import glob
+from app.services.analyze.utils.congestion_scale import (
+    TOTAL_CONGESTION_LEVELS,
+    build_congestion_bins,
+)
 
 # 各場所の混雑度境界値の定義（年単位用）
 CONGESTION_THRESHOLDS_YEAR = {
@@ -27,7 +31,7 @@ CONGESTION_THRESHOLDS_YEAR = {
 def get_data_for_year(df: pd.DataFrame, place: str = 'default', weather_data: Dict[int, List[Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
     """
     DataFrameから歩行者データを取得し、年単位で混雑度を計算する。
-    混雑度を10段階で計算する。
+    混雑度を20段階で計算する。
     
     Args:
         df: 分析対象のDataFrame
@@ -61,32 +65,7 @@ def get_data_for_year(df: pd.DataFrame, place: str = 'default', weather_data: Di
     else:
         middle_threshold = (min_threshold + max_threshold) / 2
 
-    # 混雑度1,2〜5,6の間の段階的な境界値を計算
-    step_lower = (middle_threshold - min_threshold) / 4
-
-    # 混雑度5,6〜9,10の間の段階的な境界値を計算
-    step_upper = (max_threshold - middle_threshold) / 4
-
-    # 境界値のリストを作成
-    bins = [0, 1]  # 0=データなし, 1以上=データあり
-    bins.append(min_threshold)  # 混雑度1,2の境界
-
-    # 混雑度2,3、3,4、4,5の境界値
-    for i in range(1, 4):
-        bins.append(min_threshold + i * step_lower)
-
-    # 混雑度5,6の境界値
-    bins.append(middle_threshold)
-
-    # 混雑度6,7、7,8、8,9の境界値
-    for i in range(1, 4):
-        bins.append(middle_threshold + i * step_upper)
-
-    # 混雑度9,10の境界値
-    bins.append(max_threshold)
-
-    # 最後に無限大を追加（レベル10の上限）
-    bins.append(float('inf'))
+    bins = build_congestion_bins(min_threshold, middle_threshold, max_threshold, TOTAL_CONGESTION_LEVELS)
 
     # 定義した境界値に基づいて混雑度レベルを割り当て
     yearly_counts['congestion'] = pd.cut(

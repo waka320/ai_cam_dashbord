@@ -42,7 +42,7 @@ function AdviceSection() {
             };
         } else if (isFunctionPage) {
             return {
-                main: '#553C9A',        // 機能ベース用
+                main: '#553C9A',        // グラフベース用
                 light: '#805AD5',
                 dark: '#44337A',
                 contrastText: '#FFFFFF'

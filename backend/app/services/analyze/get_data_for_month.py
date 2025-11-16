@@ -1,6 +1,10 @@
 import pandas as pd
 import calendar
 from typing import List, Dict, Any
+from app.services.analyze.utils.congestion_scale import (
+    TOTAL_CONGESTION_LEVELS,
+    build_congestion_bins,
+)
 
 # 各場所の混雑度境界値の定義（月単位用）
 CONGESTION_THRESHOLDS_MONTH = {
@@ -30,7 +34,7 @@ def get_data_for_month(
 ) -> List[Dict[str, Any]]:
     """
     DataFrameから歩行者データを取得し、全期間の月単位で混雑度を計算する。
-    混雑度を10段階で計算する。
+    混雑度を20段階で計算する。
     Args:
         df: 分析対象のDataFrame
         year: 互換性のため残すが使用しない
@@ -127,40 +131,7 @@ def get_data_for_month(
         min_threshold + 1
     )
 
-    # 段階的な境界値
-    step_lower = (middle_threshold - min_threshold) / 4
-    step_upper = (max_threshold - middle_threshold) / 4
-
-    # 単調増加な bins を生成
-    bins = [0, 1, float(min_threshold)]
-
-    last = bins[-1]
-    for i in range(1, 4):
-        val = min_threshold + i * step_lower
-        if val <= last:
-            val = last + 1
-        bins.append(float(val))
-        last = val
-
-    val = float(middle_threshold)
-    if val <= last:
-        val = last + 1
-    bins.append(val)
-    last = val
-
-    for i in range(1, 4):
-        val = middle_threshold + i * step_upper
-        if val <= last:
-            val = last + 1
-        bins.append(float(val))
-        last = val
-
-    val = float(max_threshold)
-    if val <= last:
-        val = last + 1
-    bins.append(val)
-
-    bins.append(float('inf'))
+    bins = build_congestion_bins(min_threshold, middle_threshold, max_threshold, TOTAL_CONGESTION_LEVELS)
 
     # 定義した境界値に基づいて混雑度レベルを割り当て
     monthly_counts['congestion'] = pd.cut(

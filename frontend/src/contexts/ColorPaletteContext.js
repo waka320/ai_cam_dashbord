@@ -13,6 +13,8 @@ const DEFAULT_PALETTE = 'GREEN_YELLOW_RED_ONE';
 // ローカルストレージのキー
 const STORAGE_KEY = 'dashboard_color_palette';
 
+const RAW_CONGESTION_MAX = 20;
+
 // コンテキストの作成
 const ColorPaletteContext = createContext();
 
@@ -51,22 +53,29 @@ export const ColorPaletteProvider = ({ children }) => {
     
     // サンプルカラーの表示
     const colors = [];
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= RAW_CONGESTION_MAX; i += 1) {
       colors.push(`混雑度 ${i}: ${colorPalettes[COLOR_PALETTE_NAMES[currentPalette]](i)}`);
     }
     console.log('カラーサンプル:', colors);
   }, [currentPalette]);
   
+  const normalizeLevelForPalette = (value) => {
+    if (value === null || value === undefined) return 0;
+    const numeric = Number(value);
+    if (Number.isNaN(numeric) || numeric <= 0) return 0;
+    return Math.min(Math.max(Math.round(numeric), 1), RAW_CONGESTION_MAX);
+  };
+
   // 現在選択されているパレット関数を取得
   const getCellColor = (congestion) => {
-    // 混雑度が有効範囲内か確認
-    if (!congestion || isNaN(congestion) || congestion < 1 || congestion > 10) {
+    const normalized = normalizeLevelForPalette(congestion);
+    if (!normalized) {
       return '#FFF';
     }
-    
+
     try {
       const displayName = COLOR_PALETTE_NAMES[currentPalette];
-      return colorPalettes[displayName](congestion);
+      return colorPalettes[displayName](normalized);
     } catch (error) {
       console.error('色の取得に失敗:', error);
       return '#FFF';
@@ -76,7 +85,8 @@ export const ColorPaletteProvider = ({ children }) => {
   // 混雑度に基づいてテキストの色を決定する関数
   const getTextColor = (congestion) => {
     // 無効な混雑度または混雑度0の場合は灰色テキスト
-    if (!congestion || congestion === 0) {
+    const normalized = normalizeLevelForPalette(congestion);
+    if (!normalized) {
       return '#666';
     }
     
@@ -89,7 +99,7 @@ export const ColorPaletteProvider = ({ children }) => {
       if (settings.blackRanges) {
         // 指定された範囲内にあるかどうかをチェック
         for (const range of settings.blackRanges) {
-          if (congestion >= range[0] && congestion <= range[1]) {
+          if (normalized >= range[0] && normalized <= range[1]) {
             return 'inherit'; // 範囲内なら黒文字
           }
         }
@@ -99,7 +109,7 @@ export const ColorPaletteProvider = ({ children }) => {
       else if (settings.whiteRanges) {
         // 指定された範囲内にあるかどうかをチェック
         for (const range of settings.whiteRanges) {
-          if (congestion >= range[0] && congestion <= range[1]) {
+          if (normalized >= range[0] && normalized <= range[1]) {
             return '#fff'; // 範囲内なら白文字
           }
         }
@@ -111,10 +121,10 @@ export const ColorPaletteProvider = ({ children }) => {
     // 従来の閾値モードの処理
     if (settings.inverted) {
       // 反転パターン: 閾値未満が白、閾値以上が黒
-      return congestion < settings.threshold ? '#fff' : 'inherit';
+      return normalized < settings.threshold ? '#fff' : 'inherit';
     } else {
       // 通常パターン: 閾値未満が黒、閾値以上が白
-      return congestion >= settings.threshold ? '#fff' : 'inherit';
+      return normalized >= settings.threshold ? '#fff' : 'inherit';
     }
   };
   
@@ -142,7 +152,7 @@ export const ColorPaletteProvider = ({ children }) => {
     return {
       id: key,
       name: displayName,
-      sample: Array.from({ length: 10 }, (_, i) => {
+      sample: Array.from({ length: RAW_CONGESTION_MAX }, (_, i) => {
         try {
           return colorPalettes[displayName](i + 1);
         } catch (error) {
