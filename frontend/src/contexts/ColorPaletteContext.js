@@ -14,7 +14,6 @@ const DEFAULT_PALETTE = 'GREEN_YELLOW_RED_ONE';
 const STORAGE_KEY = 'dashboard_color_palette';
 
 const RAW_CONGESTION_MAX = 20;
-const PALETTE_LEVEL_RANGE = 10;
 
 // コンテキストの作成
 const ColorPaletteContext = createContext();
@@ -54,7 +53,7 @@ export const ColorPaletteProvider = ({ children }) => {
     
     // サンプルカラーの表示
     const colors = [];
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= RAW_CONGESTION_MAX; i += 1) {
       colors.push(`混雑度 ${i}: ${colorPalettes[COLOR_PALETTE_NAMES[currentPalette]](i)}`);
     }
     console.log('カラーサンプル:', colors);
@@ -64,9 +63,7 @@ export const ColorPaletteProvider = ({ children }) => {
     if (value === null || value === undefined) return 0;
     const numeric = Number(value);
     if (Number.isNaN(numeric) || numeric <= 0) return 0;
-    if (numeric <= PALETTE_LEVEL_RANGE) return numeric;
-    const scaled = Math.ceil((numeric / RAW_CONGESTION_MAX) * PALETTE_LEVEL_RANGE);
-    return Math.min(Math.max(scaled, 1), PALETTE_LEVEL_RANGE);
+    return Math.min(Math.max(Math.round(numeric), 1), RAW_CONGESTION_MAX);
   };
 
   // 現在選択されているパレット関数を取得
@@ -155,7 +152,7 @@ export const ColorPaletteProvider = ({ children }) => {
     return {
       id: key,
       name: displayName,
-      sample: Array.from({ length: 10 }, (_, i) => {
+      sample: Array.from({ length: RAW_CONGESTION_MAX }, (_, i) => {
         try {
           return colorPalettes[displayName](i + 1);
         } catch (error) {
