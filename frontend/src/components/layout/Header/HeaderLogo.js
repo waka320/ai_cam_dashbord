@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Box, Button } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 import purposeLogo from '../../../assets/dashbord_logo.png';
-import functionLogo from '../../../assets/dashbord_logo_func.png';
 import ShareButton from '../../ui/ShareButton';
 import theme from '../../../theme/theme';
 
@@ -32,7 +31,44 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
     : null;
   
   // ページに応じてロゴを選択
-  const currentLogo = isFunctionPage ? functionLogo : purposeLogo;
+  const renderLogoContent = () => {
+    if (isFunctionPage) {
+      return (
+        <Box
+          sx={{
+            height: isMobile ? '34px' : '44px',
+            display: 'flex',
+            alignItems: 'center',
+            color: '#fff'
+          }}
+        >
+          <Typography
+            component="span"
+            sx={{
+              fontSize: isMobile ? '1rem' : '1.3rem',
+              fontWeight: 600,
+              letterSpacing: '0.08em',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            グラフベースダッシュボード
+          </Typography>
+        </Box>
+      );
+    }
+    return (
+      <Box
+        component="img"
+        src={purposeLogo}
+        alt="高山市AIカメラデータダッシュボード（目的ベース）のロゴ"
+        sx={{
+          height: isMobile ? '34px' : '44px',
+          objectFit: 'contain',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        }}
+      />
+    );
+  };
   
   return (
     <Box sx={{ 
@@ -77,16 +113,7 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
       
       {/* 中央のロゴ */}
       <a href="/" aria-label="トップページへ戻る" style={{ textDecoration: 'none' }}>
-        <Box
-          component="img"
-          src={currentLogo}
-          alt={`高山市AIカメラデータダッシュボード${isFunctionPage ? '（グラフベース）' : '（目的ベース）'}のロゴ`}
-          sx={{ 
-            height: isMobile ? '34px' : '44px',
-            objectFit: 'contain',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          }}
-        />
+        {renderLogoContent()}
       </a>
       
       {/* 右側の共有ボタン */}
