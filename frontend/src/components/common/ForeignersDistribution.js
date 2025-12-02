@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Box, Typography, CircularProgress, useMediaQuery, Paper } from '@mui/material';
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { useCalendar } from '../../contexts/CalendarContext';
@@ -37,6 +37,7 @@ function ForeignersDistribution() {
   const [rankingData, setRankingData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedCountry, setSelectedCountry] = useState(null);
   const isMobile = useMediaQuery('(max-width:768px)');
   const isYearAllowed = selectedYear && FOREIGNERS_ALLOWED_YEARS.includes(selectedYear);
 
@@ -113,6 +114,7 @@ function ForeignersDistribution() {
           value: parseFloat((share || 0).toFixed(2)),
           guests: item.guests,
           color: colorMap[item.country],
+          country: item.country,
         };
       }),
     [rankingList, totalGuests, colorMap]
@@ -127,6 +129,26 @@ function ForeignersDistribution() {
         rank: index + 1,
       })),
     [rankingList, colorMap]
+  );
+
+  const selectedItem = useMemo(
+    () => listItems.find((item) => item.country === selectedCountry) || null,
+    [listItems, selectedCountry]
+  );
+
+  useEffect(() => {
+    if (!listItems.some((item) => item.country === selectedCountry)) {
+      setSelectedCountry(null);
+    }
+  }, [listItems, selectedCountry]);
+
+  const handleSliceClick = useCallback(
+    (_, index) => {
+      const target = listItems[index];
+      if (!target) return;
+      setSelectedCountry((prev) => (prev === target.country ? null : target.country));
+    },
+    [listItems]
   );
 
   if (!isYearAllowed || !selectedMonth) {
@@ -216,10 +238,21 @@ function ForeignersDistribution() {
                   outerRadius={isMobile ? 150 : 200}
                   innerRadius={isMobile ? 20 : 40}
                   paddingAngle={0}
+                  onClick={handleSliceClick}
                 >
-                  {pieData.map((entry) => (
-                    <Cell key={entry.name} fill={entry.color} />
-                  ))}
+                  {pieData.map((entry) => {
+                    const isSelected = selectedItem?.country === entry.country;
+                    return (
+                      <Cell
+                        key={entry.name}
+                        fill={entry.color}
+                        stroke={isSelected ? theme.palette.common.white : 'transparent'}
+                        strokeWidth={isSelected ? 2 : 1}
+                        fillOpacity={selectedItem && !isSelected ? 0.6 : 1}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    );
+                  })}
                 </Pie>
                 <RechartsTooltip content={renderTooltip} />
               </PieChart>
