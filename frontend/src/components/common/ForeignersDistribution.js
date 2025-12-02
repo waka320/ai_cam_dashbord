@@ -12,6 +12,7 @@ const paletteColors = [
   '#6d4c41', '#8d6e63', '#9e9d24', '#00695c', '#795548', '#3949ab',
 ];
 const FOREIGNERS_ALLOWED_YEARS = ['2023', '2024'];
+const UNKNOWN_LABEL = '未分類:不明';
 
 const formatCountryLabel = (item) => {
   if (!item) return '';
@@ -93,20 +94,41 @@ function ForeignersDistribution() {
   }, [selectedYear, selectedMonth, isYearAllowed]);
 
   const rankingList = useMemo(() => rankingData?.ranking || [], [rankingData]);
-  const hasData = rankingList.length > 0;
+  const orderedRankingList = useMemo(() => {
+    if (!rankingList) return [];
+    const others = [];
+    const unknowns = [];
+    rankingList.forEach((item) => {
+      const label = formatCountryLabel(item);
+      if (label === UNKNOWN_LABEL) {
+        unknowns.push(item);
+      } else {
+        others.push(item);
+      }
+    });
+    return [...others, ...unknowns];
+  }, [rankingList]);
+  const hasData = orderedRankingList.length > 0;
   const totalGuests = rankingData?.total_guests || 0;
 
   const colorMap = useMemo(() => {
     const map = {};
-    rankingList.forEach((item, index) => {
-      map[item.country] = paletteColors[index % paletteColors.length];
+    let colorIndex = 0;
+    orderedRankingList.forEach((item) => {
+      const label = formatCountryLabel(item);
+      if (label === UNKNOWN_LABEL) {
+        map[item.country] = '#9e9e9e';
+      } else {
+        map[item.country] = paletteColors[colorIndex % paletteColors.length];
+        colorIndex += 1;
+      }
     });
     return map;
-  }, [rankingList]);
+  }, [orderedRankingList]);
 
   const pieData = useMemo(
     () =>
-      rankingList.map((item) => {
+      orderedRankingList.map((item) => {
         const share =
           item.share_pct ?? (totalGuests ? (item.guests / totalGuests) * 100 : 0);
         return {
@@ -117,18 +139,18 @@ function ForeignersDistribution() {
           country: item.country,
         };
       }),
-    [rankingList, totalGuests, colorMap]
+    [orderedRankingList, totalGuests, colorMap]
   );
 
   const listItems = useMemo(
     () =>
-      rankingList.map((item, index) => ({
+      orderedRankingList.map((item, index) => ({
         ...item,
         displayName: formatCountryLabel(item),
         color: colorMap[item.country],
         rank: index + 1,
       })),
-    [rankingList, colorMap]
+    [orderedRankingList, colorMap]
   );
 
   const selectedItem = useMemo(
