@@ -8,6 +8,7 @@ import YearlyTrendGrid from '../components/trend/YearlyTrendGrid';
 import MonthlyTrendGrid from '../components/trend/MonthlyTrendGrid';
 import WeeklyTrendGrid from '../components/trend/WeeklyTrendGrid';
 import ForeignersRanking from '../components/common/ForeignersRanking';
+import ForeignersDistribution from '../components/common/ForeignersDistribution';
 import { Box, Typography, Button, useMediaQuery, Paper } from '@mui/material';
 import AdviceSection from '../components/layout/AdviceSection';
 import { useCalendar } from '../contexts/CalendarContext';
@@ -215,6 +216,11 @@ function FunctionDashboard() {
         // イベント効果分析
         if (selectedAction === 'event_effect') {
             return <EventEffect />;
+        }
+        
+        // 外国人分布
+        if (selectedAction === 'foreigners_distribution') {
+            return <ForeignersDistribution />;
         }
         
         // 傾向分析の場合は専用グリッドを表示

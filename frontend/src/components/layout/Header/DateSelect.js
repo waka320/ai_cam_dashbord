@@ -45,6 +45,14 @@ function DateSelect({
   
   // React Hooksは条件分岐の前に呼び出す必要がある
   const generateYearItems = () => {
+    // 外国人分布の場合は2023と2024のみ
+    if (selectedAction === 'foreigners_distribution') {
+      return [
+        { value: '2023', label: '2023' },
+        { value: '2024', label: '2024' },
+      ];
+    }
+    
     const years = [];
     const startYear = 2021;
     for (let year = startYear; year <= currentYear; year++) {
@@ -87,6 +95,18 @@ function DateSelect({
     }
   }, [selectedYear, currentYear, currentMonth, selectedMonth, setSelectedMonth]);
 
+  const handleYearChange = (event) => {
+    const newYear = event.target.value;
+    // setSelectedYear関数はCalendarContextで定義され、dateChanging状態を適切に管理する
+    setSelectedYear(newYear);
+  };
+
+  const handleMonthChange = (event) => {
+    const newMonth = event.target.value;
+    // setSelectedMonth関数はCalendarContextで定義され、dateChanging状態を適切に管理する
+    setSelectedMonth(newMonth);
+  };
+
   // 表示する必要がない場合（条件分岐はHooksの後に配置）
   // やりたいことが未選択の場合は非表示
   if (!selectedAction) {
@@ -101,17 +121,111 @@ function DateSelect({
     return null;
   }
 
-  const handleYearChange = (event) => {
-    const newYear = event.target.value;
-    // setSelectedYear関数はCalendarContextで定義され、dateChanging状態を適切に管理する
-    setSelectedYear(newYear);
-  };
-
-  const handleMonthChange = (event) => {
-    const newMonth = event.target.value;
-    // setSelectedMonth関数はCalendarContextで定義され、dateChanging状態を適切に管理する
-    setSelectedMonth(newMonth);
-  };
+  // 外国人分布の場合は年のみ表示（月は非表示）
+  if (selectedAction === 'foreigners_distribution') {
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        alignItems: 'stretch', 
+        gap: isCompactMode ? 0.3 : (isScrolled ? 0.4 : 0.6),
+        width: isMobile ? '100%' : 'auto',
+      }}>
+        <Typography 
+          variant="labelL" 
+          sx={{ 
+            color: theme.palette.text.white, 
+            fontWeight: 'bold',
+            textAlign: 'left',
+            fontSize: isCompactMode ? (isMobile ? '0.65rem' : '0.85rem') : (isScrolled ? (isMobile ? '0.7rem' : '0.85rem') : (isMobile ? '0.85rem' : '0.95rem')),
+            whiteSpace: 'nowrap',
+            textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+        >
+          データの年
+        </Typography>
+        
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'row',
+          alignItems: 'center',
+          width: isMobile ? '100%' : 'auto',
+        }}>
+          <FormControl variant="outlined" sx={{ 
+            width: isMobile ? '100%' : isSmallDesktop ? 110 : 140,
+            '& .MuiOutlinedInput-root': {
+              height: isCompactMode ? (isMobile ? '24px' : '36px') : (isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px')),
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            },
+          }}>
+            <Select
+              value={(yearItems.some(y => y.value === selectedYear) ? selectedYear : '')}
+              onChange={handleYearChange}
+              disabled={loading || dateChanging}
+              displayEmpty
+              renderValue={(value) => {
+                if (value === "") return "----年";
+                return value + "年";
+              }}
+              endAdornment={
+                dateChanging ? (
+                  <CircularProgress 
+                    size={14} 
+                    sx={{ 
+                      marginRight: 1,
+                      color: theme.palette.primary.main
+                    }} 
+                  />
+                ) : null
+              }
+              sx={{
+                backgroundColor: (loading || dateChanging) ? 'rgba(255, 255, 255, 0.7)' : 'white',
+                borderRadius: '8px',
+                '.MuiSelect-icon': { 
+                  color: (loading || dateChanging) ? 'rgba(0, 0, 0, 0.38)' : theme.palette.text.secondary,
+                  right: isMobile ? '4px' : '8px',
+                  fontSize: isMobile ? '1rem' : '1.25rem',
+                  display: dateChanging ? 'none' : 'block'
+                },
+                ...theme.typography.bodyM,
+                padding: isMobile ? '4px 4px' : '4px 8px',
+                '& .MuiOutlinedInput-input': {
+                  padding: isMobile ? '4px 4px 4px 8px' : isSmallDesktop ? '4px 4px' : '4px 8px',
+                },
+                color: selectedYear === "" ? theme.palette.text.secondary : theme.palette.text.primary,
+                fontSize: isMobile ? '0.9rem' : '0.95rem',
+                fontWeight: 500,
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    borderRadius: '8px',
+                    marginTop: '8px'
+                  }
+                }
+              }}
+            >
+              {yearItems.map((item) => (
+                <MenuItem 
+                  key={item.value} 
+                  value={item.value} 
+                  sx={{
+                    ...theme.typography.bodyM,
+                    fontSize: isMobile ? '0.9rem' : '0.95rem',
+                    minHeight: isMobile ? '40px' : '48px'
+                  }}
+                >
+                  {item.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+      </Box>
+    );
+  }
 
   const handlePreviousMonth = () => {
     if (!selectedYear || !selectedMonth || loading || dateChanging) return;

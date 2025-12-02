@@ -7,6 +7,7 @@ import YearlyTrendGrid from '../trend/YearlyTrendGrid';
 import MonthlyTrendGrid from '../trend/MonthlyTrendGrid';
 import WeeklyTrendGrid from '../trend/WeeklyTrendGrid';
 import ForeignersRanking from '../common/ForeignersRanking';
+import ForeignersDistribution from '../common/ForeignersDistribution';
 import { Box, Typography, Button, useMediaQuery, Paper } from '@mui/material';
 import AdviceSection from './AdviceSection';
 import { useCalendar } from '../../contexts/CalendarContext';
@@ -209,6 +210,11 @@ function Content() {
         // 初期状態（やりたいことまたは計測場所が未選択）の場合
         if (isInitialState) {
             return renderInitialState();
+        }
+        
+        // 外国人分布
+        if (selectedAction === 'foreigners_distribution') {
+            return <ForeignersDistribution />;
         }
         
         // 傾向分析の場合は専用グリッドを表示

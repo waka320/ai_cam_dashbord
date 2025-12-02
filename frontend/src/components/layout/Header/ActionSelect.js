@@ -40,6 +40,7 @@ function ActionSelect({
     // { value: "year_trend", label: "年ごとの傾向を見たい", shortLabel: "年ごとの傾向を見る" },
     { value: "month_trend", label: "月ごとの傾向を見たい", shortLabel: "月ごとの傾向を見る" },
     { value: "week_trend", label: "週ごとの傾向を見たい", shortLabel: "週ごとの傾向を見る" },
+    { value: "foreigners_distribution", label: "外国人の分布を見たい", shortLabel: "外国人分布を見る" },
   ];
 
   const handleSelectChange = (event) => {

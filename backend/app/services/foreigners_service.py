@@ -189,6 +189,84 @@ class ForeignersStatsService:
             return stem.split("高山市")[0]
         return stem
 
+    def get_yearly_distribution(
+        self, year: Optional[str], top_n: int = 10
+    ) -> Dict[str, Any]:
+        """
+        指定年度の年を通しての外国人分布を返す。
+        各月の上位国のデータを返す。
+        """
+        entries = self._load_year_entries()
+        available_years = [entry["year"] for entry in entries]
+
+        if year:
+            selected_entry = next(
+                (entry for entry in entries if entry["year"] == year),
+                None,
+            )
+            # 指定された年度のデータがない場合、利用可能な年度の中で最も近い年度を使用
+            if selected_entry is None:
+                target_year_num = self._parse_year_order(year)
+                selected_entry = min(
+                    entries,
+                    key=lambda e: abs(self._parse_year_order(e["year"]) - target_year_num)
+                )
+        else:
+            selected_entry = entries[0]
+
+        # 各月の上位国を取得（「不明」と「その他」を除外）
+        monthly_data = []
+        for month in range(1, 13):
+            month_ranking = self._build_monthly_ranking(selected_entry, month, top_n)
+            # 「不明」と「その他」を除外
+            filtered_ranking = [
+                item for item in month_ranking["ranking"]
+                if item["country"].strip() not in ["不明", "その他", ""]
+            ]
+            monthly_data.append({
+                "month": month,
+                "month_label": MONTH_LABELS[month - 1],
+                "ranking": filtered_ranking,
+                "total_guests": month_ranking["total_guests"],
+            })
+
+        # 全月を通しての上位国を集計（年間合計でソート）
+        country_totals = {}
+        for month_data in monthly_data:
+            for item in month_data["ranking"]:
+                country = item["country"]
+                if country not in country_totals:
+                    country_totals[country] = 0
+                country_totals[country] += item["guests"]
+
+        # 年間合計でソート
+        top_countries = sorted(
+            country_totals.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )[:top_n]
+
+        # 各月のデータを整理（上位国の月別データ）
+        chart_data = []
+        for month_data in monthly_data:
+            month_dict = {
+                "month": month_data["month"],
+                "month_label": month_data["month_label"],
+            }
+            # 各上位国のその月のデータを追加
+            ranking_dict = {item["country"]: item["guests"] for item in month_data["ranking"]}
+            for country, _ in top_countries:
+                month_dict[country] = ranking_dict.get(country, 0)
+            chart_data.append(month_dict)
+
+        return {
+            "year": selected_entry["year"],
+            "available_years": available_years,
+            "top_countries": [country for country, _ in top_countries],
+            "chart_data": chart_data,
+            "country_totals": {country: total for country, total in top_countries},
+        }
+
 
 foreigners_stats_service = ForeignersStatsService()
 

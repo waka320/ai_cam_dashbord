@@ -278,18 +278,20 @@ function Header() {
                         updateMonthAndFetch={updateMonthAndFetch}
                       />
 
-                      {/* 計測場所セクション */}
-                      <LocationSelect 
-                        isMobile={isMobile}
-                        isSmallDesktop={isSmallDesktop}
-                        isScrolled={isScrolled}
-                        isCompactMode={isCompactMode}
-                        selectedLocation={selectedLocation}
-                        handleLocationChange={handleLocationChange}
-                        loading={loading}
-                        locationChanging={locationChanging}
-                        onCameraButtonClick={handleCameraButtonClick}
-                      />
+                      {/* 計測場所セクション - 外国人分布の場合は非表示 */}
+                      {selectedAction !== 'foreigners_distribution' && (
+                        <LocationSelect 
+                          isMobile={isMobile}
+                          isSmallDesktop={isSmallDesktop}
+                          isScrolled={isScrolled}
+                          isCompactMode={isCompactMode}
+                          selectedLocation={selectedLocation}
+                          handleLocationChange={handleLocationChange}
+                          loading={loading}
+                          locationChanging={locationChanging}
+                          onCameraButtonClick={handleCameraButtonClick}
+                        />
+                      )}
                     </Box>
                   </Toolbar>
                 </Paper>
