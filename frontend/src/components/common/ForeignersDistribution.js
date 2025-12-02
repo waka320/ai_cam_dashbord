@@ -11,6 +11,7 @@ const paletteColors = [
   '#f9a825', '#f57c00', '#e64a19', '#5d4037', '#455a64', '#00897b',
   '#6d4c41', '#8d6e63', '#9e9d24', '#00695c', '#795548', '#3949ab',
 ];
+const FOREIGNERS_ALLOWED_YEARS = ['2023', '2024'];
 
 const formatCountryLabel = (item) => {
   if (!item) return '';
@@ -37,10 +38,15 @@ function ForeignersDistribution() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const isMobile = useMediaQuery('(max-width:768px)');
+  const isYearAllowed = selectedYear && FOREIGNERS_ALLOWED_YEARS.includes(selectedYear);
 
   useEffect(() => {
     const fetchMonthlyRanking = async () => {
-      if (!selectedYear || !selectedMonth) return;
+      if (!isYearAllowed || !selectedMonth) {
+        setRankingData(null);
+        setError(null);
+        return;
+      }
       const yearLabel = convertADToYear(selectedYear);
       if (!yearLabel) return;
 
@@ -83,7 +89,7 @@ function ForeignersDistribution() {
     };
 
     fetchMonthlyRanking();
-  }, [selectedYear, selectedMonth]);
+  }, [selectedYear, selectedMonth, isYearAllowed]);
 
   const rankingList = useMemo(() => rankingData?.ranking || [], [rankingData]);
   const hasData = rankingList.length > 0;
@@ -123,18 +129,8 @@ function ForeignersDistribution() {
     [rankingList, colorMap]
   );
 
-  if (!hasData) {
+  if (!isYearAllowed || !selectedMonth) {
     return null;
-  }
-
-  if (!selectedYear || !selectedMonth) {
-    return (
-      <SectionContainer>
-        <Box sx={{ p: 2, textAlign: 'center' }}>
-          <Typography>年と月を選択してください</Typography>
-        </Box>
-      </SectionContainer>
-    );
   }
 
   if (loading && !rankingData) {
@@ -155,6 +151,10 @@ function ForeignersDistribution() {
         </Box>
       </SectionContainer>
     );
+  }
+
+  if (!hasData) {
+    return null;
   }
 
   const renderTooltip = ({ active, payload }) => {

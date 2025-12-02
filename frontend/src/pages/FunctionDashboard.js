@@ -18,17 +18,24 @@ import SEOComponent from '../components/common/SEOComponent';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import theme from '../theme/theme';
 
+const FOREIGNERS_ALLOWED_YEARS = ['2023', '2024'];
+
 function FunctionDashboard() {
     const { 
         loading, 
         error, 
         selectedAction, 
         selectedLocation,
-        data
+        data,
+        selectedYear,
+        selectedMonth
     } = useCalendar();
     const isMobile = useMediaQuery('(max-width:768px)');
     
-    const isInitialState = !selectedAction || (selectedAction && !selectedLocation);
+    const actionRequiresLocation = selectedAction && selectedAction !== 'foreigners_distribution';
+    const isInitialState = !selectedAction || (actionRequiresLocation && !selectedLocation);
+    const isForeignersYearValid = selectedYear && FOREIGNERS_ALLOWED_YEARS.includes(selectedYear);
+    const needsForeignersDateSelection = selectedAction === 'foreigners_distribution' && (!isForeignersYearValid || !selectedMonth);
     
     // エラー表示
     const renderError = () => {
@@ -55,7 +62,7 @@ function FunctionDashboard() {
     // 初期状態画面の表示
     const renderInitialState = () => {
         const needsAction = !selectedAction;
-        const needsLocation = selectedAction && !selectedLocation;
+        const needsLocation = actionRequiresLocation && !selectedLocation;
         
         return (
             <SectionContainer>
@@ -148,6 +155,40 @@ function FunctionDashboard() {
         );
     };
     
+    const renderForeignersDatePrompt = () => (
+        <SectionContainer>
+            <Paper
+                elevation={1}
+                sx={{
+                    borderRadius: '12px',
+                    p: isMobile ? 2 : 3,
+                    textAlign: 'center',
+                    backgroundColor: 'rgba(21, 101, 192, 0.04)',
+                    border: '1px dashed rgba(21, 101, 192, 0.4)',
+                }}
+            >
+                <ArrowUpwardIcon 
+                    sx={{ 
+                        fontSize: isMobile ? '1.5rem' : '2rem',
+                        color: theme.palette.primary.main,
+                        mb: 1
+                    }} 
+                />
+                <Typography 
+                    variant="h6" 
+                    sx={{ 
+                        fontWeight: 600,
+                        color: theme.palette.primary.main,
+                        mb: 1,
+                        fontSize: isMobile ? '1rem' : '1.1rem'
+                    }}
+                >
+                    表示したい年月を選んでください
+                </Typography>
+            </Paper>
+        </SectionContainer>
+    );
+    
     // 傾向分析グリッドの表示
     const renderTrendGrid = () => {
         // 傾向分析系のアクションかどうかを判定
@@ -220,6 +261,9 @@ function FunctionDashboard() {
         
         // 外国人分布
         if (selectedAction === 'foreigners_distribution') {
+            if (needsForeignersDateSelection) {
+                return renderForeignersDatePrompt();
+            }
             return <ForeignersDistribution />;
         }
         
