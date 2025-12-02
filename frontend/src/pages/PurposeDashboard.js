@@ -23,7 +23,8 @@ function PurposeDashboard() {
     } = useCalendar();
     const isMobile = useMediaQuery('(max-width:768px)');
     
-    const isInitialState = !selectedAction || (selectedAction && !selectedLocation);
+    const actionRequiresLocation = selectedAction && selectedAction !== 'foreigners_distribution';
+    const isInitialState = !selectedAction || (actionRequiresLocation && !selectedLocation);
     
     // エラー表示
     const renderError = () => {
@@ -50,7 +51,7 @@ function PurposeDashboard() {
     // 初期状態画面の表示
     const renderInitialState = () => {
         const needsAction = !selectedAction;
-        const needsLocation = selectedAction && !selectedLocation;
+        const needsLocation = actionRequiresLocation && !selectedLocation;
         
         return (
             <SectionContainer>
@@ -109,15 +110,6 @@ function PurposeDashboard() {
                                 }}
                             >
                                 「計測場所」を選んでください
-                            </Typography>
-                            <Typography 
-                                variant="body2" 
-                                sx={{ 
-                                    color: theme.palette.text.secondary,
-                                    fontSize: isMobile ? '0.75rem' : '0.85rem'
-                                }}
-                            >
-                                分析対象の場所を選択してください
                             </Typography>
                         </Box>
                     ) : null}

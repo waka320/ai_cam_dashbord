@@ -12,6 +12,7 @@ const paletteColors = [
   '#6d4c41', '#8d6e63', '#9e9d24', '#00695c', '#795548', '#3949ab',
 ];
 const FOREIGNERS_ALLOWED_YEARS = ['2023', '2024'];
+const DEFAULT_FOREIGNERS_YEAR = '2024';
 const UNKNOWN_LABEL = '未分類:不明';
 
 const formatCountryLabel = (item) => {
@@ -34,13 +35,21 @@ const convertADToYear = (adYear) => {
 };
 
 function ForeignersDistribution() {
-  const { selectedYear, selectedMonth } = useCalendar();
+  const { selectedYear, selectedMonth, setSelectedYear } = useCalendar();
   const [rankingData, setRankingData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
   const isMobile = useMediaQuery('(max-width:768px)');
   const isYearAllowed = selectedYear && FOREIGNERS_ALLOWED_YEARS.includes(selectedYear);
+
+  useEffect(() => {
+    if (!selectedYear || !FOREIGNERS_ALLOWED_YEARS.includes(selectedYear)) {
+      if (FOREIGNERS_ALLOWED_YEARS.includes(DEFAULT_FOREIGNERS_YEAR)) {
+        setSelectedYear(DEFAULT_FOREIGNERS_YEAR);
+      }
+    }
+  }, [selectedYear, setSelectedYear]);
 
   useEffect(() => {
     const fetchMonthlyRanking = async () => {
