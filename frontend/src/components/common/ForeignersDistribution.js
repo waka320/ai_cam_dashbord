@@ -1,38 +1,48 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Box, Typography, CircularProgress, useMediaQuery, Paper } from '@mui/material';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { useCalendar } from '../../contexts/CalendarContext';
-import theme from '../../theme/theme';
 import SectionContainer from '../ui/SectionContainer';
+import theme from '../../theme/theme';
+
+const paletteColors = [
+  '#d32f2f', '#c2185b', '#7b1fa2', '#512da8', '#303f9f', '#1976d2',
+  '#0288d1', '#0097a7', '#00796b', '#388e3c', '#689f38', '#afb42b',
+  '#f9a825', '#f57c00', '#e64a19', '#5d4037', '#455a64', '#00897b',
+  '#6d4c41', '#8d6e63', '#9e9d24', '#00695c', '#795548', '#3949ab',
+];
+
+const formatCountryLabel = (item) => {
+  if (!item) return '';
+  const base = item.country || '未分類';
+  if (base.includes('その他')) {
+    return base.includes(':') ? base : (item.region ? `${item.region}:${base}` : base);
+  }
+  if (base === '未分類' && item.region) {
+    return `${item.region}:${base}`;
+  }
+  return base;
+};
+
+const convertADToYear = (adYear) => {
+  if (!adYear) return null;
+  const yearNum = parseInt(adYear, 10);
+  if (Number.isNaN(yearNum)) return null;
+  return `R${yearNum - 2019 + 1}`;
+};
 
 function ForeignersDistribution() {
-  const { selectedYear } = useCalendar();
-  const [distributionData, setDistributionData] = useState(null);
+  const { selectedYear, selectedMonth } = useCalendar();
+  const [rankingData, setRankingData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const isMobile = useMediaQuery('(max-width:768px)');
 
-  // 西暦（2024など）を年度（R6など）に変換
-  const convertADToYear = (adYear) => {
-    if (!adYear) return null;
-    const yearNum = parseInt(adYear, 10);
-    if (isNaN(yearNum)) return null;
-    const reiwaYear = yearNum - 2019 + 1;
-    return `R${reiwaYear}`;
-  };
-
   useEffect(() => {
-    const fetchDistribution = async () => {
-      // 年が選択されていない場合は何もしない
-      if (!selectedYear) {
-        return;
-      }
-
-      // 西暦を年度形式に変換
-      const yearInReiwaFormat = convertADToYear(selectedYear);
-      if (!yearInReiwaFormat) {
-        return;
-      }
+    const fetchMonthlyRanking = async () => {
+      if (!selectedYear || !selectedMonth) return;
+      const yearLabel = convertADToYear(selectedYear);
+      if (!yearLabel) return;
 
       setLoading(true);
       setError(null);
@@ -40,19 +50,18 @@ function ForeignersDistribution() {
       try {
         const baseUrl = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/'; // eslint-disable-line no-undef
         const response = await fetch(
-          `${baseUrl}api/foreigners/yearly-distribution?year=${encodeURIComponent(yearInReiwaFormat)}&top_n=10`,
+          `${baseUrl}api/foreigners/monthly-ranking?month=${parseInt(selectedMonth, 10)}&year=${encodeURIComponent(
+            yearLabel
+          )}&top_n=50`,
           {
             method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
           }
         );
 
         if (!response.ok) {
           if (response.status === 404) {
-            console.warn('ForeignersDistribution: データが見つかりません');
-            setDistributionData(null);
+            setRankingData(null);
             setError(null);
             return;
           }
@@ -61,37 +70,74 @@ function ForeignersDistribution() {
 
         const result = await response.json();
         if (result.success && result.data) {
-          setDistributionData(result.data);
+          setRankingData(result.data);
         } else {
           throw new Error('データの形式が正しくありません');
         }
       } catch (err) {
-        console.error('ForeignersDistribution: Error fetching data:', err);
         setError(err.message);
-        setDistributionData(null);
+        setRankingData(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDistribution();
-  }, [selectedYear]);
+    fetchMonthlyRanking();
+  }, [selectedYear, selectedMonth]);
 
-  // グラフ用の色パレット
-  const colors = [
-    theme.palette.primary.main,
-    theme.palette.secondary.main,
-    '#4caf50',
-    '#ff9800',
-    '#9c27b0',
-    '#f44336',
-    '#00bcd4',
-    '#795548',
-    '#607d8b',
-    '#e91e63',
-  ];
+  const rankingList = useMemo(() => rankingData?.ranking || [], [rankingData]);
+  const hasData = rankingList.length > 0;
+  const totalGuests = rankingData?.total_guests || 0;
 
-  if (loading && !distributionData) {
+  const colorMap = useMemo(() => {
+    const map = {};
+    rankingList.forEach((item, index) => {
+      map[item.country] = paletteColors[index % paletteColors.length];
+    });
+    return map;
+  }, [rankingList]);
+
+  const pieData = useMemo(
+    () =>
+      rankingList.map((item) => {
+        const share =
+          item.share_pct ?? (totalGuests ? (item.guests / totalGuests) * 100 : 0);
+        return {
+          name: formatCountryLabel(item),
+          value: parseFloat((share || 0).toFixed(2)),
+          guests: item.guests,
+          color: colorMap[item.country],
+        };
+      }),
+    [rankingList, totalGuests, colorMap]
+  );
+
+  const listItems = useMemo(
+    () =>
+      rankingList.map((item, index) => ({
+        ...item,
+        displayName: formatCountryLabel(item),
+        color: colorMap[item.country],
+        rank: index + 1,
+      })),
+    [rankingList, colorMap]
+  );
+
+  if (!hasData) {
+    return null;
+  }
+
+  if (!selectedYear || !selectedMonth) {
+    return (
+      <SectionContainer>
+        <Box sx={{ p: 2, textAlign: 'center' }}>
+          <Typography>年と月を選択してください</Typography>
+        </Box>
+      </SectionContainer>
+    );
+  }
+
+  if (loading && !rankingData) {
     return (
       <SectionContainer>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
@@ -111,25 +157,22 @@ function ForeignersDistribution() {
     );
   }
 
-  if (!selectedYear) {
+  const renderTooltip = ({ active, payload }) => {
+    if (!active || !payload || payload.length === 0) return null;
+    const entry = payload[0];
     return (
-      <SectionContainer>
-        <Box sx={{ p: 2, textAlign: 'center' }}>
-          <Typography>年度を選択してください</Typography>
-        </Box>
-      </SectionContainer>
+      <Paper sx={{ p: 1.2 }}>
+        <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
+          {entry.name}
+        </Typography>
+        <Typography variant="body2">
+          {entry.value}%（{(entry.payload?.guests || 0).toLocaleString()}人）
+        </Typography>
+      </Paper>
     );
-  }
+  };
 
-  if (!distributionData || !distributionData.chart_data || distributionData.chart_data.length === 0) {
-    return null;
-  }
-
-  // グラフデータを準備
-  const chartData = distributionData.chart_data.map(item => ({
-    month: item.month_label,
-    ...item,
-  }));
+  const monthLabel = rankingData.month_label || `${parseInt(selectedMonth, 10)}月`;
 
   return (
     <SectionContainer>
@@ -148,63 +191,95 @@ function ForeignersDistribution() {
               fontSize: isMobile ? '1rem' : '1.2rem',
             }}
           >
-            {selectedYear}年 外国人宿泊者分布
+            {selectedYear}年 {monthLabel} 外国人宿泊者の分布
           </Typography>
         </Box>
 
-        {distributionData.top_countries && distributionData.top_countries.length > 0 ? (
-          <Box sx={{ width: '100%', height: isMobile ? 400 : 500 }}>
-            <ResponsiveContainer>
-              <LineChart
-                data={chartData}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: isMobile ? 10 : 12 }}
-                />
-                <YAxis
-                  tick={{ fontSize: isMobile ? 10 : 12 }}
-                  label={{ value: '宿泊者数', angle: -90, position: 'insideLeft', fontSize: isMobile ? 10 : 12 }}
-                />
-                <Tooltip
-                  formatter={(value) => [value.toLocaleString() + '人', '']}
-                  labelFormatter={(label) => `${label}`}
-                  contentStyle={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                    border: '1px solid #ccc',
-                    borderRadius: '4px',
-                    fontSize: isMobile ? '0.75rem' : '0.85rem',
-                  }}
-                />
-                <Legend
-                  wrapperStyle={{ fontSize: isMobile ? '0.7rem' : '0.8rem' }}
-                  iconType="line"
-                />
-                {distributionData.top_countries.map((country, index) => (
-                  <Line
-                    key={country}
-                    type="monotone"
-                    dataKey={country}
-                    stroke={colors[index % colors.length]}
-                    strokeWidth={2}
-                    dot={{ r: isMobile ? 3 : 4 }}
-                    activeDot={{ r: isMobile ? 5 : 6 }}
-                    name={country}
-                  />
-                ))}
-              </LineChart>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: 2,
+          }}
+        >
+          <Box sx={{ flex: 1, minHeight: isMobile ? 360 : 420 }}>
+            <ResponsiveContainer width="100%" height={isMobile ? 360 : 420}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  startAngle={90}
+                  endAngle={-270}
+                  outerRadius={isMobile ? 150 : 200}
+                  innerRadius={isMobile ? 20 : 40}
+                  paddingAngle={0}
+                >
+                  {pieData.map((entry) => (
+                    <Cell key={entry.name} fill={entry.color} />
+                  ))}
+                </Pie>
+                <RechartsTooltip content={renderTooltip} />
+              </PieChart>
             </ResponsiveContainer>
           </Box>
-        ) : (
-          <Box sx={{ p: 2, textAlign: 'center' }}>
-            <Typography>データがありません</Typography>
+
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+              国別一覧
+            </Typography>
+            <Box sx={{ maxHeight: isMobile ? 260 : 320, overflow: 'auto', pr: 1 }}>
+              {listItems.map((item) => (
+                <Box
+                  key={item.country}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    py: 0.5,
+                    px: 0.75,
+                    borderBottom: '1px solid rgba(255,255,255,0.08)',
+                  }}
+                >
+                  <Typography variant="body2" sx={{ width: 32, fontWeight: 600 }}>
+                    {item.rank}.
+                  </Typography>
+                  <Box
+                    sx={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: '999px',
+                      backgroundColor: item.color,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                      {item.displayName}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
+                      {item.region || '地域不明'}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ textAlign: 'right' }}>
+                    <Typography variant="body2">
+                      {item.share_pct != null ? `${item.share_pct}%` : '-'}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
+                      {item.guests.toLocaleString()}人
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
           </Box>
-        )}
+        </Box>
       </Paper>
     </SectionContainer>
   );
 }
 
 export default ForeignersDistribution;
+

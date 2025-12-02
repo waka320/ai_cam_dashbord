@@ -124,16 +124,22 @@ class ForeignersStatsService:
         ranking_rows = []
 
         for country in entry["countries"]:
-            # 「不明」を除外
-            country_name = country["country"].strip()
-            if country_name == "不明" or country_name == "その他" or country_name == "":
-                continue
-            
+            original_country = (country["country"] or "").strip()
+            region = (country["region"] or "未分類").strip() or "未分類"
+
+            if not original_country:
+                display_country = region
+            elif original_country in ("その他", "不明"):
+                display_country = f"{region}:{original_country}"
+            else:
+                display_country = original_country
+
             guests = country["monthly"][month_index]
             ranking_rows.append(
                 {
-                    "country": country["country"],
-                    "region": country["region"],
+                    "country": display_country,
+                    "original_country": original_country or region,
+                    "region": region,
                     "guests": guests,
                 }
             )
@@ -218,15 +224,10 @@ class ForeignersStatsService:
         monthly_data = []
         for month in range(1, 13):
             month_ranking = self._build_monthly_ranking(selected_entry, month, top_n)
-            # 「不明」と「その他」を除外
-            filtered_ranking = [
-                item for item in month_ranking["ranking"]
-                if item["country"].strip() not in ["不明", "その他", ""]
-            ]
             monthly_data.append({
                 "month": month,
                 "month_label": MONTH_LABELS[month - 1],
-                "ranking": filtered_ranking,
+                "ranking": month_ranking["ranking"],
                 "total_guests": month_ranking["total_guests"],
             })
 
@@ -252,6 +253,7 @@ class ForeignersStatsService:
             month_dict = {
                 "month": month_data["month"],
                 "month_label": month_data["month_label"],
+                "total_guests": month_data["total_guests"],
             }
             # 各上位国のその月のデータを追加
             ranking_dict = {item["country"]: item["guests"] for item in month_data["ranking"]}

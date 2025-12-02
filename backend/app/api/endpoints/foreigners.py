@@ -53,10 +53,10 @@ async def get_foreigners_yearly_distribution(
         None, description="年度（例: R6）。未指定時は最新年度を使用。"
     ),
     top_n: int = Query(
-        10,
+        50,
         ge=1,
-        le=20,
-        description="表示する国の数（1〜20）。",
+        le=300,
+        description="表示する国の数（1〜300）。",
     ),
 ):
     """
