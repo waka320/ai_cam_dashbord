@@ -123,15 +123,7 @@ function FunctionDashboard() {
                             >
                                 「計測場所」を選んでください
                             </Typography>
-                            <Typography 
-                                variant="body2" 
-                                sx={{ 
-                                    color: theme.palette.text.secondary,
-                                    fontSize: isMobile ? '0.75rem' : '0.85rem'
-                                }}
-                            >
-                                分析対象の場所を選択してください
-                            </Typography>
+                            
                         </Box>
                     ) : null}
                 </Paper>
