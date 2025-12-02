@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Button, Typography } from '@mui/material';
 import { useLocation } from 'react-router-dom';
@@ -6,10 +6,17 @@ import purposeLogo from '../../../assets/dashbord_logo.png';
 import ShareButton from '../../ui/ShareButton';
 import theme from '../../../theme/theme';
 
-function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
+/* eslint-disable no-unused-vars */
+function HeaderLogo({ 
+  isScrolled,
+  isMobile, 
+  isSpecialPage, 
+  isCompactMode = false,
+  onLogoClick = null,
+  isControlsCollapsed = false
+}) {
+  /* eslint-enable no-unused-vars */
   const location = useLocation();
-  
-  if (isScrolled || isCompactMode) return null;
   
   const isFunctionPage = location.pathname === '/function';
   const isPurposePage = location.pathname === '/purpose';
@@ -70,6 +77,49 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
     );
   };
   
+  const handleLogoClick = useCallback((event) => {
+    if (!onLogoClick) return;
+    event.preventDefault();
+    onLogoClick();
+  }, [onLogoClick]);
+
+  const renderLogoWrapper = () => {
+    if (onLogoClick) {
+      return (
+        <Box
+          component="button"
+          type="button"
+          onClick={handleLogoClick}
+          aria-label="条件パネルの表示切り替え"
+          sx={{
+            border: 'none',
+            background: 'none',
+            padding: 0,
+            margin: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            cursor: 'pointer',
+            zIndex: 10,
+            position: 'relative'
+          }}
+        >
+          {renderLogoContent()}
+        </Box>
+      );
+    }
+
+    return (
+      <Box
+        role="img"
+        aria-label="ダッシュボードロゴ"
+        sx={{ textDecoration: 'none' }}
+      >
+        {renderLogoContent()}
+      </Box>
+    );
+  };
+
   return (
     <Box sx={{ 
       display: 'flex', 
@@ -79,8 +129,6 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
       py: isMobile ? 0.5 : 0.6,
       px: isMobile ? 2 : 2.5,
       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-      opacity: isScrolled ? 0 : 1,
-      transform: isScrolled ? 'translateY(-20px)' : 'translateY(0)',
     }}>
       {/* 左側：ダッシュボード切り替えボタン */}
       <Box sx={{ width: isMobile ? '80px' : '120px', display: 'flex', justifyContent: 'flex-start' }}>
@@ -112,9 +160,7 @@ function HeaderLogo({ isScrolled, isMobile, isSpecialPage, isCompactMode }) {
       </Box>
       
       {/* 中央のロゴ */}
-      <a href="/" aria-label="トップページへ戻る" style={{ textDecoration: 'none' }}>
-        {renderLogoContent()}
-      </a>
+      {renderLogoWrapper()}
       
       {/* 右側の共有ボタン */}
       {!isSpecialPage && (
@@ -147,6 +193,8 @@ HeaderLogo.propTypes = {
   isMobile: PropTypes.bool.isRequired,
   isSpecialPage: PropTypes.bool.isRequired,
   isCompactMode: PropTypes.bool,
+  onLogoClick: PropTypes.func,
+  isControlsCollapsed: PropTypes.bool,
 };
 
 export default HeaderLogo;
