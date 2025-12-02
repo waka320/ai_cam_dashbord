@@ -8,7 +8,7 @@ from app.services.foreigners_service import foreigners_stats_service
 router = APIRouter()
 
 
-@router.get("/foreigners/monthly-ranking")
+@router.get("/api/foreigners/monthly-ranking")
 async def get_foreigners_monthly_ranking(
     month: int = Query(
         ...,

@@ -7,6 +7,7 @@ import EventEffect from '../components/common/EventEffect';
 import YearlyTrendGrid from '../components/trend/YearlyTrendGrid';
 import MonthlyTrendGrid from '../components/trend/MonthlyTrendGrid';
 import WeeklyTrendGrid from '../components/trend/WeeklyTrendGrid';
+import ForeignersRanking from '../components/common/ForeignersRanking';
 import { Box, Typography, Button, useMediaQuery, Paper } from '@mui/material';
 import AdviceSection from '../components/layout/AdviceSection';
 import { useCalendar } from '../contexts/CalendarContext';
@@ -225,6 +226,7 @@ function FunctionDashboard() {
         // グラフベースのビジュアライゼーション
         return (
             <>
+                <ForeignersRanking />
                 <Calendar />
                 <TimeHeatmap />
                 <DateTimeHeatmap />

@@ -40,8 +40,15 @@ class ForeignersStatsService:
                 (entry for entry in entries if entry["year"] == year),
                 None,
             )
+            # 指定された年度のデータがない場合、利用可能な年度の中で最も近い年度を使用
             if selected_entry is None:
-                raise ValueError(f"指定された年度 '{year}' のデータが見つかりません。")
+                # 年度の数値部分を抽出して比較
+                target_year_num = self._parse_year_order(year)
+                # 最も近い年度を探す（数値が近い順）
+                selected_entry = min(
+                    entries,
+                    key=lambda e: abs(self._parse_year_order(e["year"]) - target_year_num)
+                )
         else:
             selected_entry = entries[0]
 
@@ -117,6 +124,11 @@ class ForeignersStatsService:
         ranking_rows = []
 
         for country in entry["countries"]:
+            # 「不明」を除外
+            country_name = country["country"].strip()
+            if country_name == "不明" or country_name == "その他" or country_name == "":
+                continue
+            
             guests = country["monthly"][month_index]
             ranking_rows.append(
                 {

@@ -6,6 +6,7 @@ import TodayDetails from '../common/TodayDetails';
 import YearlyTrendGrid from '../trend/YearlyTrendGrid';
 import MonthlyTrendGrid from '../trend/MonthlyTrendGrid';
 import WeeklyTrendGrid from '../trend/WeeklyTrendGrid';
+import ForeignersRanking from '../common/ForeignersRanking';
 import { Box, Typography, Button, useMediaQuery, Paper } from '@mui/material';
 import AdviceSection from './AdviceSection';
 import { useCalendar } from '../../contexts/CalendarContext';
@@ -219,6 +220,7 @@ function Content() {
         // 既存のビジュアライゼーション
         return (
             <>
+                <ForeignersRanking />
                 <TodayDetails />
                 <Calendar />
                 <TimeHeatmap />
