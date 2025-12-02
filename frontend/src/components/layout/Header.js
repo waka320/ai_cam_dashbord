@@ -2,10 +2,13 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   AppBar, 
   Box,
+  Button,
+  Collapse,
   Paper, 
   Toolbar, 
   useMediaQuery 
 } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useLocation } from 'react-router-dom';
 import theme from '../../theme/theme';
 import { useCalendar } from '../../contexts/CalendarContext';
@@ -78,15 +81,27 @@ function Header() {
   }, [selectedYear, selectedMonth, currentYear, currentMonth, setSelectedYear, setSelectedMonth, isPurposePage, isFunctionPage]);
   
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isCompactMode, setIsCompactMode] = useState(false);
+  const [mobileControlsCollapsed, setMobileControlsCollapsed] = useState(false);
   const headerRef = useRef(null);
   
   useEffect(() => {
     if (isSpecialPage()) return; // 特定のページでは実行しない
     
     const handleScroll = () => {
+      const scrollY = window.scrollY;
+      
+      // 既存のスクロール検知（ヘッダーが画面外に出た時）
       if (headerRef.current) {
         const headerBottom = headerRef.current.getBoundingClientRect().bottom;
         setIsScrolled(headerBottom < 0);
+      }
+      
+      // モバイル用の積極的コンパクト化（少しスクロールしただけで発動）
+      if (isMobile) {
+        setIsCompactMode(scrollY > 50); // 50px以上スクロールでコンパクト化
+      } else {
+        setIsCompactMode(false);
       }
     };
     
@@ -94,7 +109,15 @@ function Header() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [isSpecialPage]);
+  }, [isSpecialPage, isMobile]);
+
+  const handleLogoToggle = () => {
+    setMobileControlsCollapsed((prev) => !prev);
+  };
+
+  const handleExpandControls = () => {
+    setMobileControlsCollapsed(false);
+  };
   
   // カメラ画像モーダルの状態管理
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
@@ -145,17 +168,26 @@ function Header() {
             isScrolled={isScrolled} 
             isMobile={isMobile} 
             isSpecialPage={isSpecialPage()}
+            isCompactMode={isCompactMode}
+            onLogoClick={handleLogoToggle}
+            isControlsCollapsed={mobileControlsCollapsed}
           />
           
           {/* コントロール部分 - 特定のページでは表示しない */}
           {!isSpecialPage() && (
-            <Paper elevation={0} sx={{
-              backgroundColor: 'transparent',
-              margin: isScrolled ? (isMobile ? '1px 2px' : '2px 4px') : (isMobile ? '2px 4px' : '4px 6px'), /* マージン削減 */
-              borderRadius: '8px',
-              padding: isScrolled ? (isMobile ? '3px' : '4px') : (isMobile ? '6px' : '8px'),
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}>
+            <>
+              <Collapse
+                in={!isMobile || !mobileControlsCollapsed}
+                timeout="auto"
+                unmountOnExit
+              >
+                <Paper elevation={0} sx={{
+                  backgroundColor: 'transparent',
+                  margin: isScrolled ? (isMobile ? '1px 2px' : '2px 4px') : (isMobile ? '2px 4px' : '4px 6px'), /* マージン削減 */
+                  borderRadius: '8px',
+                  padding: isScrolled ? (isMobile ? '3px' : '4px') : (isMobile ? '6px' : '8px'),
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}>
               <Toolbar 
                 sx={{ 
                   display: 'flex', 
@@ -236,20 +268,55 @@ function Header() {
                     updateMonthAndFetch={updateMonthAndFetch}
                   />
 
-                  {/* 計測場所セクション */}
-                  <LocationSelect 
-                    isMobile={isMobile}
-                    isSmallDesktop={isSmallDesktop}
-                    isScrolled={isScrolled}
-                    selectedLocation={selectedLocation}
-                    handleLocationChange={handleLocationChange}
-                    loading={loading}
-                    locationChanging={locationChanging}
-                    onCameraButtonClick={handleCameraButtonClick}
-                  />
+                  {/* 計測場所セクション - 外国人分布の場合は非表示 */}
+                  {selectedAction !== 'foreigners_distribution' && (
+                    <LocationSelect 
+                      isMobile={isMobile}
+                      isSmallDesktop={isSmallDesktop}
+                      isScrolled={isScrolled}
+                      selectedLocation={selectedLocation}
+                      handleLocationChange={handleLocationChange}
+                      loading={loading}
+                      locationChanging={locationChanging}
+                      onCameraButtonClick={handleCameraButtonClick}
+                    />
+                  )}
                 </Box>
               </Toolbar>
-            </Paper>
+                </Paper>
+              </Collapse>
+
+              {isMobile && mobileControlsCollapsed && (
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center',
+                    pb: 1
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={handleExpandControls}
+                    sx={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      color: theme.palette.primary.main,
+                      borderRadius: '999px',
+                      minWidth: 'auto',
+                      width: '32px',
+                      height: '32px',
+                      padding: 0,
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      }
+                    }}
+                  >
+                    <KeyboardArrowDownIcon />
+                  </Button>
+                </Box>
+              )}
+            </>
           )}
         </Box>
       </AppBar>

@@ -6,6 +6,8 @@ import TodayDetails from '../common/TodayDetails';
 import YearlyTrendGrid from '../trend/YearlyTrendGrid';
 import MonthlyTrendGrid from '../trend/MonthlyTrendGrid';
 import WeeklyTrendGrid from '../trend/WeeklyTrendGrid';
+import ForeignersRanking from '../common/ForeignersRanking';
+import ForeignersDistribution from '../common/ForeignersDistribution';
 import { Box, Typography, Button, useMediaQuery, Paper } from '@mui/material';
 import AdviceSection from './AdviceSection';
 import { useCalendar } from '../../contexts/CalendarContext';
@@ -210,6 +212,11 @@ function Content() {
             return renderInitialState();
         }
         
+        // 外国人分布
+        if (selectedAction === 'foreigners_distribution') {
+            return <ForeignersDistribution />;
+        }
+        
         // 傾向分析の場合は専用グリッドを表示
         const trendGrid = renderTrendGrid();
         if (trendGrid) {
@@ -219,6 +226,7 @@ function Content() {
         // 既存のビジュアライゼーション
         return (
             <>
+                <ForeignersRanking />
                 <TodayDetails />
                 <Calendar />
                 <TimeHeatmap />

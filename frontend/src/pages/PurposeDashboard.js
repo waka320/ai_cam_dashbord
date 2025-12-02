@@ -4,6 +4,8 @@ import TimeHeatmap from '../components/common/TimeHeatmap';
 import DateTimeHeatmap from '../components/common/DateTimeHeatmap';
 import TodayDetails from '../components/common/TodayDetails';
 import EventEffect from '../components/common/EventEffect';
+import ForeignersRanking from '../components/common/ForeignersRanking';
+import ForeignersDistribution from '../components/common/ForeignersDistribution';
 import { Box, Typography, Button, useMediaQuery, Paper } from '@mui/material';
 import AdviceSection from '../components/layout/AdviceSection';
 import { useCalendar } from '../contexts/CalendarContext';
@@ -150,11 +152,17 @@ function PurposeDashboard() {
         // 目的ベースのアクション別ビジュアライゼーション
         return (
             <>
+                {/* グラフが表示される場合のみランキングを表示 */}
+                {(selectedAction.startsWith('cal_') || selectedAction.startsWith('wti_') || selectedAction.startsWith('dti_')) && <ForeignersRanking />}
+                
                 {/* 今日について詳しく知りたい */}
                 {selectedAction === 'today_details' && <TodayDetails />}
                 
                 {/* イベント効果分析 */}
                 {selectedAction === 'event_effect' && <EventEffect />}
+                
+                {/* 外国人分布 */}
+                {selectedAction === 'foreigners_distribution' && <ForeignersDistribution />}
                 
                 {/* カレンダー系のアクション */}
                 {(selectedAction.startsWith('cal_') && selectedAction !== 'today_details') && <Calendar />}

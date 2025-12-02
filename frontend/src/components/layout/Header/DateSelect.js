@@ -45,6 +45,14 @@ function DateSelect({
   
   // React Hooksは条件分岐の前に呼び出す必要がある
   const generateYearItems = () => {
+    // 外国人分布の場合は2023と2024のみ
+    if (selectedAction === 'foreigners_distribution') {
+      return [
+        { value: '2023', label: '2023' },
+        { value: '2024', label: '2024' },
+      ];
+    }
+    
     const years = [];
     const startYear = 2021;
     for (let year = startYear; year <= currentYear; year++) {
@@ -87,6 +95,18 @@ function DateSelect({
     }
   }, [selectedYear, currentYear, currentMonth, selectedMonth, setSelectedMonth]);
 
+  const handleYearChange = (event) => {
+    const newYear = event.target.value;
+    // setSelectedYear関数はCalendarContextで定義され、dateChanging状態を適切に管理する
+    setSelectedYear(newYear);
+  };
+
+  const handleMonthChange = (event) => {
+    const newMonth = event.target.value;
+    // setSelectedMonth関数はCalendarContextで定義され、dateChanging状態を適切に管理する
+    setSelectedMonth(newMonth);
+  };
+
   // 表示する必要がない場合（条件分岐はHooksの後に配置）
   // やりたいことが未選択の場合は非表示
   if (!selectedAction) {
@@ -101,17 +121,6 @@ function DateSelect({
     return null;
   }
 
-  const handleYearChange = (event) => {
-    const newYear = event.target.value;
-    // setSelectedYear関数はCalendarContextで定義され、dateChanging状態を適切に管理する
-    setSelectedYear(newYear);
-  };
-
-  const handleMonthChange = (event) => {
-    const newMonth = event.target.value;
-    // setSelectedMonth関数はCalendarContextで定義され、dateChanging状態を適切に管理する
-    setSelectedMonth(newMonth);
-  };
 
   const handlePreviousMonth = () => {
     if (!selectedYear || !selectedMonth || loading || dateChanging) return;

@@ -2,10 +2,13 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   AppBar, 
   Box,
+  Button,
+  Collapse,
   Paper, 
   Toolbar, 
   useMediaQuery 
 } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useLocation } from 'react-router-dom';
 import theme from '../../../theme/theme';
 import { useCalendar } from '../../../contexts/CalendarContext';
@@ -83,6 +86,7 @@ function Header() {
   
   const [isScrolled, setIsScrolled] = useState(false);
   const [isCompactMode, setIsCompactMode] = useState(false);
+  const [mobileControlsCollapsed, setMobileControlsCollapsed] = useState(false);
   const headerRef = useRef(null);
   
   useEffect(() => {
@@ -111,6 +115,15 @@ function Header() {
     };
   }, [isSpecialPage, isMobile]);
   
+
+  const handleLogoToggle = () => {
+    setMobileControlsCollapsed((prev) => !prev);
+  };
+
+  const handleExpandControls = () => {
+    setMobileControlsCollapsed(false);
+  };
+
   // カメラ画像モーダルの状態管理
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
 
@@ -163,115 +176,158 @@ function Header() {
             isMobile={isMobile} 
             isSpecialPage={isSpecialPage()}
             isCompactMode={isCompactMode}
+            onLogoClick={handleLogoToggle}
+            isControlsCollapsed={mobileControlsCollapsed}
           />
           
           {/* コントロール部分 - 特定のページでは表示しない */}
           {!isSpecialPage() && (
-            <Paper elevation={0} sx={{
-              backgroundColor: 'transparent',
-              margin: isCompactMode ? (isMobile ? '0px 2px' : '3px 6px') : (isScrolled ? (isMobile ? '1px 4px' : '3px 6px') : (isMobile ? '4px 8px' : '8px 12px')),
-              borderRadius: '8px',
-              padding: isCompactMode ? (isMobile ? '1px' : '4px') : (isScrolled ? (isMobile ? '3px' : '4px') : (isMobile ? '6px' : '8px')),
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}>
-              <Toolbar 
-                sx={{ 
-                  display: 'flex', 
-                  flexDirection: isMobile ? 'column' : 'row',
-                  justifyContent: 'space-between', 
-                  alignItems: isMobile ? 'stretch' : 'center',
-                  gap: isCompactMode ? (isMobile ? 0.2 : 0.8) : (isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 1 : 1.2)),
-                  padding: '0 !important',
-                  minHeight: 'auto !important',
-                  flexWrap: isMobile ? 'nowrap' : 'wrap',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                }}
+            <>
+              <Collapse
+                in={!isMobile || !mobileControlsCollapsed}
+                timeout="auto"
+                unmountOnExit
               >
-                {/* アクション選択部分 */}
-                {isPurposePage ? (
-                  <PurposeActionSelect 
-                    isMobile={isMobile}
-                    isTablet={isTablet}
-                    isSmallDesktop={isSmallDesktop}
-                    isScrolled={isScrolled}
-                    isCompactMode={isCompactMode}
-                    selectedAction={selectedAction}
-                    handleActionChange={handleActionChange}
-                    loading={loading}
-                    actionChanging={actionChanging}
-                  />
-                ) : isFunctionPage ? (
-                  <FunctionActionSelect 
-                    isMobile={isMobile}
-                    isTablet={isTablet}
-                    isSmallDesktop={isSmallDesktop}
-                    isScrolled={isScrolled}
-                    isCompactMode={isCompactMode}
-                    selectedAction={selectedAction}
-                    handleActionChange={handleActionChange}
-                    loading={loading}
-                    actionChanging={actionChanging}
-                  />
-                ) : (
-                  <ActionSelect 
-                    isMobile={isMobile}
-                    isTablet={isTablet}
-                    isSmallDesktop={isSmallDesktop}
-                    isScrolled={isScrolled}
-                    isCompactMode={isCompactMode}
-                    selectedAction={selectedAction}
-                    handleActionChange={handleActionChange}
-                    loading={loading}
-                    actionChanging={actionChanging}
-                  />
-                )}
-                
-                {/* 計測場所・年月選択部分 */}
+                <Paper elevation={0} sx={{
+                  backgroundColor: 'transparent',
+                  margin: isCompactMode ? (isMobile ? '0px 2px' : '3px 6px') : (isScrolled ? (isMobile ? '1px 4px' : '3px 6px') : (isMobile ? '4px 8px' : '8px 12px')),
+                  borderRadius: '8px',
+                  padding: isCompactMode ? (isMobile ? '1px' : '4px') : (isScrolled ? (isMobile ? '3px' : '4px') : (isMobile ? '6px' : '8px')),
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}>
+                  <Toolbar 
+                    sx={{ 
+                      display: 'flex', 
+                      flexDirection: isMobile ? 'column' : 'row',
+                      justifyContent: 'space-between', 
+                      alignItems: isMobile ? 'stretch' : 'center',
+                      gap: isCompactMode ? (isMobile ? 0.2 : 0.8) : (isScrolled ? (isMobile ? 0.5 : 0.8) : (isMobile ? 1 : 1.2)),
+                      padding: '0 !important',
+                      minHeight: 'auto !important',
+                      flexWrap: isMobile ? 'nowrap' : 'wrap',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    }}
+                  >
+                    {/* アクション選択部分 */}
+                    {isPurposePage ? (
+                      <PurposeActionSelect 
+                        isMobile={isMobile}
+                        isTablet={isTablet}
+                        isSmallDesktop={isSmallDesktop}
+                        isScrolled={isScrolled}
+                        isCompactMode={isCompactMode}
+                        selectedAction={selectedAction}
+                        handleActionChange={handleActionChange}
+                        loading={loading}
+                        actionChanging={actionChanging}
+                      />
+                    ) : isFunctionPage ? (
+                      <FunctionActionSelect 
+                        isMobile={isMobile}
+                        isTablet={isTablet}
+                        isSmallDesktop={isSmallDesktop}
+                        isScrolled={isScrolled}
+                        isCompactMode={isCompactMode}
+                        selectedAction={selectedAction}
+                        handleActionChange={handleActionChange}
+                        loading={loading}
+                        actionChanging={actionChanging}
+                      />
+                    ) : (
+                      <ActionSelect 
+                        isMobile={isMobile}
+                        isTablet={isTablet}
+                        isSmallDesktop={isSmallDesktop}
+                        isScrolled={isScrolled}
+                        isCompactMode={isCompactMode}
+                        selectedAction={selectedAction}
+                        handleActionChange={handleActionChange}
+                        loading={loading}
+                        actionChanging={actionChanging}
+                      />
+                    )}
+                    
+                    {/* 計測場所・年月選択部分 */}
+                    <Box 
+                      sx={{ 
+                        display: 'flex', 
+                        flexDirection: 'column',
+                        alignItems: 'stretch', 
+                        gap: isCompactMode ? 0.2 : (isScrolled ? 0.4 : 0.6),
+                        marginLeft: isMobile ? 0 : '0',
+                        marginTop: isMobile ? 0 : 0,
+                        width: isMobile ? '100%' : 'auto',
+                        justifyContent: 'flex-end',
+                        flexWrap: 'nowrap'
+                      }}
+                    >
+                      {/* データの年・月セクション */}
+                      <DateSelect 
+                        isMobile={isMobile}
+                        isTablet={isTablet}
+                        isSmallDesktop={isSmallDesktop}
+                        isScrolled={isScrolled}
+                        isCompactMode={isCompactMode}
+                        selectedAction={selectedAction}
+                        selectedYear={selectedYear}
+                        setSelectedYear={setSelectedYear}
+                        selectedMonth={selectedMonth}
+                        setSelectedMonth={setSelectedMonth}
+                        loading={loading}
+                        dateChanging={dateChanging}
+                        updateMonthAndFetch={updateMonthAndFetch}
+                      />
+
+                      {/* 計測場所セクション - 外国人分布の場合は非表示 */}
+                      {selectedAction !== 'foreigners_distribution' && (
+                        <LocationSelect 
+                          isMobile={isMobile}
+                          isSmallDesktop={isSmallDesktop}
+                          isScrolled={isScrolled}
+                          isCompactMode={isCompactMode}
+                          selectedLocation={selectedLocation}
+                          handleLocationChange={handleLocationChange}
+                          loading={loading}
+                          locationChanging={locationChanging}
+                          onCameraButtonClick={handleCameraButtonClick}
+                        />
+                      )}
+                    </Box>
+                  </Toolbar>
+                </Paper>
+              </Collapse>
+
+              {isMobile && mobileControlsCollapsed && (
                 <Box 
                   sx={{ 
                     display: 'flex', 
-                    flexDirection: 'column',
-                    alignItems: 'stretch', 
-                    gap: isCompactMode ? 0.2 : (isScrolled ? 0.4 : 0.6),
-                    marginLeft: isMobile ? 0 : '0',
-                    marginTop: isMobile ? 0 : 0,
-                    width: isMobile ? '100%' : 'auto',
-                    justifyContent: 'flex-end',
-                    flexWrap: 'nowrap'
+                    justifyContent: 'center', 
+                    alignItems: 'center',
+                    pb: 1
                   }}
                 >
-                  {/* データの年・月セクション */}
-                  <DateSelect 
-                    isMobile={isMobile}
-                    isTablet={isTablet}
-                    isSmallDesktop={isSmallDesktop}
-                    isScrolled={isScrolled}
-                    isCompactMode={isCompactMode}
-                    selectedAction={selectedAction}
-                    selectedYear={selectedYear}
-                    setSelectedYear={setSelectedYear}
-                    selectedMonth={selectedMonth}
-                    setSelectedMonth={setSelectedMonth}
-                    loading={loading}
-                    dateChanging={dateChanging}
-                    updateMonthAndFetch={updateMonthAndFetch}
-                  />
-
-                  {/* 計測場所セクション */}
-                  <LocationSelect 
-                    isMobile={isMobile}
-                    isSmallDesktop={isSmallDesktop}
-                    isScrolled={isScrolled}
-                    isCompactMode={isCompactMode}
-                    selectedLocation={selectedLocation}
-                    handleLocationChange={handleLocationChange}
-                    loading={loading}
-                    locationChanging={locationChanging}
-                    onCameraButtonClick={handleCameraButtonClick}
-                  />
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={handleExpandControls}
+                    sx={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      color: theme.palette.primary.main,
+                      borderRadius: '999px',
+                      minWidth: 'auto',
+                      width: '32px',
+                      height: '32px',
+                      padding: 0,
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      }
+                    }}
+                  >
+                    <KeyboardArrowDownIcon />
+                  </Button>
                 </Box>
-              </Toolbar>
-            </Paper>
+              )}
+            </>
           )}
         </Box>
       </AppBar>
