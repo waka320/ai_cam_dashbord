@@ -14,6 +14,7 @@ const paletteColors = [
 const FOREIGNERS_ALLOWED_YEARS = ['2023', '2024'];
 const DEFAULT_FOREIGNERS_YEAR = '2024';
 const UNKNOWN_LABEL = '未分類:不明';
+const MIN_LABEL_PERCENT = 3; // 小さすぎるセグメントはラベルを表示しない
 
 const formatCountryLabel = (item) => {
   if (!item) return '';
@@ -182,6 +183,44 @@ function ForeignersDistribution() {
     [listItems]
   );
 
+  const renderPieLabel = useCallback(
+    ({
+      cx,
+      cy,
+      midAngle,
+      innerRadius,
+      outerRadius,
+      percent,
+      index,
+    }) => {
+      const pct = (percent || 0) * 100;
+      if (pct * (isMobile ? 0.8 : 1) < MIN_LABEL_PERCENT) return null;
+      const radius = innerRadius + (outerRadius - innerRadius) * 0.7;
+      const radian = Math.PI / 180;
+      const x = cx + radius * Math.cos(-midAngle * radian);
+      const y = cy + radius * Math.sin(-midAngle * radian);
+      const label = pieData[index]?.name;
+      if (!label) return null;
+      return (
+        <text
+          x={x}
+          y={y}
+          fill="#fff"
+          textAnchor={x > cx ? 'start' : 'end'}
+          dominantBaseline="central"
+          style={{
+            fontSize: isMobile ? 10 : 12,
+            fontWeight: 600,
+            textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+          }}
+        >
+          {label}
+        </text>
+      );
+    },
+    [pieData, isMobile]
+  );
+
   if (!isYearAllowed || !selectedMonth) {
     return null;
   }
@@ -269,6 +308,8 @@ function ForeignersDistribution() {
                   outerRadius={isMobile ? 150 : 200}
                   innerRadius={isMobile ? 20 : 40}
                   paddingAngle={0}
+                  label={renderPieLabel}
+                  labelLine={false}
                   onClick={handleSliceClick}
                 >
                   {pieData.map((entry) => {
