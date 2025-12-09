@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, CircularProgress, useMediaQuery } from '@mui/material';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import { useCalendar } from '../../contexts/CalendarContext';
 import theme from '../../theme/theme';
 
@@ -8,7 +8,6 @@ function ForeignersRanking() {
   const [rankingData, setRankingData] = useState(null);
   const [fetchLoading, setFetchLoading] = useState(false);
   const [error, setError] = useState(null);
-  const isMobile = useMediaQuery('(max-width:768px)');
 
   // 年度（R6など）を西暦（2024など）に変換
   const convertYearToAD = (yearLabel) => {
@@ -133,6 +132,14 @@ function ForeignersRanking() {
     return null;
   }
 
+  const filteredRanking = rankingData.ranking
+    .filter((item) => item.country !== '未分類:不明')
+    .slice(0, 3);
+
+  if (filteredRanking.length === 0) {
+    return null;
+  }
+
   return (
     <Box
       sx={{
@@ -143,7 +150,7 @@ function ForeignersRanking() {
     >
       <Typography
         sx={{
-          fontSize: isMobile ? '0.7rem' : '0.75rem',
+          fontSize: '1rem',
           fontWeight: 'bold',
           color: theme.palette.text.primary,
           mb: 0.5,
@@ -157,10 +164,10 @@ function ForeignersRanking() {
           alignItems: 'center',
           gap: 1,
           flexWrap: 'wrap',
-          fontSize: isMobile ? '0.7rem' : '0.75rem',
+          fontSize: '1rem',
         }}
       >
-        {rankingData.ranking.map((item, index) => (
+        {filteredRanking.map((item, index) => (
           <Box
             key={index}
             component="span"
@@ -175,29 +182,10 @@ function ForeignersRanking() {
               component="span"
               sx={{
                 fontSize: 'inherit',
-                fontWeight: 'bold',
                 color: theme.palette.primary.main,
               }}
             >
-              {item.rank}.
-            </Typography>
-            <Typography
-              component="span"
-              sx={{
-                fontSize: 'inherit',
-                color: theme.palette.text.primary,
-              }}
-            >
               {item.country}
-            </Typography>
-            <Typography
-              component="span"
-              sx={{
-                fontSize: 'inherit',
-                color: theme.palette.text.secondary,
-              }}
-            >
-              {item.guests.toLocaleString()}人
             </Typography>
             {item.share_pct !== null && (
               <Typography
@@ -207,7 +195,7 @@ function ForeignersRanking() {
                   color: theme.palette.text.secondary,
                 }}
               >
-                ({item.share_pct}%)
+                {item.share_pct}%
               </Typography>
             )}
           </Box>
