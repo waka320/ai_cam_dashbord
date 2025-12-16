@@ -45,8 +45,8 @@ function DateSelect({
   
   // React Hooksは条件分岐の前に呼び出す必要がある
   const generateYearItems = () => {
-    // 外国人分布の場合は2023と2024のみ
-    if (selectedAction === 'foreigners_distribution') {
+    // 外国人分布（円グラフ/月別）・外国人分布（折れ線/年別）の場合は2023と2024のみ
+    if (selectedAction === 'foreigners_distribution' || selectedAction === 'foreigners_yearly_distribution') {
       return [
         { value: '2023', label: '2023' },
         { value: '2024', label: '2024' },
@@ -159,6 +159,8 @@ function DateSelect({
     updateMonthAndFetch(newYear, newMonth);
   };
 
+  const isForeignersYearly = selectedAction === 'foreigners_yearly_distribution';
+
   return (
     <Box sx={{ 
       display: 'flex', 
@@ -185,7 +187,7 @@ function DateSelect({
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
-          データの年・月
+          {isForeignersYearly ? 'データの年' : 'データの年・月'}
         </Typography>
         
         <Box 
@@ -200,9 +202,10 @@ function DateSelect({
             position: 'relative'
           }}
         >
-          <Tooltip title="前の月">
-            <span>
-              {isMobile || isTablet ? (
+          {!isForeignersYearly && (
+            <Tooltip title="前の月">
+              <span>
+                {isMobile || isTablet ? (
                 <IconButton 
                   onClick={handlePreviousMonth}
                   disabled={loading || dateChanging || !selectedYear || !selectedMonth || (selectedYear === "2021" && selectedMonth === "1")}
@@ -251,9 +254,10 @@ function DateSelect({
                 >
                   {isSmallDesktop ? <ArrowBackIosNewIcon fontSize="small" /> : "前の月"}
                 </Button>
-              )}
-            </span>
-          </Tooltip>
+                )}
+              </span>
+            </Tooltip>
+          )}
           
           <Box sx={{ 
             display: 'flex', 
@@ -263,7 +267,7 @@ function DateSelect({
           }}>
             {/* 年選択 */}
             <FormControl variant="outlined" sx={{ 
-              width: isMobile ? '50%' : isSmallDesktop ? 110 : 140,
+              width: isMobile ? (isForeignersYearly ? '100%' : '50%') : isSmallDesktop ? 110 : 140,
               '& .MuiOutlinedInput-root': {
                 height: isCompactMode ? (isMobile ? '24px' : '36px') : (isScrolled ? (isMobile ? '28px' : '36px') : (isMobile ? '32px' : '40px')),
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -359,6 +363,7 @@ function DateSelect({
             </FormControl>
             
             {/* 月選択 */}
+            {!isForeignersYearly && (
             <FormControl variant="outlined" sx={{ 
               width: isMobile ? '50%' : isSmallDesktop ? 100 : 120,
               '& .MuiOutlinedInput-root': {
@@ -454,11 +459,13 @@ function DateSelect({
                 </Box>
               )}
             </FormControl>
+            )}
           </Box>
           
-          <Tooltip title="次の月">
-            <span>
-              {isMobile || isTablet ? (
+          {!isForeignersYearly && (
+            <Tooltip title="次の月">
+              <span>
+                {isMobile || isTablet ? (
                 <IconButton
                   onClick={handleNextMonth}
                   disabled={loading || dateChanging || !selectedYear || !selectedMonth || (selectedYear === currentYear.toString() && selectedMonth === currentMonth.toString())}
@@ -507,9 +514,10 @@ function DateSelect({
                 >
                   {isSmallDesktop ? <ArrowForwardIosIcon fontSize="small" /> : "次の月"}
                 </Button>
-              )}
-            </span>
-          </Tooltip>
+                )}
+              </span>
+            </Tooltip>
+          )}
         </Box>
       </Box>
     </Box>

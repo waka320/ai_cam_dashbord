@@ -8,6 +8,7 @@ import MonthlyTrendGrid from '../trend/MonthlyTrendGrid';
 import WeeklyTrendGrid from '../trend/WeeklyTrendGrid';
 import ForeignersRanking from '../common/ForeignersRanking';
 import ForeignersDistribution from '../common/ForeignersDistribution';
+import ForeignersYearlyDistribution from '../common/ForeignersYearlyDistribution';
 import { Box, Typography, Button, useMediaQuery, Paper } from '@mui/material';
 import AdviceSection from './AdviceSection';
 import { useCalendar } from '../../contexts/CalendarContext';
@@ -29,7 +30,11 @@ function Content() {
     } = useCalendar();
     const isMobile = useMediaQuery('(max-width:768px)');
     
-    const isInitialState = !selectedAction || (selectedAction && !selectedLocation);
+    const actionRequiresLocation =
+        selectedAction &&
+        selectedAction !== 'foreigners_distribution' &&
+        selectedAction !== 'foreigners_yearly_distribution';
+    const isInitialState = !selectedAction || (actionRequiresLocation && !selectedLocation);
     
     // エラー表示
     const renderError = () => {
@@ -215,6 +220,11 @@ function Content() {
         // 外国人分布
         if (selectedAction === 'foreigners_distribution') {
             return <ForeignersDistribution />;
+        }
+
+        // 年を通した外国人分布（折れ線）
+        if (selectedAction === 'foreigners_yearly_distribution') {
+            return <ForeignersYearlyDistribution />;
         }
         
         // 傾向分析の場合は専用グリッドを表示

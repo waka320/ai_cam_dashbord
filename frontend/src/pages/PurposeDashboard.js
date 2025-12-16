@@ -6,6 +6,7 @@ import TodayDetails from '../components/common/TodayDetails';
 import EventEffect from '../components/common/EventEffect';
 import ForeignersRanking from '../components/common/ForeignersRanking';
 import ForeignersDistribution from '../components/common/ForeignersDistribution';
+import ForeignersYearlyDistribution from '../components/common/ForeignersYearlyDistribution';
 import { Box, Typography, Button, useMediaQuery, Paper } from '@mui/material';
 import AdviceSection from '../components/layout/AdviceSection';
 import { useCalendar } from '../contexts/CalendarContext';
@@ -23,7 +24,10 @@ function PurposeDashboard() {
     } = useCalendar();
     const isMobile = useMediaQuery('(max-width:768px)');
     
-    const actionRequiresLocation = selectedAction && selectedAction !== 'foreigners_distribution';
+    const actionRequiresLocation =
+        selectedAction &&
+        selectedAction !== 'foreigners_distribution' &&
+        selectedAction !== 'foreigners_yearly_distribution';
     const isInitialState = !selectedAction || (actionRequiresLocation && !selectedLocation);
     
     // エラー表示
@@ -155,6 +159,9 @@ function PurposeDashboard() {
                 
                 {/* 外国人分布 */}
                 {selectedAction === 'foreigners_distribution' && <ForeignersDistribution />}
+
+                {/* 年を通した外国人分布（折れ線） */}
+                {selectedAction === 'foreigners_yearly_distribution' && <ForeignersYearlyDistribution />}
                 
                 {/* カレンダー系のアクション */}
                 {(selectedAction.startsWith('cal_') && selectedAction !== 'today_details') && <Calendar />}
