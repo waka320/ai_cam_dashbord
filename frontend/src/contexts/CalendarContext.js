@@ -40,10 +40,13 @@ const VALID_ACTIONS = {
   purpose: [
     "today_details", "cal_holiday", "cal_shoping_holiday", "cal_long_holiday", 
     "cal_event", "cal_training", "dti_event_time", "wti_shift", 
-    "dti_open_hour", "dti_shoping_open_hour", "event_effect"
+    "dti_open_hour", "dti_shoping_open_hour", "event_effect",
+    "foreigners_distribution", "foreigners_yearly_distribution"
   ],
   function: [
-    "cal_cog", "dti_cog", "wti_cog", "month_trend", "week_trend"
+    "cal_cog", "dti_cog", "wti_cog", "month_trend", "week_trend",
+    "today_details", "event_effect",
+    "foreigners_distribution", "foreigners_yearly_distribution"
   ]
 };
 

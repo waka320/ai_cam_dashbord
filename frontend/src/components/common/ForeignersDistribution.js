@@ -116,7 +116,8 @@ function ForeignersDistribution() {
         others.push(item);
       }
     });
-    return [...others, ...unknowns];
+    // 不明系は表示しない
+    return others;
   }, [rankingList]);
   const hasData = orderedRankingList.length > 0;
   const totalGuests = rankingData?.total_guests || 0;
@@ -144,7 +145,6 @@ function ForeignersDistribution() {
         return {
           name: formatCountryLabel(item),
           value: parseFloat((share || 0).toFixed(2)),
-          guests: item.guests,
           color: colorMap[item.country],
           country: item.country,
         };
@@ -258,7 +258,7 @@ function ForeignersDistribution() {
           {entry.name}
         </Typography>
         <Typography variant="body2">
-          {entry.value}%（{(entry.payload?.guests || 0).toLocaleString()}人）
+          {entry.value}%
         </Typography>
       </Paper>
     );
@@ -371,9 +371,6 @@ function ForeignersDistribution() {
                   <Box sx={{ textAlign: 'right' }}>
                     <Typography variant="body2">
                       {item.share_pct != null ? `${item.share_pct}%` : '-'}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
-                      {item.guests.toLocaleString()}人
                     </Typography>
                   </Box>
                 </Box>

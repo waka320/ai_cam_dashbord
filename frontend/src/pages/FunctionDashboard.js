@@ -9,6 +9,7 @@ import MonthlyTrendGrid from '../components/trend/MonthlyTrendGrid';
 import WeeklyTrendGrid from '../components/trend/WeeklyTrendGrid';
 import ForeignersRanking from '../components/common/ForeignersRanking';
 import ForeignersDistribution from '../components/common/ForeignersDistribution';
+import ForeignersYearlyDistribution from '../components/common/ForeignersYearlyDistribution';
 import { Box, Typography, Button, useMediaQuery, Paper } from '@mui/material';
 import AdviceSection from '../components/layout/AdviceSection';
 import { useCalendar } from '../contexts/CalendarContext';
@@ -32,10 +33,14 @@ function FunctionDashboard() {
     } = useCalendar();
     const isMobile = useMediaQuery('(max-width:768px)');
     
-    const actionRequiresLocation = selectedAction && selectedAction !== 'foreigners_distribution';
+    const actionRequiresLocation =
+        selectedAction &&
+        selectedAction !== 'foreigners_distribution' &&
+        selectedAction !== 'foreigners_yearly_distribution';
     const isInitialState = !selectedAction || (actionRequiresLocation && !selectedLocation);
     const isForeignersYearValid = selectedYear && FOREIGNERS_ALLOWED_YEARS.includes(selectedYear);
     const needsForeignersDateSelection = selectedAction === 'foreigners_distribution' && (!isForeignersYearValid || !selectedMonth);
+    const needsForeignersYearSelection = selectedAction === 'foreigners_yearly_distribution' && !isForeignersYearValid;
     
     // エラー表示
     const renderError = () => {
@@ -180,6 +185,40 @@ function FunctionDashboard() {
             </Paper>
         </SectionContainer>
     );
+
+    const renderForeignersYearPrompt = () => (
+        <SectionContainer>
+            <Paper
+                elevation={1}
+                sx={{
+                    borderRadius: '12px',
+                    p: isMobile ? 2 : 3,
+                    textAlign: 'center',
+                    backgroundColor: 'rgba(21, 101, 192, 0.04)',
+                    border: '1px dashed rgba(21, 101, 192, 0.4)',
+                }}
+            >
+                <ArrowUpwardIcon 
+                    sx={{ 
+                        fontSize: isMobile ? '1.5rem' : '2rem',
+                        color: theme.palette.primary.main,
+                        mb: 1
+                    }} 
+                />
+                <Typography 
+                    variant="h6" 
+                    sx={{ 
+                        fontWeight: 600,
+                        color: theme.palette.primary.main,
+                        mb: 1,
+                        fontSize: isMobile ? '1rem' : '1.1rem'
+                    }}
+                >
+                    表示したい年を選んでください
+                </Typography>
+            </Paper>
+        </SectionContainer>
+    );
     
     // 傾向分析グリッドの表示
     const renderTrendGrid = () => {
@@ -257,6 +296,14 @@ function FunctionDashboard() {
                 return renderForeignersDatePrompt();
             }
             return <ForeignersDistribution />;
+        }
+
+        // 年を通した外国人分布（折れ線）
+        if (selectedAction === 'foreigners_yearly_distribution') {
+            if (needsForeignersYearSelection) {
+                return renderForeignersYearPrompt();
+            }
+            return <ForeignersYearlyDistribution />;
         }
         
         // 傾向分析の場合は専用グリッドを表示

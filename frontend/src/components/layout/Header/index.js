@@ -279,7 +279,7 @@ function Header() {
                       />
 
                       {/* 計測場所セクション - 外国人分布の場合は非表示 */}
-                      {selectedAction !== 'foreigners_distribution' && (
+                      {selectedAction !== 'foreigners_distribution' && selectedAction !== 'foreigners_yearly_distribution' && (
                         <LocationSelect 
                           isMobile={isMobile}
                           isSmallDesktop={isSmallDesktop}
