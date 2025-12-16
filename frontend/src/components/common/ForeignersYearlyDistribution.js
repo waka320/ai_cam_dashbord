@@ -226,12 +226,23 @@ function ForeignersYearlyDistribution() {
 
         <Box sx={{ minHeight: isMobile ? 320 : 360 }}>
           <ResponsiveContainer width="100%" height={isMobile ? 320 : 360}>
-            <LineChart data={graphData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <LineChart
+              data={graphData}
+              margin={{ top: 10, right: isMobile ? 16 : 10, left: isMobile ? 0 : 8, bottom: 0 }}
+            >
               <CartesianGrid stroke="rgba(0,0,0,0.08)" strokeDasharray="3 3" />
-              <XAxis dataKey="month_label" tick={{ fontSize: isMobile ? 11 : 12 }} />
+              <XAxis
+                dataKey="month_label"
+                interval={0}
+                padding={{ left: isMobile ? 10 : 0, right: isMobile ? 10 : 0 }}
+                tick={{ fontSize: isMobile ? 11 : 12 }}
+                tickMargin={6}
+              />
               <YAxis
+                hide={isMobile}
                 tick={{ fontSize: isMobile ? 11 : 12 }}
                 unit="%"
+                width={isMobile ? 0 : 30}
                 domain={[0, 'auto']}
               />
               <RechartsTooltip content={renderTooltip} />
