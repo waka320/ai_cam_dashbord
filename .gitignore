@@ -7,6 +7,13 @@ backend/.env
 backend/data/
 *.pyc
 
+# uv cache and temporary files
+.uv/
+.uvcache/
+*.egg-info/
+dist/
+build/
+
 # Node modules
 frontend/node_modules/
 frontend/package-lock.json

@@ -11,18 +11,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
       - name: Setup Python 3.12
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
-          cache: 'pip'
-          cache-dependency-path: './backend/requirements.txt'
 
       - name: Install dependencies
         working-directory: ./backend
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+        run: uv sync
 
   deploy-to-ec2:
     needs: build
@@ -62,20 +63,22 @@ jobs:
             # バックエンドディレクトリに移動
             cd backend
             
-            # 仮想環境の更新（存在しない場合は作成）
-            if [ ! -d ".venv" ]; then
-              python3 -m venv .venv
+            # uvがインストールされているか確認
+            if ! command -v uv &> /dev/null; then
+              echo "uvをインストールします..."
+              curl -LsSf https://astral.sh/uv/install.sh | sh
+              export PATH="$HOME/.cargo/bin:$PATH"
             fi
-            source .venv/bin/activate
             
             # 依存関係のインストール
-            pip install -r requirements.txt
+            uv sync
             
             # アプリケーションの再起動
             # 既存のプロセスを停止
             pkill -f "uvicorn app.main:app" || true
             
-            # 新しいプロセスをバックグラウンドで開始
+            # 新しいプロセスをバックグラウンドで開始（uvの仮想環境を使用）
+            source .venv/bin/activate
             nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > app.log 2>&1 &
             
             # nginxの設定ファイル構文チェック
