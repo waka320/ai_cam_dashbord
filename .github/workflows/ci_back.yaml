@@ -78,23 +78,30 @@ jobs:
             # バックエンドディレクトリに移動
             cd backend
             
-            # uvがインストールされているか確認
-            if ! command -v uv &> /dev/null; then
-              echo "uvをインストールします..."
-              curl -LsSf https://astral.sh/uv/install.sh | sh
-              export PATH="$HOME/.cargo/bin:$PATH"
+            # Python 3.8を使用して仮想環境を作成（存在しない場合）
+            if [ ! -d ".venv" ]; then
+              echo "仮想環境を作成します..."
+              python3.8 -m venv .venv
             fi
             
-            # 依存関係のインストール
-            uv sync
+            # 仮想環境をアクティベート
+            source .venv/bin/activate
+            
+            # pipをアップグレード
+            pip install --upgrade pip
+            
+            # 依存関係のインストール（pipを使用してプリビルドパッケージを利用）
+            pip install -r requirements.txt
             
             # アプリケーションの再起動
             # 既存のプロセスを停止
             pkill -f "uvicorn app.main:app" || true
             
-            # 新しいプロセスをバックグラウンドで開始（uvの仮想環境を使用）
-            source .venv/bin/activate
-            nohup uvicorn app.main:app --host 0.0.0.0 --port 8000 > app.log 2>&1 &
+            # 少し待機してプロセスが完全に停止するのを待つ
+            sleep 2
+            
+            # 新しいプロセスをバックグラウンドで開始
+            nohup python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 > app.log 2>&1 &
             
             # nginxの設定ファイル構文チェック
             sudo nginx -t
