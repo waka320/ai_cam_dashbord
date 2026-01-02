@@ -50,7 +50,17 @@ jobs:
       - name: Deploy to EC2
         run: |
           # バックエンドコードをEC2にコピー
-          scp -r -o StrictHostKeyChecking=no ./backend/* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/dashbord/ai_cam_dashbord/backend/
+          # まずディレクトリが存在することを確認
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p ~/dashbord/ai_cam_dashbord/backend"
+          
+          # 重要なファイルを個別にコピー（確実にコピーするため）
+          scp -o StrictHostKeyChecking=no ./backend/pyproject.toml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/dashbord/ai_cam_dashbord/backend/
+          scp -o StrictHostKeyChecking=no ./backend/uv.lock ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/dashbord/ai_cam_dashbord/backend/
+          scp -o StrictHostKeyChecking=no ./backend/run.py ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/dashbord/ai_cam_dashbord/backend/
+          
+          # その他のファイルとディレクトリをコピー
+          scp -r -o StrictHostKeyChecking=no ./backend/app ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/dashbord/ai_cam_dashbord/backend/
+          scp -r -o StrictHostKeyChecking=no ./backend/scripts ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/dashbord/ai_cam_dashbord/backend/ || true
 
           # SSHでEC2に接続してデプロイスクリプトを実行
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOL'
