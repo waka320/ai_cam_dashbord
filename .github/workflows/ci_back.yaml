@@ -50,17 +50,23 @@ jobs:
       - name: Deploy to EC2
         run: |
           # バックエンドコードをEC2にコピー
-          # まずディレクトリが存在することを確認
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p ~/dashbord/ai_cam_dashbord/backend"
+          # tarアーカイブを作成して転送
+          cd backend
+          tar czf ../backend.tar.gz --exclude='.venv' --exclude='__pycache__' --exclude='*.pyc' --exclude='.git' .
+          cd ..
           
-          # 重要なファイルを個別にコピー（確実にコピーするため）
-          scp -o StrictHostKeyChecking=no ./backend/pyproject.toml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/dashbord/ai_cam_dashbord/backend/
-          scp -o StrictHostKeyChecking=no ./backend/uv.lock ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/dashbord/ai_cam_dashbord/backend/
-          scp -o StrictHostKeyChecking=no ./backend/run.py ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/dashbord/ai_cam_dashbord/backend/
+          # EC2側でディレクトリを作成（ホームディレクトリの絶対パスを取得）
+          DEPLOY_PATH=$(ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo \$HOME/dashbord/ai_cam_dashbord/backend")
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p \$HOME/dashbord/ai_cam_dashbord/backend"
           
-          # その他のファイルとディレクトリをコピー
-          scp -r -o StrictHostKeyChecking=no ./backend/app ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/dashbord/ai_cam_dashbord/backend/
-          scp -r -o StrictHostKeyChecking=no ./backend/scripts ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/dashbord/ai_cam_dashbord/backend/ || true
+          # tarアーカイブを転送（ホームディレクトリに配置）
+          scp -o StrictHostKeyChecking=no backend.tar.gz ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:\$HOME/dashbord/ai_cam_dashbord/
+          
+          # EC2側で展開
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "cd \$HOME/dashbord/ai_cam_dashbord/backend && tar xzf ../backend.tar.gz && rm ../backend.tar.gz"
+          
+          # ローカルのtarアーカイブを削除
+          rm -f backend.tar.gz
 
           # SSHでEC2に接続してデプロイスクリプトを実行
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOL'
